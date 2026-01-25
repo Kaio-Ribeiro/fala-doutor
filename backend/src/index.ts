@@ -1,13 +1,25 @@
-import http from 'http';
+// src/index.ts
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import doctorRoutes from './routes/doctorRoutes';
+import patientRoutes from './routes/patientRoutes';
 
-const port = 3000;
+dotenv.config();
 
-const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('Hello, World!\n');
-})
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-server.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}/`);
+app.use(cors());
+app.use(express.json());
+
+app.use('/api/doctors', doctorRoutes);
+app.use('/api/patients', patientRoutes);
+
+app.get('/', (req, res) => {
+  res.json({ message: 'Fala Doutor API' });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
