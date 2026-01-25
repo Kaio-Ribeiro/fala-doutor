@@ -1,4 +1,3 @@
-// src/models/Doctor.ts
 import { pool } from '../config/database';
 
 export interface Doctor {
