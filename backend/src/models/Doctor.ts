@@ -8,6 +8,7 @@ export interface Doctor {
   phone?: string;
   email?: string;
   created_at?: Date;
+  updated_at?: Date;
 }
 
 export class DoctorModel {

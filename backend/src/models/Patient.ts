@@ -9,6 +9,7 @@ export interface Patient {
   email?: string;
   address?: string;
   created_at?: Date;
+  updated_at?: Date;
 }
 
 export class PatientModel {
