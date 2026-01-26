@@ -1,0 +1,17 @@
+.logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.h1 {
+    font-size: 3.4rem;
+    margin-bottom: 0.2rem;
+}
+
+.span {
+    font-size: 1.6rem;
+    color: #666666;
+    margin-top: 0;
+}
