@@ -5,7 +5,13 @@ import { Card } from "../../components/Card";
 import styles from './styles.module.css';
 import { Stethoscope, Users } from 'lucide-react';
 
-export function HomePage() {
+type ModuleType = 'doctors' | 'patients';
+
+interface HomePageProps {
+  onSelectModule: (module: ModuleType) => void;
+}
+
+export function HomePage({ onSelectModule }: HomePageProps) {
   return (
     <>
       <Container>
@@ -18,6 +24,7 @@ export function HomePage() {
             icon={<Stethoscope size={64} color="#2563EB" />}
             bgColor="#DBEAFE"
             accessTextColor="#2563EB"
+            onClick={() => onSelectModule('doctors')}
           />
 
           <Card
@@ -26,6 +33,7 @@ export function HomePage() {
             icon={<Users size={64} color="#059669" />}
             bgColor="#D1FAE5"
             accessTextColor="#059669"
+            onClick={() => onSelectModule('patients')}
           />
         </div>
 

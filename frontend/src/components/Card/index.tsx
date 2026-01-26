@@ -6,11 +6,12 @@ type CardProps = {
   icon: React.ReactNode;
   bgColor?: string;
   accessTextColor?: string;
+  onClick?: () => void;
 };
 
-export function Card({ title, subtitle, icon, bgColor, accessTextColor }: CardProps) {
+export function Card({ title, subtitle, icon, bgColor, accessTextColor, onClick }: CardProps) {
   return (
-    <div className={styles.cardContent}>
+    <div className={styles.cardContent} onClick={onClick}>
         <div className={styles.card}>
             <div className={styles.icon} style={{backgroundColor: bgColor}}>
                 {icon}

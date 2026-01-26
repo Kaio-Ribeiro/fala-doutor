@@ -1,0 +1,73 @@
+.tableContainer {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tableHead {
+    border-bottom: 2px solid #E5E7EB;
+}
+
+.th {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.tr {
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.tdName {
+    padding: 1rem 1.5rem;
+    font-size: 1.2rem;
+    color: #1F2937;
+    font-weight: 500;
+}
+
+.td {
+    padding: 1rem 1.5rem;
+    font-size: 1.2rem;
+    color: #6B7280;
+}
+
+.tdActions {
+    padding: 1rem 1.5rem;
+}
+
+.actionsContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.editButton {
+    padding: 0.5rem;
+    color: #2563EB;
+    background-color: transparent;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.deleteButton {
+    padding: 0.5rem;
+    color: #DC2626;
+    background-color: transparent;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
