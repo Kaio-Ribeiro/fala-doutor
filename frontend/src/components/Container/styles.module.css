@@ -1,8 +1,11 @@
 .container {
-  max-width: 98rem;
-  margin: auto;
+  box-sizing: border-box;
+  height: 98vh;
+  background: linear-gradient(to bottom right, #EFF6FF, #E0E7FF);
+  padding: 2rem;
 }
 
 .content {
-  margin: 3.2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
