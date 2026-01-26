@@ -1,14 +1,7 @@
-import { Container } from "./components/Container";
-import { Logo } from "./components/Logo";
-import { Card } from "./components/Card";
+import { HomePage } from './pages/Home';
 
 export function App() {
   return (
-    <>
-      <Container>
-        <Logo />
-        <Card />
-      </Container>
-    </>
-  );
+    <HomePage/>
+  )
 }

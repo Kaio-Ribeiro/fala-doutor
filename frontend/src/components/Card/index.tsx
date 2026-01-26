@@ -1,34 +1,24 @@
-import styles from './style.module.css';
-import { Stethoscope, Users } from 'lucide-react';
+import styles from './styles.module.css';
 
-export function Card() {
+type CardProps = {
+  title: string;
+  subtitle?: string;
+  icon: React.ReactNode;
+  bgColor?: string;
+  accessTextColor?: string;
+};
+
+export function Card({ title, subtitle, icon, bgColor, accessTextColor }: CardProps) {
   return (
-    <div className={styles.cardContainer}>
-        <div className={styles.cardContent}>
-            <div className={styles.card}>
-                <div className={styles.icon} style={{backgroundColor: '#DBEAFE'}}>
-                    <Stethoscope size={64} color="#2563EB" />
-                </div>
-                <h2 className={styles.h2}>Doutores</h2>
-                <p className={styles.p}>Gerencie o cadastro de médicos e seus dados</p>
-
-                <div className={styles.accessDiv} style={{backgroundColor: '#DBEAFE', color: '#2563EB'}}>
-                    <span className={styles.accessText}>Acessar →</span>
-                </div>
+    <div className={styles.cardContent}>
+        <div className={styles.card}>
+            <div className={styles.icon} style={{backgroundColor: bgColor}}>
+                {icon}
             </div>
-        </div>
-
-        <div className={styles.cardContent}>
-            <div className={styles.card}>
-                <div className={styles.icon} style={{backgroundColor: '#D1FAE5'}}>
-                    <Users size={64} color="#059669" />
-                </div>
-                <h2 className={styles.h2}>Pacientes</h2>
-                <p className={styles.p}>Gerencie o cadastro de pacientes e seus dados</p>
-                
-                <div className={styles.accessDiv} style={{backgroundColor: '#D1FAE5', color: '#059669'}}>
-                    <span className={styles.accessText}>Acessar →</span>
-                </div>
+            <h2 className={styles.h2}>{title}</h2>
+            <p className={styles.p}>{subtitle}</p>
+            <div className={styles.accessDiv} style={{backgroundColor: bgColor, color: accessTextColor}}>
+                <span className={styles.accessText}>Acessar →</span>
             </div>
         </div>
     </div>
