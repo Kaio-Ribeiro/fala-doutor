@@ -10,7 +10,7 @@ export const patientController = {
       const patients = await patientModel.findAll();
       res.json(patients);
     } catch (error) {
-      res.status(500).json({ error: 'Error fetching patients' });
+      res.status(500).json({ error: 'Erro ao listar pacientes' });
     }
   },
 
@@ -18,15 +18,26 @@ export const patientController = {
     try {
       const patient = await patientModel.findById(Number(req.params.id));
       if (!patient) {
-        return res.status(404).json({ error: 'Patient not found' });
+        return res.status(404).json({ error: 'Paciente não encontrado' });
       }
       res.json(patient);
     } catch (error) {
-      res.status(500).json({ error: 'Error fetching patient' });
+      res.status(500).json({ error: 'Erro ao buscar paciente' });
     }
   },
 
   async create(req: Request, res: Response) {
+    const requiredFields = ['name', 'email', 'cpf'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ error: `Campos obrigatórios ausentes: ${missingFields.join(', ')}` });
+    }
+
+    if (req.body.cpf.length !== 11) {
+      return res.status(400).json({ error: 'CPF deve conter 11 dígitos' });
+    }
+
     try {
       const patient = await patientModel.create(req.body);
       res.status(201).json(patient);
@@ -36,14 +47,25 @@ export const patientController = {
   },
 
   async update(req: Request, res: Response) {
+    const requiredFields = ['name', 'email', 'cpf'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ error: `Campos obrigatórios ausentes: ${missingFields.join(', ')}` });
+    }
+
+    if (req.body.cpf.length !== 11) {
+      return res.status(400).json({ error: 'CPF deve conter 11 dígitos' });
+    }
+    
     try {
       const patient = await patientModel.update(Number(req.params.id), req.body);
       if (!patient) {
-        return res.status(404).json({ error: 'Patient not found' });
+        return res.status(404).json({ error: 'Paciente não encontrado' });
       }
       res.json(patient);
     } catch (error) {
-      res.status(500).json({ error: 'Error updating patient' });
+      res.status(500).json({ error: 'Erro ao atualizar paciente' });
     }
   },
 
@@ -51,11 +73,11 @@ export const patientController = {
     try {
       const deleted = await patientModel.delete(Number(req.params.id));
       if (!deleted) {
-        return res.status(404).json({ error: 'Patient not found' });
+        return res.status(404).json({ error: 'Paciente não encontrado' });
       }
       res.status(204).send();
     } catch (error) {
-      res.status(500).json({ error: 'Error deleting patient' });
+      res.status(500).json({ error: 'Erro ao deletar paciente' });
     }
   },
 };

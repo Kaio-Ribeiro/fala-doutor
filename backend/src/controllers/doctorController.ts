@@ -10,7 +10,7 @@ export const doctorController = {
       const doctors = await doctorModel.findAll();
       res.json(doctors);
     } catch (error) {
-      res.status(500).json({ error: 'Error fetching doctors' });
+      res.status(500).json({ error: 'Erro ao listar doutores' });
     }
   },
 
@@ -18,32 +18,46 @@ export const doctorController = {
     try {
       const doctor = await doctorModel.findById(Number(req.params.id));
       if (!doctor) {
-        return res.status(404).json({ error: 'Doctor not found' });
+        return res.status(404).json({ error: 'Doutor não encontrado' });
       }
       res.json(doctor);
     } catch (error) {
-      res.status(500).json({ error: 'Error fetching doctor' });
+      res.status(500).json({ error: 'Erro ao buscar doutor' });
     }
   },
 
   async create(req: Request, res: Response) {
+    const requiredFields = ['name', 'email', 'crm'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ error: `Campos obrigatórios ausentes: ${missingFields.join(', ')}` });
+    }
+    
     try {
       const doctor = await doctorModel.create(req.body);
       res.status(201).json(doctor);
     } catch (error) {
-      res.status(500).json({ error: 'Error creating doctor' });
+      res.status(500).json({ error: 'Erro ao criar doutor' });
     }
   },
 
   async update(req: Request, res: Response) {
+    const requiredFields = ['name', 'email', 'crm'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ error: `Campos obrigatórios ausentes: ${missingFields.join(', ')}` });
+    }
+
     try {
       const doctor = await doctorModel.update(Number(req.params.id), req.body);
       if (!doctor) {
-        return res.status(404).json({ error: 'Doctor not found' });
+        return res.status(404).json({ error: 'Doutor não encontrado' });
       }
       res.json(doctor);
     } catch (error) {
-      res.status(500).json({ error: 'Error updating doctor' });
+      res.status(500).json({ error: 'Erro ao atualizar doutor' });
     }
   },
 
@@ -51,11 +65,11 @@ export const doctorController = {
     try {
       const deleted = await doctorModel.delete(Number(req.params.id));
       if (!deleted) {
-        return res.status(404).json({ error: 'Doctor not found' });
+        return res.status(404).json({ error: 'Doutor não encontrado' });
       }
       res.status(204).send();
     } catch (error) {
-      res.status(500).json({ error: 'Error deleting doctor' });
+      res.status(500).json({ error: 'Erro ao deletar doutor' });
     }
   },
 };
