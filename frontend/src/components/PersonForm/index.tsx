@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styles from './styles.module.css';
+import { IMaskInput } from "react-imask";
 
 type ModuleType = 'doctors' | 'patients';
 
@@ -8,7 +9,7 @@ interface Doctor {
   name: string;
   specialty?: string;
   crm?: string;
-  phone: string;
+  phone?: string;
   email: string;
 }
 
@@ -16,8 +17,8 @@ interface Patient {
   id?: number;
   name: string;
   cpf?: string;
-  birth_date?: string;
-  phone: string;
+  birth_date: string;
+  phone?: string;
   email: string;
 }
 
@@ -34,7 +35,7 @@ interface FormState {
   specialty?: string;
   crm?: string;
   cpf?: string;
-  birth_date?: string;
+  birth_date: string;
   phone?: string;
   email?: string;
 }
@@ -68,7 +69,7 @@ export function PersonForm({ mode, initial = null, onCancel, onSubmit }: Props) 
   return (
     <form className={styles.form} onSubmit={submit}>
       <div className={styles.row}>
-        <label className={styles.label}>Nome</label>
+        <label className={styles.label}>Nome *</label>
         <input name="name" value={form.name} onChange={handleChange} className={styles.input} required />
       </div>
 
@@ -79,19 +80,33 @@ export function PersonForm({ mode, initial = null, onCancel, onSubmit }: Props) 
             <input name="specialty" value={form.specialty} onChange={handleChange} className={styles.input} />
           </div>
           <div className={styles.row}>
-            <label className={styles.label}>CRM</label>
-            <input name="crm" value={form.crm} onChange={handleChange} className={styles.input} />
+            <label className={styles.label}>CRM *</label>
+            <input name="crm" value={form.crm} onChange={handleChange} className={styles.input} required />
           </div>
         </>
       ) : (
         <>
           <div className={styles.row}>
-            <label className={styles.label}>CPF</label>
-            <input name="cpf" value={form.cpf} onChange={handleChange} className={styles.input} />
+            <label className={styles.label}>CPF *</label>
+            <IMaskInput 
+              mask="000.000.000-00" 
+              name="cpf" 
+              unmask={true}
+              value={form.cpf}
+              onAccept={(value) => setForm((s) => ({ ...s, cpf: value }))}
+              className={styles.input} 
+              required
+            />
           </div>
           <div className={styles.row}>
-            <label className={styles.label}>Data Nasc.</label>
-            <input name="birth_date" value={form.birth_date} onChange={handleChange} className={styles.input} type="date" />
+            <label className={styles.label}>Data de Nascimento *</label>
+            <input 
+              name="birth_date" 
+              value={form.birth_date} 
+              onChange={handleChange} 
+              className={styles.input} type="date"
+              required
+            />
           </div>
         </>
       )}
@@ -102,8 +117,8 @@ export function PersonForm({ mode, initial = null, onCancel, onSubmit }: Props) 
       </div>
 
       <div className={styles.row}>
-        <label className={styles.label}>Email</label>
-        <input name="email" value={form.email} onChange={handleChange} className={styles.input} type="email" />
+        <label className={styles.label}>E-mail *</label>
+        <input name="email" value={form.email} onChange={handleChange} className={styles.input} type="email" required/>
       </div>
 
       <div className={styles.actions}>

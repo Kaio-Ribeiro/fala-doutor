@@ -27,6 +27,10 @@ interface TableProps {
   onDelete?: (item: Doctor | Patient) => void;
 }
 
+function formatCPF(cpf: string) {
+  return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+}
+
 export function Table({ data, isDoctors, lightColor, onEdit = () => {}, onDelete = () => {} }: TableProps) {
   return (
     <div className={styles.tableContainer}>
@@ -68,7 +72,7 @@ export function Table({ data, isDoctors, lightColor, onEdit = () => {}, onDelete
                 </>
               ) : (
                 <>
-                  <td className={styles.td}>{(item as Patient).cpf}</td>
+                  <td className={styles.td}>{formatCPF((item as Patient).cpf)}</td>
                   <td className={styles.td}>{new Date((item as Patient).birth_date).toLocaleDateString('pt-BR')}</td>
                 </>
               )}
