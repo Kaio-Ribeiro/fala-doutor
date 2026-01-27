@@ -5,6 +5,7 @@ import styles from './styles.module.css';
 import { Table } from '../../components/Table';
 import { Modal } from '../../components/Modal';
 import { PersonForm } from '../../components/PersonForm';
+import { toast } from 'react-toastify';
 
 type ModuleType = 'doctors' | 'patients';
 
@@ -116,58 +117,59 @@ export function ListPage() {
                         {data.length} {isDoctors ? 'médicos' : 'pacientes'} cadastrados
                     </p>
                     </div>
-                                        <button 
-                                        className={styles.addButton}
-                                        style={{ backgroundColor: mainColor }}
-                                        onClick={() => { setModalInitial(null); setModalOpen(true); }}
-                                        >
-                                        <Plus size={20} />
-                                        <span>Adicionar {isDoctors ? 'Doutor' : 'Paciente'}</span>
-                                        </button>
+                        <button 
+                            className={styles.addButton}
+                            style={{ backgroundColor: mainColor }}
+                            onClick={() => { setModalInitial(null); setModalOpen(true); }}
+                            >
+                            <Plus size={20} />
+                            <span>Adicionar {isDoctors ? 'Doutor' : 'Paciente'}</span>
+                        </button>
                 </div>
                 </div>
+                <Table
+                    data={data}
+                    isDoctors={isDoctors}
+                    lightColor={lightColor}
+                    onEdit={(item) => { setModalInitial(item as Doctor | Patient); setModalOpen(true); }}
+                    onDelete={async (item) => {
+                        try {
+                            const base = 'http://localhost:3000';
+                            const res = await fetch(`${base}/api/${selectedModule}/${item.id}`, { method: 'DELETE' });
+                            if (!res.ok) throw new Error('Failed to delete');
+                            setReload(r => r + 1);
+                            toast.success('Excluído com sucesso!');
+                        } catch (e) {
+                            console.error(e);
+                            toast.error('Erro ao excluir!');
+                        }
+                    }}
+                />
 
-                                <Table
-                                    data={data}
-                                    isDoctors={isDoctors}
-                                    lightColor={lightColor}
-                                    onEdit={(item) => { setModalInitial(item as Doctor | Patient); setModalOpen(true); }}
-                                    onDelete={async (item) => {
-                                        try {
-                                            const base = 'http://localhost:3000';
-                                            const res = await fetch(`${base}/api/${selectedModule}/${item.id}`, { method: 'DELETE' });
-                                            if (!res.ok) throw new Error('Failed to delete');
-                                            setReload(r => r + 1);
-                                        } catch (e) {
-                                            console.error(e);
-                                            alert('Erro ao excluir');
-                                        }
-                                    }}
-                                />
-
-                                <Modal open={modalOpen} title={modalInitial ? 'Editar' : 'Adicionar'} onClose={() => setModalOpen(false)}>
-                                    <PersonForm
-                                        key={modalInitial ? `edit-${modalInitial.id}` : 'new'}
-                                        mode={selectedModule}
-                                        initial={modalInitial}
-                                        onCancel={() => setModalOpen(false)}
-                                        onSubmit={async (payload) => {
-                                            try {
-                                                const base = 'http://localhost:3000';
-                                                const isEdit = Boolean(modalInitial?.id);
-                                                const url = isEdit ? `${base}/api/${selectedModule}/${modalInitial!.id}` : `${base}/api/${selectedModule}`;
-                                                const method = isEdit ? 'PUT' : 'POST';
-                                                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                                                if (!res.ok) throw new Error('Failed to save');
-                                                setModalOpen(false);
-                                                setReload(r => r + 1);
-                                            } catch (e) {
-                                                console.error(e);
-                                                alert('Erro ao salvar');
-                                            }
-                                        }}
-                                    />
-                                </Modal>
+                <Modal open={modalOpen} title={modalInitial ? 'Editar' : 'Adicionar'} onClose={() => setModalOpen(false)}>
+                    <PersonForm
+                        key={modalInitial ? `edit-${modalInitial.id}` : 'new'}
+                        mode={selectedModule}
+                        initial={modalInitial}
+                        onCancel={() => setModalOpen(false)}
+                        onSubmit={async (payload) => {
+                            const isEdit = Boolean(modalInitial?.id);
+                            try {
+                                const base = 'http://localhost:3000';
+                                const url = isEdit ? `${base}/api/${selectedModule}/${modalInitial!.id}` : `${base}/api/${selectedModule}`;
+                                const method = isEdit ? 'PUT' : 'POST';
+                                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                                if (!res.ok) throw new Error('Failed to save');
+                                setModalOpen(false);
+                                setReload(r => r + 1);
+                                toast.success(isEdit ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
+                            } catch (e) {
+                                console.error(e);
+                                toast.error(isEdit ? 'Erro ao atualizar!' : 'Erro ao criar!');
+                            }
+                        }}
+                    />
+                </Modal>
             </div>
         </div>
     )
