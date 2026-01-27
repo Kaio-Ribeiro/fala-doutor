@@ -1,4 +1,5 @@
 import { Plus, ArrowLeft } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styles from './styles.module.css';
 import { Table } from '../../components/Table';
@@ -31,9 +32,65 @@ export function ListPage() {
     const selectedModule: ModuleType = moduleParam ?? 'doctors';
 
     const isDoctors = selectedModule === 'doctors';
-    const data = isDoctors ? ([] as Doctor[]) : ([] as Patient[]);
+    const [data, setData] = useState<Doctor[] | Patient[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [reload, setReload] = useState(0);
+
     const mainColor = isDoctors ? '#2563EB' : '#059669';
     const lightColor = isDoctors ? '#EFF6FF' : '#ECFDF5';
+
+    useEffect(() => {
+        let cancelled = false;
+        const fetchData = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const base = 'http://localhost:3000';
+                const res = await fetch(`${base}/api/${selectedModule}`);
+                if (!res.ok) throw new Error(`Failed to fetch ${selectedModule}`);
+                const json = await res.json();
+                if (!cancelled) setData(json);
+            } catch (err) {
+                if (!cancelled) setError(String(err));
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        };
+        fetchData();
+        return () => { cancelled = true; };
+    }, [selectedModule, reload]);
+
+    if (loading) {
+        return (
+            <div className={styles.listContainer}>
+                <div className={styles.listContent}>
+                    <div className={styles.listHeader}>
+                        <p>Carregando {isDoctors ? 'médicos' : 'pacientes'}...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className={styles.listContainer}>
+                <div className={styles.listContent}>
+                    <div className={styles.listHeader}>
+                        <p style={{ color: 'red', marginBottom: 8 }}>Erro: {error}</p>
+                        <button
+                            className={styles.addButton}
+                            onClick={() => setReload(r => r + 1)}
+                            style={{ backgroundColor: mainColor }}
+                        >
+                            Tentar novamente
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.listContainer}>
