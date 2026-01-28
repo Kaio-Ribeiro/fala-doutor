@@ -11,6 +11,7 @@ type ModuleType = 'doctors' | 'patients';
 
 interface Doctor {
     id: number;
+    created_at: string;
     name: string;
     specialty: string;
     crm: string;
@@ -20,6 +21,7 @@ interface Doctor {
 
 interface Patient {
     id: number;
+    created_at: string;
     name: string;
     cpf: string;
     phone: string;

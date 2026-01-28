@@ -3,6 +3,7 @@ import styles from './styles.module.css';
 
 type Doctor = {
   id: number;
+  created_at: string;
   name: string;
   specialty: string;
   crm: string;
@@ -12,6 +13,7 @@ type Doctor = {
 
 type Patient = {
   id: number;
+  created_at: string;
   name: string;
   cpf: string;
   phone: string;
@@ -38,6 +40,7 @@ export function Table({ data, isDoctors, lightColor, onEdit = () => {}, onDelete
           <tr>
             {isDoctors ? (
               <>
+                <th className={styles.th}>Data de Criação</th>
                 <th className={styles.th}>Nome</th>
                 <th className={styles.th}>Especialidade</th>
                 <th className={styles.th}>CRM</th>
@@ -47,6 +50,7 @@ export function Table({ data, isDoctors, lightColor, onEdit = () => {}, onDelete
               </>
             ) : (
               <>
+                <th className={styles.th}>Data de Criação</th>
                 <th className={styles.th}>Nome</th>
                 <th className={styles.th}>CPF</th>
                 <th className={styles.th}>Telefone</th>
@@ -62,6 +66,7 @@ export function Table({ data, isDoctors, lightColor, onEdit = () => {}, onDelete
               key={item.id}
               className={styles.tr}
             >
+              <td className={styles.td}>{new Date(item.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</td>
               <td className={styles.tdName}>{item.name}</td>
               {isDoctors ? (
                 <>
