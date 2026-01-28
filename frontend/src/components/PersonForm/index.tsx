@@ -101,7 +101,14 @@ export function PersonForm({ mode, initial = null, onCancel, onSubmit }: Props) 
 
       <div className={styles.row}>
         <label className={styles.label}>Telefone</label>
-        <input name="phone" value={form.phone} onChange={handleChange} className={styles.input} placeholder="(99) 99999-9999" />
+        <IMaskInput
+          mask="(00) 00000-0000"
+          name="phone"
+          value={form.phone}
+          onAccept={value => setForm(s => ({ ...s, phone: value }))}
+          className={styles.input}
+          placeholder="(99) 99999-9999"
+        />
       </div>
 
       <div className={styles.row}>

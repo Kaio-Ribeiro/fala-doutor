@@ -22,7 +22,6 @@ export class DoctorModel {
     return result.rows[0] || null;
   }
 
-
   async findByEmail(email: string, excludeId?: number): Promise<Doctor | null> {
     let query = 'SELECT * FROM doctors WHERE email = $1';
     const params: any[] = [email];
