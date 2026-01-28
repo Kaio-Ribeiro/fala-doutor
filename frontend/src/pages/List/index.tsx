@@ -35,8 +35,6 @@ export function ListPage() {
 
     const isDoctors = selectedModule === 'doctors';
     const [data, setData] = useState<Doctor[] | Patient[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const [reload, setReload] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalInitial, setModalInitial] = useState<Doctor | Patient | null>(null);
@@ -47,8 +45,6 @@ export function ListPage() {
     useEffect(() => {
         let cancelled = false;
         const fetchData = async () => {
-            setLoading(true);
-            setError(null);
             try {
                 const base = 'http://localhost:3000';
                 const res = await fetch(`${base}/api/${selectedModule}`);
@@ -56,45 +52,13 @@ export function ListPage() {
                 const json = await res.json();
                 if (!cancelled) setData(json);
             } catch (err) {
-                if (!cancelled) setError(String(err));
-            } finally {
-                if (!cancelled) setLoading(false);
+                console.error(err);
+                toast.error('Erro ao carregar dados!');
             }
         };
         fetchData();
         return () => { cancelled = true; };
     }, [selectedModule, reload]);
-
-    if (loading) {
-        return (
-            <div className={styles.listContainer}>
-                <div className={styles.listContent}>
-                    <div className={styles.listHeader}>
-                        <p>Carregando {isDoctors ? 'médicos' : 'pacientes'}...</p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className={styles.listContainer}>
-                <div className={styles.listContent}>
-                    <div className={styles.listHeader}>
-                        <p style={{ color: 'red', marginBottom: 8 }}>Erro: {error}</p>
-                        <button
-                            className={styles.addButton}
-                            onClick={() => setReload(r => r + 1)}
-                            style={{ backgroundColor: mainColor }}
-                        >
-                            Tentar novamente
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className={styles.listContainer}>
@@ -138,8 +102,8 @@ export function ListPage() {
                             if (!res.ok) throw new Error('Failed to delete');
                             setReload(r => r + 1);
                             toast.success('Excluído com sucesso!');
-                        } catch (e) {
-                            console.error(e);
+                        } catch (error) {
+                            console.error(error);
                             toast.error('Erro ao excluir!');
                         }
                     }}
@@ -165,9 +129,9 @@ export function ListPage() {
                                 setModalOpen(false);
                                 setReload(r => r + 1);
                                 toast.success(isEdit ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
-                            } catch (e) {
-                                console.error(e);
-                                const msg = e instanceof Error ? e.message : (isEdit ? "Erro ao atualizar!" : "Erro ao criar!");
+                            } catch (error) {
+                                console.error(error);
+                                const msg = error instanceof Error ? error.message : (isEdit ? "Erro ao atualizar!" : "Erro ao criar!");
                                 toast.error(msg);
                             }
                         }}
