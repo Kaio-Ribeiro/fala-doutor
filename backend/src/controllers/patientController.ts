@@ -38,6 +38,21 @@ export const patientController = {
       return res.status(400).json({ error: 'CPF deve conter 11 dígitos' });
     }
 
+    const existingEmail = await patientModel.findByEmail(req.body.email);
+    if (existingEmail) {
+      return res.status(400).json({ error: 'E-mail já cadastrado.' });
+    }
+
+    const existingCpf = await patientModel.findByCpf(req.body.cpf);
+    if (existingCpf) {
+      return res.status(400).json({ error: 'CPF já cadastrado.' });
+    }
+
+    const existingPhone = await patientModel.findByPhone(req.body.phone);
+    if (existingPhone) {
+      return res.status(400).json({ error: 'Telefone já cadastrado.' });
+    }
+
     try {
       const patient = await patientModel.create(req.body);
       res.status(201).json(patient);
@@ -58,6 +73,20 @@ export const patientController = {
       return res.status(400).json({ error: 'CPF deve conter 11 dígitos' });
     }
     
+    const existingEmail = await patientModel.findByEmail(req.body.email, Number(req.params.id));
+    if (existingEmail) {
+      return res.status(400).json({ error: 'E-mail já cadastrado.' });
+    }
+
+    const existingCpf = await patientModel.findByCpf(req.body.cpf, Number(req.params.id));
+    if (existingCpf) {
+      return res.status(400).json({ error: 'CPF já cadastrado.' });
+    }
+
+    const existingPhone = await patientModel.findByPhone(req.body.phone);
+    if (existingPhone) {
+      return res.status(400).json({ error: 'Telefone já cadastrado.' });
+    }
     try {
       const patient = await patientModel.update(Number(req.params.id), req.body);
       if (!patient) {

@@ -22,7 +22,6 @@ interface Patient {
     id: number;
     name: string;
     cpf: string;
-    birth_date: string;
     phone: string;
     email: string;
 }
@@ -159,13 +158,17 @@ export function ListPage() {
                                 const url = isEdit ? `${base}/api/${selectedModule}/${modalInitial!.id}` : `${base}/api/${selectedModule}`;
                                 const method = isEdit ? 'PUT' : 'POST';
                                 const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                                if (!res.ok) throw new Error('Failed to save');
+                                const json = await res.json();
+
+                                if (!res.ok) throw new Error(json.error || 'Failed to save');
+
                                 setModalOpen(false);
                                 setReload(r => r + 1);
                                 toast.success(isEdit ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
                             } catch (e) {
                                 console.error(e);
-                                toast.error(isEdit ? 'Erro ao atualizar!' : 'Erro ao criar!');
+                                const msg = e instanceof Error ? e.message : (isEdit ? "Erro ao atualizar!" : "Erro ao criar!");
+                                toast.error(msg);
                             }
                         }}
                     />

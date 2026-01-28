@@ -22,6 +22,40 @@ export class DoctorModel {
     return result.rows[0] || null;
   }
 
+
+  async findByEmail(email: string, excludeId?: number): Promise<Doctor | null> {
+    let query = 'SELECT * FROM doctors WHERE email = $1';
+    const params: any[] = [email];
+    if (excludeId) {
+      query += ' AND id <> $2';
+      params.push(excludeId);
+    }
+    const result = await pool.query(query, params);
+    return result.rows[0] || null;
+  }
+
+  async findByCrm(crm: string, excludeId?: number): Promise<Doctor | null> {
+    let query = 'SELECT * FROM doctors WHERE crm = $1';
+    const params: any[] = [crm];
+    if (excludeId) {
+      query += ' AND id <> $2';
+      params.push(excludeId);
+    }
+    const result = await pool.query(query, params);
+    return result.rows[0] || null;
+  }
+
+  async findByPhone(phone: string, excludeId?: number): Promise<Doctor | null> {
+    let query = 'SELECT * FROM doctors WHERE phone = $1';
+    const params: any[] = [phone];
+    if (excludeId) {
+      query += ' AND id <> $2';
+      params.push(excludeId);
+    }
+    const result = await pool.query(query, params);
+    return result.rows[0] || null;
+  }
+
   async create(doctor: Doctor): Promise<Doctor> {
     const { name, specialty, crm, phone, email } = doctor;
     const result = await pool.query(

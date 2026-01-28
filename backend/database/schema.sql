@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS patients (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   cpf VARCHAR(11) UNIQUE NOT NULL,
-  birth_date DATE NOT NULL,
   phone VARCHAR(20),
   email VARCHAR(255) NOT NULL,
   address TEXT,

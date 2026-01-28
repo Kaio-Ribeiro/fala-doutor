@@ -14,7 +14,6 @@ type Patient = {
   id: number;
   name: string;
   cpf: string;
-  birth_date: string;
   phone: string;
   email: string;
 }
@@ -50,7 +49,6 @@ export function Table({ data, isDoctors, lightColor, onEdit = () => {}, onDelete
               <>
                 <th className={styles.th}>Nome</th>
                 <th className={styles.th}>CPF</th>
-                <th className={styles.th}>Data Nasc.</th>
                 <th className={styles.th}>Telefone</th>
                 <th className={styles.th}>Email</th>
                 <th className={styles.th} style={{ textAlign: 'center' }}>Ações</th>
@@ -73,7 +71,6 @@ export function Table({ data, isDoctors, lightColor, onEdit = () => {}, onDelete
               ) : (
                 <>
                   <td className={styles.td}>{formatCPF((item as Patient).cpf)}</td>
-                  <td className={styles.td}>{new Date((item as Patient).birth_date).toLocaleDateString('pt-BR')}</td>
                 </>
               )}
               <td className={styles.td}>{item.phone}</td>

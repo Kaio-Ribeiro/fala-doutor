@@ -17,7 +17,6 @@ interface Patient {
   id?: number;
   name: string;
   cpf?: string;
-  birth_date: string;
   phone?: string;
   email: string;
 }
@@ -35,7 +34,6 @@ interface FormState {
   specialty?: string;
   crm?: string;
   cpf?: string;
-  birth_date: string;
   phone?: string;
   email?: string;
 }
@@ -48,7 +46,6 @@ export function PersonForm({ mode, initial = null, onCancel, onSubmit }: Props) 
     specialty: '',
     crm: '',
     cpf: '',
-    birth_date: '',
     phone: '',
     email: '',
   };
@@ -81,7 +78,7 @@ export function PersonForm({ mode, initial = null, onCancel, onSubmit }: Props) 
           </div>
           <div className={styles.row}>
             <label className={styles.label}>CRM *</label>
-            <input name="crm" value={form.crm} onChange={handleChange} className={styles.input} required />
+            <input name="crm" value={form.crm} onChange={handleChange} className={styles.input} required placeholder="CRM/CE 123456" />
           </div>
         </>
       ) : (
@@ -94,17 +91,8 @@ export function PersonForm({ mode, initial = null, onCancel, onSubmit }: Props) 
               unmask={true}
               value={form.cpf}
               onAccept={(value) => setForm((s) => ({ ...s, cpf: value }))}
-              className={styles.input} 
-              required
-            />
-          </div>
-          <div className={styles.row}>
-            <label className={styles.label}>Data de Nascimento *</label>
-            <input 
-              name="birth_date" 
-              value={form.birth_date} 
-              onChange={handleChange} 
-              className={styles.input} type="date"
+              className={styles.input}
+              placeholder="000.000.000-00"
               required
             />
           </div>
@@ -113,7 +101,7 @@ export function PersonForm({ mode, initial = null, onCancel, onSubmit }: Props) 
 
       <div className={styles.row}>
         <label className={styles.label}>Telefone</label>
-        <input name="phone" value={form.phone} onChange={handleChange} className={styles.input} />
+        <input name="phone" value={form.phone} onChange={handleChange} className={styles.input} placeholder="(99) 99999-9999" />
       </div>
 
       <div className={styles.row}>

@@ -33,7 +33,22 @@ export const doctorController = {
     if (missingFields.length > 0) {
       return res.status(400).json({ error: `Campos obrigatórios ausentes: ${missingFields.join(', ')}` });
     }
-    
+
+    const existingEmail = await doctorModel.findByEmail(req.body.email);
+    if (existingEmail) {
+      return res.status(400).json({ error: 'E-mail já cadastrado.' });
+    }
+
+    const existingCrm = await doctorModel.findByCrm(req.body.crm);
+    if (existingCrm) {
+      return res.status(400).json({ error: 'CRM já cadastrado.' });
+    }
+
+    const existingPhone = await doctorModel.findByPhone(req.body.phone);
+    if (existingPhone) {
+      return res.status(400).json({ error: 'Telefone já cadastrado.' });
+    }
+
     try {
       const doctor = await doctorModel.create(req.body);
       res.status(201).json(doctor);
@@ -48,6 +63,21 @@ export const doctorController = {
 
     if (missingFields.length > 0) {
       return res.status(400).json({ error: `Campos obrigatórios ausentes: ${missingFields.join(', ')}` });
+    }
+
+    const existingEmail = await doctorModel.findByEmail(req.body.email, Number(req.params.id));
+    if (existingEmail) {
+      return res.status(400).json({ error: 'E-mail já cadastrado.' });
+    }
+
+    const existingCrm = await doctorModel.findByCrm(req.body.crm, Number(req.params.id));
+    if (existingCrm) {
+      return res.status(400).json({ error: 'CRM já cadastrado.' });
+    }
+    
+    const existingPhone = await doctorModel.findByPhone(req.body.phone);
+    if (existingPhone) {
+      return res.status(400).json({ error: 'Telefone já cadastrado.' });
     }
 
     try {

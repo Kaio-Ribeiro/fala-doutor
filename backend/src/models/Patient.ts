@@ -4,7 +4,6 @@ export interface Patient {
   id?: number;
   name: string;
   cpf: string;
-  birth_date: string;
   phone?: string;
   email?: string;
   address?: string;
@@ -23,20 +22,53 @@ export class PatientModel {
     return result.rows[0] || null;
   }
 
+  async findByEmail(email: string, excludeId?: number): Promise<Patient | null> {
+    let query = 'SELECT * FROM patients WHERE email = $1';
+    const params: any[] = [email];
+    if (excludeId) {
+      query += ' AND id <> $2';
+      params.push(excludeId);
+    }
+    const result = await pool.query(query, params);
+    return result.rows[0] || null;
+  }
+
+  async findByCpf(cpf: string, excludeId?: number): Promise<Patient | null> {
+    let query = 'SELECT * FROM patients WHERE cpf = $1';
+    const params: any[] = [cpf];
+    if (excludeId) {
+      query += ' AND id <> $2';
+      params.push(excludeId);
+    }
+    const result = await pool.query(query, params);
+    return result.rows[0] || null;
+  }
+
+  async findByPhone(phone: string, excludeId?: number): Promise<Patient | null> {
+    let query = 'SELECT * FROM patients WHERE phone = $1';
+    const params: any[] = [phone];
+    if (excludeId) {
+      query += ' AND id <> $2';
+      params.push(excludeId);
+    }
+    const result = await pool.query(query, params);
+    return result.rows[0] || null;
+  }
+
   async create(patient: Patient): Promise<Patient> {
-    const { name, cpf, birth_date, phone, email, address } = patient;
+    const { name, cpf, phone, email, address } = patient;
     const result = await pool.query(
-      'INSERT INTO patients (name, cpf, birth_date, phone, email, address) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [name, cpf, birth_date, phone, email, address]
+      'INSERT INTO patients (name, cpf, phone, email, address) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [name, cpf, phone, email, address]
     );
     return result.rows[0];
   }
 
   async update(id: number, patient: Partial<Patient>): Promise<Patient | null> {
-    const { name, cpf, birth_date, phone, email, address } = patient;
+    const { name, cpf, phone, email, address } = patient;
     const result = await pool.query(
-      'UPDATE patients SET name = COALESCE($1, name), cpf = COALESCE($2, cpf), birth_date = COALESCE($3, birth_date), phone = COALESCE($4, phone), email = COALESCE($5, email), address = COALESCE($6, address) WHERE id = $7 RETURNING *',
-      [name, cpf, birth_date, phone, email, address, id]
+      'UPDATE patients SET name = COALESCE($1, name), cpf = COALESCE($2, cpf), phone = COALESCE($3, phone), email = COALESCE($4, email), address = COALESCE($5, address) WHERE id = $6 RETURNING *',
+      [name, cpf, phone, email, address, id]
     );
     return result.rows[0] || null;
   }
