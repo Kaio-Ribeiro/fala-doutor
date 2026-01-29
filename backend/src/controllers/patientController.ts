@@ -83,7 +83,7 @@ export const patientController = {
       return res.status(400).json({ error: 'CPF já cadastrado.' });
     }
 
-    const existingPhone = await patientModel.findByPhone(req.body.phone);
+    const existingPhone = await patientModel.findByPhone(req.body.phone, Number(req.params.id));
     if (existingPhone) {
       return res.status(400).json({ error: 'Telefone já cadastrado.' });
     }

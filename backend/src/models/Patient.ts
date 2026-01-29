@@ -6,7 +6,6 @@ export interface Patient {
   cpf: string;
   phone?: string;
   email?: string;
-  address?: string;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -56,19 +55,19 @@ export class PatientModel {
   }
 
   async create(patient: Patient): Promise<Patient> {
-    const { name, cpf, phone, email, address } = patient;
+    const { name, cpf, phone, email } = patient;
     const result = await pool.query(
-      'INSERT INTO patients (name, cpf, phone, email, address) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [name, cpf, phone, email, address]
+      'INSERT INTO patients (name, cpf, phone, email) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, cpf, phone, email]
     );
     return result.rows[0];
   }
 
   async update(id: number, patient: Partial<Patient>): Promise<Patient | null> {
-    const { name, cpf, phone, email, address } = patient;
+    const { name, cpf, phone, email } = patient;
     const result = await pool.query(
-      'UPDATE patients SET name = COALESCE($1, name), cpf = COALESCE($2, cpf), phone = COALESCE($3, phone), email = COALESCE($4, email), address = COALESCE($5, address) WHERE id = $6 RETURNING *',
-      [name, cpf, phone, email, address, id]
+      'UPDATE patients SET name = COALESCE($1, name), cpf = COALESCE($2, cpf), phone = COALESCE($3, phone), email = COALESCE($4, email) WHERE id = $5 RETURNING *',
+      [name, cpf, phone, email, id]
     );
     return result.rows[0] || null;
   }
