@@ -19,6 +19,23 @@ CREATE TABLE IF NOT EXISTS patients (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS plans (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  code VARCHAR(11) UNIQUE NOT NULL,
+  value FLOAT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS doctors_plans (
+  id SERIAL PRIMARY KEY,
+  doctor_id INT REFERENCES doctors(id) ON DELETE CASCADE,
+  plan_id INT REFERENCES plans(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Função para atualizar updated_at automaticamente
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -37,5 +54,17 @@ CREATE TRIGGER update_doctors_updated_at
 -- Trigger para patients
 CREATE TRIGGER update_patients_updated_at
   BEFORE UPDATE ON patients
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+-- Trigger para plan
+CREATE TRIGGER update_plans_updated_at
+  BEFORE UPDATE ON plans
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+-- Trigger para doctors_plans
+CREATE TRIGGER update_doctors_plans_updated_at
+  BEFORE UPDATE ON doctors_plans
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
