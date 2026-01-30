@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import doctorRoutes from './routes/doctorRoutes';
 import patientRoutes from './routes/patientRoutes';
+import planRoutes from './routes/planRoutes';
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/patients', patientRoutes);
+app.use('/api/plans', planRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Fala Doutor API' });

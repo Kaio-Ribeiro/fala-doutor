@@ -1,4 +1,3 @@
-// src/controllers/patientController.ts
 import { Request, Response } from 'express';
 import { PatientModel } from '../models/Patient';
 
@@ -57,7 +56,7 @@ export const patientController = {
       const patient = await patientModel.create(req.body);
       res.status(201).json(patient);
     } catch (error) {
-      res.status(500).json({ error: 'Error creating patient' });
+      res.status(500).json({ error: 'Erro ao criar paciente' });
     }
   },
 
