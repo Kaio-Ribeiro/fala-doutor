@@ -13,18 +13,6 @@ export const patientController = {
     }
   },
 
-  async getById(req: Request, res: Response) {
-    try {
-      const patient = await patientModel.findById(Number(req.params.id));
-      if (!patient) {
-        return res.status(404).json({ error: 'Paciente não encontrado' });
-      }
-      res.json(patient);
-    } catch (error) {
-      res.status(500).json({ error: 'Erro ao buscar paciente' });
-    }
-  },
-
   async create(req: Request, res: Response) {
     const requiredFields = ['name', 'email', 'cpf', 'plan_id'];
     const missingFields = requiredFields.filter(field => !req.body[field]);

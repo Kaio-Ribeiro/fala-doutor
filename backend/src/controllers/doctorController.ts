@@ -14,18 +14,6 @@ export const doctorController = {
     }
   },
 
-  async getById(req: Request, res: Response) {
-    try {
-      const doctor = await doctorModel.findById(Number(req.params.id));
-      if (!doctor) {
-        return res.status(404).json({ error: 'Doutor não encontrado' });
-      }
-      res.json(doctor);
-    } catch (error) {
-      res.status(500).json({ error: 'Erro ao buscar doutor' });
-    }
-  },
-
   async create(req: Request, res: Response) {
     const requiredFields = ['name', 'email', 'crm'];
     const missingFields = requiredFields.filter(field => !req.body[field]);

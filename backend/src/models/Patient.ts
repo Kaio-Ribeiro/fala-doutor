@@ -23,16 +23,6 @@ export class PatientModel {
     return result.rows;
   }
 
-  async findById(id: number): Promise<Patient | null> {
-    const result = await pool.query(`
-      SELECT patients.*, plans.name as plan_name 
-      FROM patients 
-      LEFT JOIN plans ON patients.plan_id = plans.id 
-      WHERE patients.id = $1
-    `, [id]);
-    return result.rows[0] || null;
-  }
-
   async findByEmail(email: string, excludeId?: number): Promise<Patient | null> {
     let query = 'SELECT * FROM patients WHERE email = $1';
     const params: any[] = [email];
