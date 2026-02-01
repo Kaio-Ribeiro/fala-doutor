@@ -20,6 +20,11 @@ export const planController = {
         if (missingFields.length > 0) {
           return res.status(400).json({ error: `Campos obrigatórios ausentes: ${missingFields.join(', ')}` });
         }
+
+        const existingCode = await planModel.findByCode(req.body.code);
+        if (existingCode) {
+          return res.status(400).json({ error: 'Código já cadastrado.' });
+        }
     
         try {
           const plan = await planModel.create(req.body);
@@ -35,6 +40,11 @@ export const planController = {
       
           if (missingFields.length > 0) {
             return res.status(400).json({ error: `Campos obrigatórios ausentes: ${missingFields.join(', ')}` });
+          }
+
+          const existingCode = await planModel.findByCode(req.body.code, Number(req.params.id));
+          if (existingCode) {
+            return res.status(400).json({ error: 'Código já cadastrado.' });
           }
           
           try {

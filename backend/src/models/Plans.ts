@@ -16,6 +16,17 @@ export class PlanModel {
         return result.rows;
     }
 
+    async findByCode(code: string, excludeId?: number): Promise<Plan | null> {
+        let query = 'SELECT * FROM plans WHERE code = $1';
+        const params: any[] = [code];
+        if (excludeId) {
+          query += ' AND id <> $2';
+          params.push(excludeId);
+        }
+        const result = await pool.query(query, params);
+        return result.rows[0] || null;
+      }
+
     async create(plan: Plan): Promise<Plan> {
         const { name, code, value } = plan;
         const result = await pool.query(
