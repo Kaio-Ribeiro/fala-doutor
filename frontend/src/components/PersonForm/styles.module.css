@@ -46,3 +46,28 @@
   border-radius: 6px;
   cursor: pointer;
 }
+
+/* React-Select Styles */
+.reactSelect :global(.react-select__control) {
+  min-height: 40px;
+  border: 1px solid #e6edf3;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  font-family: inherit;
+}
+
+.reactSelect :global(.react-select__option) {
+  font-size: 1.2rem;
+}
+
+.reactSelect :global(.react-select__placeholder) {
+  font-size: 1.2rem;
+}
+
+.reactSelect :global(.react-select__single-value) {
+  font-size: 1.2rem;
+}
+
+.reactSelect :global(.react-select__input) {
+  font-size: 1.2rem;
+}

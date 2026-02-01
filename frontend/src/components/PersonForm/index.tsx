@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import styles from './styles.module.css';
 import { IMaskInput } from "react-imask";
 import { toast } from 'react-toastify';
+import Select from 'react-select';
+
+interface PlanOption {
+  value: number | undefined;
+  label: string;
+}
 
 type ModuleType = 'doctors' | 'patients' | 'plans';
 
@@ -94,9 +100,18 @@ export function PersonForm({ module, initial = null, onCancel, onSubmit }: Props
     setForm((s) => ({ ...s, [key]: value } as FormState));
   }
 
-  function handlePlanSelect(e: React.ChangeEvent<HTMLSelectElement>) {
-    const { value } = e.target;
-    setForm(s => ({ ...s, plan_id: value ? Number(value) : undefined }));
+  // Transformar planos para o formato do react-select
+  const planOptions = plans.map(plan => ({
+    value: plan.id,
+    label: plan.name
+  }));
+
+  // Encontrar opção selecionada para react-select
+  const selectedPlan = planOptions.find(option => option.value === form.plan_id) || null;
+
+  // Handler para react-select
+  function handleReactSelectChange(selectedOption: PlanOption | null) {
+    setForm(s => ({ ...s, plan_id: selectedOption?.value || undefined }));
   }
 
   function submit(e: React.FormEvent) {
@@ -142,17 +157,17 @@ export function PersonForm({ module, initial = null, onCancel, onSubmit }: Props
 
           <div className={styles.row}>
             <label className={styles.label}>Plano *</label>
-            <select 
-              value={form.plan_id?.toString() || ''} 
-              onChange={handlePlanSelect}
-              className={styles.input}
-              required
-            >
-              <option value="">Selecione um plano</option>
-              {plans.map(plan => (
-                <option key={plan.id} value={plan.id?.toString()}>{plan.name}</option>
-              ))}
-            </select>
+            <Select
+              options={planOptions}
+              value={selectedPlan}
+              onChange={handleReactSelectChange}
+              placeholder="Selecione um plano"
+              isSearchable
+              noOptionsMessage={() => "Nenhum plano encontrado"}
+              isClearable
+              className={styles.reactSelect}
+              classNamePrefix="react-select"
+            />
           </div>
         </>
       )}
