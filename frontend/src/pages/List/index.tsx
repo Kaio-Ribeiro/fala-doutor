@@ -50,6 +50,8 @@ interface Patient {
     cpf: string;
     phone: string;
     email: string;
+    plan_id: number;
+    plan_name: string;
 }
 
 interface Plan {

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './styles.module.css';
 import { IMaskInput } from "react-imask";
+import { toast } from 'react-toastify';
 
 type ModuleType = 'doctors' | 'patients' | 'plans';
 
@@ -45,6 +46,8 @@ interface FormState {
   email?: string;
   code?: string;
   value?: string;
+  plan_id?: number;
+  plan_name?: number;
 }
 
 export function PersonForm({ module, initial = null, onCancel, onSubmit }: Props) {
@@ -57,7 +60,31 @@ export function PersonForm({ module, initial = null, onCancel, onSubmit }: Props
     email: '',
     code: '',
     value: '',
+    plan_id: undefined,
+    plan_name: undefined
   };
+
+  const [plans, setPlans] = useState<Plan[]>([]);
+
+  useEffect(() => {
+    if (module !== 'doctors' && module !== 'patients') return;
+
+    let cancelled = false;
+    const fetchData = async () => {
+      try {
+          const res = await fetch('http://localhost:3000/api/plans');
+          if (!res.ok) throw new Error(`Falha ao listar ${module}`);
+          const json = await res.json();
+          if (!cancelled) setPlans(json);
+      } catch (err) {
+          console.error(err);
+          toast.error('Erro ao carregar planos!');
+      }
+    };
+      fetchData();
+      return () => { cancelled = true; };
+  }, [module]);
+
 
   const [form, setForm] = useState<FormState>(() => ({ ...defaultForm, ...(initial as Partial<FormState> || {}) }));
 
@@ -65,6 +92,11 @@ export function PersonForm({ module, initial = null, onCancel, onSubmit }: Props
     const { name, value } = e.target;
     const key = name as keyof FormState;
     setForm((s) => ({ ...s, [key]: value } as FormState));
+  }
+
+  function handlePlanSelect(e: React.ChangeEvent<HTMLSelectElement>) {
+    const { value } = e.target;
+    setForm(s => ({ ...s, plan_id: value ? Number(value) : undefined }));
   }
 
   function submit(e: React.FormEvent) {
@@ -106,6 +138,21 @@ export function PersonForm({ module, initial = null, onCancel, onSubmit }: Props
               placeholder="000.000.000-00"
               required
             />
+          </div>
+
+          <div className={styles.row}>
+            <label className={styles.label}>Plano *</label>
+            <select 
+              value={form.plan_id?.toString() || ''} 
+              onChange={handlePlanSelect}
+              className={styles.input}
+              required
+            >
+              <option value="">Selecione um plano</option>
+              {plans.map(plan => (
+                <option key={plan.id} value={plan.id?.toString()}>{plan.name}</option>
+              ))}
+            </select>
           </div>
         </>
       )}

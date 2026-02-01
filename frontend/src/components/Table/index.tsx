@@ -18,6 +18,8 @@ type Patient = {
   cpf: string;
   phone: string;
   email: string;
+  plan_id: number;
+  plan_name: string;
 }
 
 type Plan = {
@@ -51,6 +53,7 @@ const columnsConfig = {
     { key: 'created_at', label: 'Data de Criação' },
     { key: 'name', label: 'Nome' },
     { key: 'cpf', label: 'CPF' },
+    { key: 'plan_name', label: 'Plano' },
     { key: 'phone', label: 'Telefone' },
     { key: 'email', label: 'E-mail' },
   ],
@@ -97,6 +100,7 @@ export function Table({ data, module, lightColor, onEdit = () => {}, onDelete = 
               {module === 'patients' && (
                 <>
                   <td className={styles.td}>{formatCPF((item as Patient).cpf)}</td>
+                  <td className={styles.td}>{(item as Patient).plan_name}</td>
                 </>
               )}
 
