@@ -5,19 +5,31 @@ export interface Patient {
   name: string;
   cpf: string;
   phone?: string;
-  email?: string;
+  email: string;
+  plan_id: number;
+  plan_name?: string;
   created_at?: Date;
   updated_at?: Date;
 }
 
 export class PatientModel {
   async findAll(): Promise<Patient[]> {
-    const result = await pool.query('SELECT * FROM patients ORDER BY id');
+    const result = await pool.query(`
+      SELECT patients.*, plans.name as plan_name 
+      FROM patients 
+      LEFT JOIN plans ON patients.plan_id = plans.id 
+      ORDER BY patients.id
+    `);
     return result.rows;
   }
 
   async findById(id: number): Promise<Patient | null> {
-    const result = await pool.query('SELECT * FROM patients WHERE id = $1', [id]);
+    const result = await pool.query(`
+      SELECT patients.*, plans.name as plan_name 
+      FROM patients 
+      LEFT JOIN plans ON patients.plan_id = plans.id 
+      WHERE patients.id = $1
+    `, [id]);
     return result.rows[0] || null;
   }
 
@@ -55,19 +67,19 @@ export class PatientModel {
   }
 
   async create(patient: Patient): Promise<Patient> {
-    const { name, cpf, phone, email } = patient;
+    const { name, cpf, phone, email, plan_id } = patient;
     const result = await pool.query(
-      'INSERT INTO patients (name, cpf, phone, email) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, cpf, phone, email]
+      'INSERT INTO patients (name, cpf, phone, email, plan_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [name, cpf, phone, email, plan_id]
     );
     return result.rows[0];
   }
 
   async update(id: number, patient: Partial<Patient>): Promise<Patient | null> {
-    const { name, cpf, phone, email } = patient;
+    const { name, cpf, phone, email, plan_id } = patient;
     const result = await pool.query(
-      'UPDATE patients SET name = COALESCE($1, name), cpf = COALESCE($2, cpf), phone = COALESCE($3, phone), email = COALESCE($4, email) WHERE id = $5 RETURNING *',
-      [name, cpf, phone, email, id]
+      'UPDATE patients SET name = COALESCE($1, name), cpf = COALESCE($2, cpf), phone = COALESCE($3, phone), email = COALESCE($4, email), plan_id = COALESCE($5, plan_id) WHERE id = $6 RETURNING *',
+      [name, cpf, phone, email, plan_id, id]
     );
     return result.rows[0] || null;
   }
