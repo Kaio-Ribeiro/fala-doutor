@@ -7,7 +7,31 @@ import { Modal } from '../../components/Modal';
 import { PersonForm } from '../../components/PersonForm';
 import { toast } from 'react-toastify';
 
-type ModuleType = 'doctors' | 'patients';
+type ModuleType = 'doctors' | 'patients'| 'plans';
+
+const moduleConfig = {
+  doctors: {
+    mainColor: '#2563EB',
+    lightColor: '#EFF6FF',
+    title: 'Gerenciar Doutores',
+    subtitle: (count: number) => `${count} médicos cadastrados`,
+    addLabel: 'Adicionar Doutor',
+  },
+  patients: {
+    mainColor: '#059669',
+    lightColor: '#ECFDF5',
+    title: 'Gerenciar Pacientes',
+    subtitle: (count: number) => `${count} pacientes cadastrados`,
+    addLabel: 'Adicionar Paciente',
+  },
+  plans: {
+    mainColor: '#A21CAF',
+    lightColor: '#F3E8FF',
+    title: 'Gerenciar Planos',
+    subtitle: (count: number) => `${count} planos cadastrados`,
+    addLabel: 'Adicionar Plano',
+  },
+} as const;
 
 interface Doctor {
     id: number;
@@ -28,6 +52,14 @@ interface Patient {
     email: string;
 }
 
+interface Plan {
+    id: number;
+    created_at: string;
+    name: string;
+    code: string;
+    value: string;
+}
+
 export function ListPage() {
     const params = useParams();
     const navigate = useNavigate();
@@ -35,14 +67,12 @@ export function ListPage() {
 
     const selectedModule: ModuleType = moduleParam ?? 'doctors';
 
-    const isDoctors = selectedModule === 'doctors';
-    const [data, setData] = useState<Doctor[] | Patient[]>([]);
+    const [data, setData] = useState<Doctor[] | Patient[] | Plan[]>([]);
     const [reload, setReload] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
-    const [modalInitial, setModalInitial] = useState<Doctor | Patient | null>(null);
+    const [modalInitial, setModalInitial] = useState<Doctor | Patient | Plan | null>(null);
 
-    const mainColor = isDoctors ? '#2563EB' : '#059669';
-    const lightColor = isDoctors ? '#EFF6FF' : '#ECFDF5';
+    const config = moduleConfig[selectedModule];
 
     useEffect(() => {
         let cancelled = false;
@@ -76,26 +106,26 @@ export function ListPage() {
                 <div className={styles.listHeaderContent}>
                     <div>
                     <h1 className={styles.listTitle}>
-                        {isDoctors ? 'Gerenciar Doutores' : 'Gerenciar Pacientes'}
+                        {config.title}
                     </h1>
                     <p className={styles.listSubtitle}>
-                        {data.length} {isDoctors ? 'médicos' : 'pacientes'} cadastrados
+                        {config.subtitle(data.length)}
                     </p>
                     </div>
                         <button 
                             className={styles.addButton}
-                            style={{ backgroundColor: mainColor }}
+                            style={{ backgroundColor: config.mainColor }}
                             onClick={() => { setModalInitial(null); setModalOpen(true); }}
                             >
                             <Plus size={20} />
-                            <span>Adicionar {isDoctors ? 'Doutor' : 'Paciente'}</span>
+                            <span>{config.addLabel}</span>
                         </button>
                 </div>
                 </div>
                 <Table
                     data={data}
-                    isDoctors={isDoctors}
-                    lightColor={lightColor}
+                    module={selectedModule}
+                    lightColor={config.lightColor}
                     onEdit={(item) => { setModalInitial(item as Doctor | Patient); setModalOpen(true); }}
                     onDelete={async (item) => {
                         try {
@@ -114,7 +144,7 @@ export function ListPage() {
                 <Modal open={modalOpen} title={modalInitial ? 'Editar' : 'Adicionar'} onClose={() => setModalOpen(false)}>
                     <PersonForm
                         key={modalInitial ? `edit-${modalInitial.id}` : 'new'}
-                        mode={selectedModule}
+                        module={selectedModule}
                         initial={modalInitial}
                         onCancel={() => setModalOpen(false)}
                         onSubmit={async (payload) => {

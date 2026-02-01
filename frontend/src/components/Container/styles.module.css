@@ -1,6 +1,6 @@
 .container {
   box-sizing: border-box;
-  height: 98vh;
+  min-height: 100vh;
   background: linear-gradient(to bottom right, #EFF6FF, #E0E7FF);
   padding: 2rem;
 }

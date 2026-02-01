@@ -20,44 +20,63 @@ type Patient = {
   email: string;
 }
 
-interface TableProps {
-  data: Array<Doctor | Patient>;
-  isDoctors: boolean;
-  lightColor?: string;
-  onEdit?: (item: Doctor | Patient) => void;
-  onDelete?: (item: Doctor | Patient) => void;
+type Plan = {
+  id: number;
+  created_at: string;
+  name: string;
+  code: string;
+  value: string;
 }
+
+type ModuleType = 'doctors' | 'patients'| 'plans';
+
+interface TableProps {
+  data: Array<Doctor | Patient | Plan>;
+  module: ModuleType;
+  lightColor?: string;
+  onEdit?: (item: Doctor | Patient | Plan) => void;
+  onDelete?: (item: Doctor | Patient | Plan) => void;
+}
+
+const columnsConfig = {
+  doctors: [
+    { key: 'created_at', label: 'Data de Criação' },
+    { key: 'name', label: 'Nome' },
+    { key: 'specialty', label: 'Especialidade' },
+    { key: 'crm', label: 'CRM' },
+    { key: 'phone', label: 'Telefone' },
+    { key: 'email', label: 'E-mail' },
+  ],
+  patients: [
+    { key: 'created_at', label: 'Data de Criação' },
+    { key: 'name', label: 'Nome' },
+    { key: 'cpf', label: 'CPF' },
+    { key: 'phone', label: 'Telefone' },
+    { key: 'email', label: 'E-mail' },
+  ],
+  plans: [
+    { key: 'created_at', label: 'Data de Criação' },
+    { key: 'name', label: 'Nome' },
+    { key: 'code', label: 'Código' },
+    { key: 'value', label: 'Valor' },
+  ],
+};
 
 function formatCPF(cpf: string) {
   return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
 }
 
-export function Table({ data, isDoctors, lightColor, onEdit = () => {}, onDelete = () => {} }: TableProps) {
+export function Table({ data, module, lightColor, onEdit = () => {}, onDelete = () => {} }: TableProps) {
+  const columns = columnsConfig[module];
   return (
     <div className={styles.tableContainer}>
       <table className={styles.table}>
         <thead style={{ backgroundColor: lightColor }} className={styles.tableHead}>
           <tr>
-            {isDoctors ? (
-              <>
-                <th className={styles.th}>Data de Criação</th>
-                <th className={styles.th}>Nome</th>
-                <th className={styles.th}>Especialidade</th>
-                <th className={styles.th}>CRM</th>
-                <th className={styles.th}>Telefone</th>
-                <th className={styles.th}>Email</th>
-                <th className={styles.th} style={{ textAlign: 'center' }}>Ações</th>
-              </>
-            ) : (
-              <>
-                <th className={styles.th}>Data de Criação</th>
-                <th className={styles.th}>Nome</th>
-                <th className={styles.th}>CPF</th>
-                <th className={styles.th}>Telefone</th>
-                <th className={styles.th}>Email</th>
-                <th className={styles.th} style={{ textAlign: 'center' }}>Ações</th>
-              </>
-            )}
+            {columns.map(col => (
+              <th key={col.key} className={styles.th}>{col.label}</th>
+            ))}
+            <th className={styles.th} style={{ textAlign: 'center' }}>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -68,34 +87,50 @@ export function Table({ data, isDoctors, lightColor, onEdit = () => {}, onDelete
             >
               <td className={styles.td}>{new Date(item.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</td>
               <td className={styles.tdName}>{item.name}</td>
-              {isDoctors ? (
+              {module === 'doctors' && (
                 <>
                   <td className={styles.td}>{(item as Doctor).specialty}</td>
                   <td className={styles.td}>{(item as Doctor).crm}</td>
                 </>
-              ) : (
+              )}
+
+              {module === 'patients' && (
                 <>
                   <td className={styles.td}>{formatCPF((item as Patient).cpf)}</td>
                 </>
               )}
-              <td className={styles.td}>{item.phone}</td>
-              <td className={styles.td}>{item.email}</td>
+
+              {module === 'plans' && (
+                <>
+                  <td className={styles.td}>{(item as Plan).code}</td>
+                  <td className={styles.td}>{(item as Plan).value}</td>
+                </>
+              )}
+
+              {module !== 'plans' && (
+                <>
+                  <td className={styles.td}>{('phone' in item ? item.phone : '')}</td>
+                  <td className={styles.td}>{('email' in item ? item.email : '')}</td>
+                </>
+              )}
+
               <td className={styles.tdActions}>
-                <div className={styles.actionsContainer}>
-                  <button
-                    className={styles.editButton}
-                    onClick={() => onEdit(item)}
-                  >
-                    <Edit2 size={16} />
-                  </button>
-                  <button
-                    className={styles.deleteButton}
-                    onClick={() => onDelete(item)}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </td>
+                    <div className={styles.actionsContainer}>
+                      <button
+                        className={styles.editButton}
+                        onClick={() => onEdit(item)}
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      <button
+                        className={styles.deleteButton}
+                        onClick={() => onDelete(item)}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+              
             </tr>
           ))}
         </tbody>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './styles.module.css';
 import { IMaskInput } from "react-imask";
 
-type ModuleType = 'doctors' | 'patients';
+type ModuleType = 'doctors' | 'patients' | 'plans';
 
 interface Doctor {
   id?: number;
@@ -21,9 +21,16 @@ interface Patient {
   email: string;
 }
 
+interface Plan {
+  id?: number;
+  name: string;
+  code?: string;
+  value?: string;
+}
+
 interface Props {
-  mode: ModuleType;
-  initial?: Doctor | Patient | null;
+  module: ModuleType;
+  initial?: Doctor | Patient | Plan | null;
   onCancel: () => void;
   onSubmit: (data: FormState) => void;
 }
@@ -36,11 +43,11 @@ interface FormState {
   cpf?: string;
   phone?: string;
   email?: string;
+  code?: string;
+  value?: string;
 }
 
-export function PersonForm({ mode, initial = null, onCancel, onSubmit }: Props) {
-  const isDoctors = mode === 'doctors';
-
+export function PersonForm({ module, initial = null, onCancel, onSubmit }: Props) {
   const defaultForm: FormState = {
     name: '',
     specialty: '',
@@ -48,6 +55,8 @@ export function PersonForm({ mode, initial = null, onCancel, onSubmit }: Props) 
     cpf: '',
     phone: '',
     email: '',
+    code: '',
+    value: '',
   };
 
   const [form, setForm] = useState<FormState>(() => ({ ...defaultForm, ...(initial as Partial<FormState> || {}) }));
@@ -70,7 +79,7 @@ export function PersonForm({ mode, initial = null, onCancel, onSubmit }: Props) 
         <input name="name" value={form.name} onChange={handleChange} className={styles.input} required />
       </div>
 
-      {isDoctors ? (
+      {module === 'doctors' && (
         <>
           <div className={styles.row}>
             <label className={styles.label}>Especialidade</label>
@@ -81,7 +90,9 @@ export function PersonForm({ mode, initial = null, onCancel, onSubmit }: Props) 
             <input name="crm" value={form.crm} onChange={handleChange} className={styles.input} required placeholder="CRM/CE 123456" />
           </div>
         </>
-      ) : (
+      )}
+
+      {module === 'patients' && (
         <>
           <div className={styles.row}>
             <label className={styles.label}>CPF *</label>
@@ -99,22 +110,39 @@ export function PersonForm({ mode, initial = null, onCancel, onSubmit }: Props) 
         </>
       )}
 
-      <div className={styles.row}>
-        <label className={styles.label}>Telefone</label>
-        <IMaskInput
-          mask="(00) 00000-0000"
-          name="phone"
-          value={form.phone}
-          onAccept={value => setForm(s => ({ ...s, phone: value }))}
-          className={styles.input}
-          placeholder="(99) 99999-9999"
-        />
-      </div>
+      {module === 'plans' && (
+        <>
+          <div className={styles.row}>
+            <label className={styles.label}>Código *</label>
+            <input name="code" value={form.code} onChange={handleChange} className={styles.input} required />
+          </div>
+          <div className={styles.row}>
+            <label className={styles.label}>Valor *</label>
+            <input name="value" value={form.value} onChange={handleChange} className={styles.input} required />
+          </div>
+        </>
+      )}
 
-      <div className={styles.row}>
-        <label className={styles.label}>E-mail *</label>
-        <input name="email" value={form.email} onChange={handleChange} className={styles.input} type="email" required/>
-      </div>
+      {module !== 'plans' && (
+        <>
+          <div className={styles.row}>
+            <label className={styles.label}>Telefone</label>
+            <IMaskInput
+              mask="(00) 00000-0000"
+              name="phone"
+              value={form.phone}
+              onAccept={value => setForm(s => ({ ...s, phone: value }))}
+              className={styles.input}
+              placeholder="(99) 99999-9999"
+            />
+          </div>
+
+          <div className={styles.row}>
+            <label className={styles.label}>E-mail *</label>
+            <input name="email" value={form.email} onChange={handleChange} className={styles.input} type="email" required/>
+          </div>
+        </>
+      )}
 
       <div className={styles.actions}>
         <button type="button" className={styles.cancel} onClick={onCancel}>Cancelar</button>
