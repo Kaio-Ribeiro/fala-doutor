@@ -7,15 +7,26 @@ export interface Doctor {
   crm: string;
   phone?: string;
   email?: string;
+  plan_names?: string;
+  plan_ids?: number[];
   created_at?: Date;
   updated_at?: Date;
 }
 
 export class DoctorModel {
   async findAll(): Promise<Doctor[]> {
-    const result = await pool.query('SELECT * FROM doctors ORDER BY id');
-    return result.rows;
-  }
+      const result = await pool.query(`
+        SELECT 
+          doctors.id, doctors.name, doctors.specialty, doctors.crm, doctors.phone, doctors.email, doctors.created_at, doctors.updated_at,
+          STRING_AGG(plans.name, ', ' ORDER BY plans.name) as plan_names
+        FROM doctors
+        LEFT JOIN doctors_plans ON doctors.id = doctors_plans.doctor_id
+        LEFT JOIN plans ON doctors_plans.plan_id = plans.id
+        GROUP BY doctors.id, doctors.name, doctors.specialty, doctors.crm, doctors.phone, doctors.email, doctors.created_at, doctors.updated_at
+        ORDER BY doctors.id
+      `);
+      return result.rows;
+    }
 
   async findByEmail(email: string, excludeId?: number): Promise<Doctor | null> {
     let query = 'SELECT * FROM doctors WHERE email = $1';
@@ -71,5 +82,24 @@ export class DoctorModel {
   async delete(id: number): Promise<boolean> {
     const result = await pool.query('DELETE FROM doctors WHERE id = $1', [id]);
     return result.rowCount! > 0;
+  }
+
+  async addPlans(doctorId: number, planIds: number[]): Promise<void> {
+    if (planIds.length === 0) return;
+    
+    const values = planIds.map((_, index) => `($1, $${index + 2})`).join(', ');
+    const query = `INSERT INTO doctors_plans (doctor_id, plan_id) VALUES ${values}`;
+    const params = [doctorId, ...planIds];
+    
+    await pool.query(query, params);
+  }
+
+  async removePlans(doctorId: number): Promise<void> {
+    await pool.query('DELETE FROM doctors_plans WHERE doctor_id = $1', [doctorId]);
+  }
+
+  async getPlans(doctorId: number): Promise<number[]> {
+    const result = await pool.query('SELECT plan_id FROM doctors_plans WHERE doctor_id = $1', [doctorId]);
+    return result.rows.map(row => row.plan_id);
   }
 }

@@ -18,6 +18,7 @@ interface Doctor {
   crm?: string;
   phone?: string;
   email: string;
+  plan_ids?: number[];
 }
 
 interface Patient {
@@ -54,7 +55,6 @@ interface FormState {
   value?: string;
   plan_ids?: number[];
   plan_id?: number;
-  plan_name?: number;
 }
 
 export function PersonForm({ module, initial = null, onCancel, onSubmit }: Props) {
@@ -68,8 +68,7 @@ export function PersonForm({ module, initial = null, onCancel, onSubmit }: Props
     code: '',
     value: '',
     plan_ids: [],
-    plan_id: undefined,
-    plan_name: undefined
+    plan_id: undefined
   };
 
   const [plans, setPlans] = useState<Plan[]>([]);

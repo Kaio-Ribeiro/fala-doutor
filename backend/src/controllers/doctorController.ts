@@ -41,6 +41,12 @@ export const doctorController = {
 
     try {
       const doctor = await doctorModel.create(req.body);
+      
+      // Associar planos se fornecidos
+      if (req.body.plan_ids !== undefined && Array.isArray(req.body.plan_ids) && req.body.plan_ids.length > 0) {
+        await doctorModel.addPlans(doctor.id!, req.body.plan_ids);
+      }
+      
       res.status(201).json(doctor);
     } catch (error) {
       res.status(500).json({ error: 'Erro ao criar doutor' });
@@ -77,6 +83,18 @@ export const doctorController = {
       if (!doctor) {
         return res.status(404).json({ error: 'Doutor não encontrado' });
       }
+      
+      // Atualizar planos se fornecidos
+      if (req.body.plan_ids !== undefined && Array.isArray(req.body.plan_ids)) {
+        // Remove todas as associações existentes
+        await doctorModel.removePlans(Number(req.params.id));
+        
+        // Adiciona as novas associações se há planos
+        if (req.body.plan_ids.length > 0) {
+          await doctorModel.addPlans(Number(req.params.id), req.body.plan_ids);
+        }
+      }
+      
       res.json(doctor);
     } catch (error) {
       res.status(500).json({ error: 'Erro ao atualizar doutor' });

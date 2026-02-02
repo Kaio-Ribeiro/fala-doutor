@@ -9,6 +9,7 @@ type Doctor = {
   crm: string;
   phone: string;
   email: string;
+  plan_names: string;
 }
 
 type Patient = {
@@ -46,6 +47,7 @@ const columnsConfig = {
     { key: 'name', label: 'Nome' },
     { key: 'specialty', label: 'Especialidade' },
     { key: 'crm', label: 'CRM' },
+    { key: 'plan_names', label: 'Planos' },
     { key: 'phone', label: 'Telefone' },
     { key: 'email', label: 'E-mail' },
   ],
@@ -94,6 +96,7 @@ export function Table({ data, module, lightColor, onEdit = () => {}, onDelete = 
                 <>
                   <td className={styles.td}>{(item as Doctor).specialty}</td>
                   <td className={styles.td}>{(item as Doctor).crm}</td>
+                  <td className={styles.td}>{(item as Doctor).plan_names}</td>
                 </>
               )}
 
