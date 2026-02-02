@@ -32,9 +32,11 @@ export const doctorController = {
       return res.status(400).json({ error: 'CRM já cadastrado.' });
     }
 
-    const existingPhone = await doctorModel.findByPhone(req.body.phone);
-    if (existingPhone) {
-      return res.status(400).json({ error: 'Telefone já cadastrado.' });
+    if (req.body.phone && req.body.phone.trim() !== '') {
+      const existingPhone = await doctorModel.findByPhone(req.body.phone);
+      if (existingPhone) {
+        return res.status(400).json({ error: 'Telefone já cadastrado.' });
+      }
     }
 
     try {
@@ -63,9 +65,11 @@ export const doctorController = {
       return res.status(400).json({ error: 'CRM já cadastrado.' });
     }
     
-    const existingPhone = await doctorModel.findByPhone(req.body.phone, Number(req.params.id));
-    if (existingPhone) {
-      return res.status(400).json({ error: 'Telefone já cadastrado.' });
+    if (req.body.phone && req.body.phone.trim() !== '') {
+      const existingPhone = await doctorModel.findByPhone(req.body.phone, Number(req.params.id));
+      if (existingPhone) {
+        return res.status(400).json({ error: 'Telefone já cadastrado.' });
+      }
     }
 
     try {
