@@ -41,6 +41,8 @@ interface Doctor {
     crm: string;
     phone: string;
     email: string;
+    plan_names?: string;
+    plan_ids?: number[];
 }
 
 interface Patient {
