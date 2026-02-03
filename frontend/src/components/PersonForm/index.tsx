@@ -71,6 +71,27 @@ export function PersonForm({ module, initial = null, onCancel, onSubmit }: Props
     plan_id: undefined
   };
 
+  const specialties = [
+    'Cardiologia',
+    'Dermatologia', 
+    'Endocrinologia',
+    'Gastroenterologia',
+    'Ginecologia e Obstetrícia',
+    'Neurologia',
+    'Oftalmologia',
+    'Ortopedia',
+    'Otorrinolaringologia',
+    'Pediatria',
+    'Pneumologia',
+    'Psiquiatria',
+    'Urologia',
+    'Medicina Geral',
+    'Clínica Médica',
+    'Cirurgia Geral',
+    'Anestesiologia',
+    'Radiologia'
+  ];
+
   const [plans, setPlans] = useState<Plan[]>([]);
 
   useEffect(() => {
@@ -95,7 +116,7 @@ export function PersonForm({ module, initial = null, onCancel, onSubmit }: Props
 
   const [form, setForm] = useState<FormState>(() => ({ ...defaultForm, ...(initial as Partial<FormState> || {}) }));
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
     const key = name as keyof FormState;
     setForm((s) => ({ ...s, [key]: value } as FormState));
@@ -107,13 +128,27 @@ export function PersonForm({ module, initial = null, onCancel, onSubmit }: Props
     label: plan.name
   }));
 
+  // Transformar especialidades para o formato do react-select
+  const specialtyOptions = specialties.map(specialty => ({
+    value: specialty,
+    label: specialty
+  }));
+
   // Encontrar opção selecionada para react-select (pacientes - single)
   const selectedPlan = planOptions.find(option => option.value === form.plan_id) || null;
+
+  // Encontrar especialidade selecionada para react-select
+  const selectedSpecialty = specialtyOptions.find(option => option.value === form.specialty) || null;
 
   // Encontrar opções selecionadas para react-select (doctors - multiple)
   const selectedPlans = planOptions.filter(option => 
     option.value !== undefined && form.plan_ids?.includes(option.value)
   ) || [];
+
+  // Handler para react-select (especialidade - single)
+  function handleSpecialtyChange(selectedOption: { value: string; label: string } | null) {
+    setForm(s => ({ ...s, specialty: selectedOption?.value || '' }));
+  }
 
   // Handler para react-select (pacientes - single)
   function handleReactSelectChange(selectedOption: PlanOption | null) {
@@ -142,7 +177,17 @@ export function PersonForm({ module, initial = null, onCancel, onSubmit }: Props
         <>
           <div className={styles.row}>
             <label className={styles.label}>Especialidade</label>
-            <input name="specialty" value={form.specialty} onChange={handleChange} className={styles.input} />
+            <Select
+              options={specialtyOptions}
+              value={selectedSpecialty}
+              onChange={handleSpecialtyChange}
+              placeholder="Selecione uma especialidade"
+              isSearchable
+              noOptionsMessage={() => "Nenhuma especialidade encontrada"}
+              isClearable
+              className={styles.reactSelect}
+              classNamePrefix="react-select"
+            />
           </div>
           <div className={styles.row}>
             <label className={styles.label}>CRM *</label>
@@ -155,7 +200,7 @@ export function PersonForm({ module, initial = null, onCancel, onSubmit }: Props
               options={planOptions}
               value={selectedPlans}
               onChange={handleMultipleReactSelectChange}
-              placeholder="Selecione os planos..."
+              placeholder="Selecione os planos"
               isSearchable
               isMulti
               noOptionsMessage={() => "Nenhum plano encontrado"}
