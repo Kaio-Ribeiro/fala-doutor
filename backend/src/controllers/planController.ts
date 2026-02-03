@@ -21,6 +21,11 @@ export const planController = {
           return res.status(400).json({ error: `Campos obrigatórios ausentes: ${missingFields.join(', ')}` });
         }
 
+        const existingName = await planModel.findByName(req.body.name, Number(req.params.id));
+        if (existingName) {
+          return res.status(400).json({ error: 'Nome já cadastrado.' });
+        }
+
         const existingCode = await planModel.findByCode(req.body.code);
         if (existingCode) {
           return res.status(400).json({ error: 'Código já cadastrado.' });
@@ -40,6 +45,11 @@ export const planController = {
       
           if (missingFields.length > 0) {
             return res.status(400).json({ error: `Campos obrigatórios ausentes: ${missingFields.join(', ')}` });
+          }
+
+          const existingName = await planModel.findByName(req.body.name, Number(req.params.id));
+          if (existingName) {
+            return res.status(400).json({ error: 'Nome já cadastrado.' });
           }
 
           const existingCode = await planModel.findByCode(req.body.code, Number(req.params.id));
