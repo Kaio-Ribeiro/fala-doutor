@@ -9,7 +9,7 @@ interface PlanOption {
   label: string;
 }
 
-type ModuleType = 'doctors' | 'patients' | 'plans';
+type ModuleType = 'doctors' | 'patients' | 'plans' | 'appointments';
 
 interface Doctor {
   id?: number;
@@ -36,9 +36,16 @@ interface Plan {
   value?: string;
 }
 
+interface Appointment {
+  id?: number;
+  doctor_name: string;
+  patient_name: string;
+  appointment_date: string;
+}
+
 interface Props {
   module: ModuleType;
-  initial?: Doctor | Patient | Plan | null;
+  initial?: Doctor | Patient | Plan | Appointment | null;
   onCancel: () => void;
   onSubmit: (data: FormState) => void;
 }

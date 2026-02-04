@@ -4,7 +4,7 @@ import { Card } from "../../components/Card";
 import { useNavigate } from 'react-router-dom';
 
 import styles from './styles.module.css';
-import { Stethoscope, Users, HeartPulse  } from 'lucide-react';
+import { Stethoscope, Users, HeartPulse, Calendar  } from 'lucide-react';
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -39,6 +39,15 @@ export function HomePage() {
           bgColor="#F3E8FF"
           accessTextColor="#A21CAF"
           onClick={() => navigate('/list/plans')}
+        />
+
+        <Card
+          title="Consultas"
+          subtitle="Gerencie o cadastro de consultas e seus dados"
+          icon={<Calendar size={64} color="#D97706" />}
+          bgColor="#FEF3C7"
+          accessTextColor="#D97706"
+          onClick={() => navigate('/list/appointments')}
         />
       </div>
 

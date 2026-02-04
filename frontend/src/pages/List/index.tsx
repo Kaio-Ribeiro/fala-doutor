@@ -7,7 +7,7 @@ import { Modal } from '../../components/Modal';
 import { PersonForm } from '../../components/PersonForm';
 import { toast } from 'react-toastify';
 
-type ModuleType = 'doctors' | 'patients'| 'plans';
+type ModuleType = 'doctors' | 'patients'| 'plans' | 'appointments';
 
 const moduleConfig = {
   doctors: {
@@ -30,6 +30,13 @@ const moduleConfig = {
     title: 'Gerenciar Planos',
     subtitle: (count: number) => `${count} planos cadastrados`,
     addLabel: 'Adicionar Plano',
+  },
+  appointments: {
+    mainColor: '#D97706',
+    lightColor: '#FEF3C7',
+    title: 'Gerenciar Consultas',
+    subtitle: (count: number) => `${count} consultas cadastradas`,
+    addLabel: 'Adicionar Consulta',
   },
 } as const;
 
@@ -64,6 +71,14 @@ interface Plan {
     value: string;
 }
 
+interface Appointment {
+    id: number;
+    doctor_name: string;
+    patient_name: string;
+    created_at: string;
+    appointment_date: string;
+}
+
 export function ListPage() {
     const params = useParams();
     const navigate = useNavigate();
@@ -71,10 +86,10 @@ export function ListPage() {
 
     const selectedModule: ModuleType = moduleParam ?? 'doctors';
 
-    const [data, setData] = useState<Doctor[] | Patient[] | Plan[]>([]);
+    const [data, setData] = useState<Doctor[] | Patient[] | Plan[] | Appointment[]>([]);
     const [reload, setReload] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
-    const [modalInitial, setModalInitial] = useState<Doctor | Patient | Plan | null>(null);
+    const [modalInitial, setModalInitial] = useState<Doctor | Patient | Plan | Appointment | null>(null);
 
     const config = moduleConfig[selectedModule];
 

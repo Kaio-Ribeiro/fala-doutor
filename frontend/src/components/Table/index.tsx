@@ -32,14 +32,22 @@ type Plan = {
   value: string;
 }
 
-type ModuleType = 'doctors' | 'patients'| 'plans';
+type Appointment = {
+    id: number;
+    created_at: string;
+    doctor_name: string;
+    patient_name: string;
+    appointment_date: string;
+};
+
+type ModuleType = 'doctors' | 'patients'| 'plans' | 'appointments';
 
 interface TableProps {
-  data: Array<Doctor | Patient | Plan>;
+  data: Array<Doctor | Patient | Plan | Appointment>;
   module: ModuleType;
   lightColor?: string;
-  onEdit?: (item: Doctor | Patient | Plan) => void;
-  onDelete?: (item: Doctor | Patient | Plan) => void;
+  onEdit?: (item: Doctor | Patient | Plan | Appointment) => void;
+  onDelete?: (item: Doctor | Patient | Plan | Appointment) => void;
 }
 
 const columnsConfig = {
@@ -65,6 +73,12 @@ const columnsConfig = {
     { key: 'name', label: 'Nome' },
     { key: 'code', label: 'Código' },
     { key: 'value', label: 'Valor' },
+  ],
+  appointments: [
+    { key: 'created_at', label: 'Data de Criação' },
+    { key: 'doctor_name', label: 'Doutor' },
+    { key: 'patient_name', label: 'Paciente' },
+    { key: 'appointment_date', label: 'Data da Consulta' },
   ],
 };
 
@@ -92,9 +106,9 @@ export function Table({ data, module, lightColor, onEdit = () => {}, onDelete = 
               className={styles.tr}
             >
               <td className={styles.td}>{new Date(item.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</td>
-              <td className={styles.tdName}>{item.name}</td>
               {module === 'doctors' && (
                 <>
+                  <td className={styles.tdName}>{(item as Doctor).name}</td>
                   <td className={styles.td}>{(item as Doctor).specialty}</td>
                   <td className={styles.td}>{(item as Doctor).crm}</td>
                   <td className={styles.td}>{(item as Doctor).plan_names}</td>
@@ -103,6 +117,7 @@ export function Table({ data, module, lightColor, onEdit = () => {}, onDelete = 
 
               {module === 'patients' && (
                 <>
+                  <td className={styles.tdName}>{(item as Patient).name}</td>
                   <td className={styles.td}>{formatCPF((item as Patient).cpf)}</td>
                   <td className={styles.td}>{(item as Patient).plan_name}</td>
                 </>
@@ -110,6 +125,7 @@ export function Table({ data, module, lightColor, onEdit = () => {}, onDelete = 
 
               {module === 'plans' && (
                 <>
+                  <td className={styles.tdName}>{(item as Plan).name}</td>
                   <td className={styles.td}>{(item as Plan).code}</td>
                   <td className={styles.td}>{(item as Plan).value}</td>
                 </>
