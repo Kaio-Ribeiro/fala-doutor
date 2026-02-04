@@ -30,13 +30,29 @@ interface Props {
 }
 
 export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
-  const [form, setForm] = useState(() => ({
-    selectedDoctor: null as { value: number; label: string } | null,
-    selectedPatient: null as { value: number; label: string } | null,
-    selectedDate: '',
-    selectedTime: '',
-    ...initial
-  }));
+  const [form, setForm] = useState(() => {
+    if (initial?.appointment_date) {
+      const date = new Date(initial.appointment_date);
+      const selectedDate = date.toISOString().split('T')[0];
+      const selectedTime = date.toTimeString().slice(0, 5);
+      
+      return {
+        selectedDoctor: null as { value: number; label: string } | null,
+        selectedPatient: null as { value: number; label: string } | null,
+        selectedDate,
+        selectedTime,
+        ...initial
+      };
+    }
+    
+    return {
+      selectedDoctor: null as { value: number; label: string } | null,
+      selectedPatient: null as { value: number; label: string } | null,
+      selectedDate: '',
+      selectedTime: '',
+      ...initial
+    };
+  });
 
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -77,18 +93,13 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     
-    if (!form.selectedDoctor || !form.selectedPatient || !form.selectedDate || !form.selectedTime) {
-      toast.error('Preencha todos os campos obrigatórios!');
-      return;
-    }
-    
     setIsSubmitting(true);
     
     try {
       const appointment_date = `${form.selectedDate}T${form.selectedTime}:00`;
       await onSubmit({
-        doctor_id: form.selectedDoctor.value,
-        patient_id: form.selectedPatient.value,
+        doctor_id: (selectedDoctor?.value || form.selectedDoctor?.value)!,
+        patient_id: (selectedPatient?.value || form.selectedPatient?.value)!,
         appointment_date
       });
     } catch {
@@ -100,7 +111,7 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
 
   const doctorOptions = doctors.map(doctor => ({
     value: doctor.id!,
-    label: `${doctor.name} - ${doctor.specialty || 'Sem especialidade'}`
+    label: doctor.name
   }));
 
   const patientOptions = patients.map(patient => ({
@@ -108,12 +119,20 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     label: patient.name
   }));
 
+  const selectedDoctor = form.doctor_id ? 
+    doctorOptions.find(option => option.value === form.doctor_id) || null : 
+    form.selectedDoctor;
+    
+  const selectedPatient = form.patient_id ? 
+    patientOptions.find(option => option.value === form.patient_id) || null : 
+    form.selectedPatient;
+
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <FormField label="Doutor" required>
         <Select
           options={doctorOptions}
-          value={form.selectedDoctor}
+          value={selectedDoctor}
           onChange={(selectedDoctor) => setForm(prev => ({ ...prev, selectedDoctor }))}
           placeholder="Selecione um doutor"
           isSearchable
@@ -127,7 +146,7 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
       <FormField label="Paciente" required>
         <Select
           options={patientOptions}
-          value={form.selectedPatient}
+          value={selectedPatient}
           onChange={(selectedPatient) => setForm(prev => ({ ...prev, selectedPatient }))}
           placeholder="Selecione um paciente"
           isSearchable
