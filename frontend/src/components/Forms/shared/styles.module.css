@@ -4,50 +4,29 @@
   gap: 12px;
 }
 
-.row {
-  display: flex;
-  flex-direction: column;
-}
-
-.label {
-  font-size: 1.2rem;
-  color: #374151;
-  margin-bottom: 6px;
-}
-
 .input {
   padding: 10px 12px;
   border: 1px solid #e6edf3;
   border-radius: 6px;
   font-size: 1.2rem;
   color: #0f172a;
+  font-family: inherit;
 }
 
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
+.input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.cancel {
-  background: transparent;
-  border: 1px solid #e5e7eb;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
+/* Estilos específicos para inputs de data e hora */
+.input[type="date"]:focus,
+.input[type="time"]:focus {
+  outline: none;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
 }
 
-.submit {
-  background: #2563eb;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-/* React-Select Styles */
 .reactSelect :global(.react-select__control) {
   min-height: 40px;
   border: 1px solid #e6edf3;
@@ -56,12 +35,22 @@
   font-family: inherit;
 }
 
+.reactSelect :global(.react-select__control:hover) {
+  border-color: #d1d5db;
+}
+
+.reactSelect :global(.react-select__control--is-focused) {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
 .reactSelect :global(.react-select__option) {
   font-size: 1.2rem;
 }
 
 .reactSelect :global(.react-select__placeholder) {
   font-size: 1.2rem;
+  color: #9ca3af;
 }
 
 .reactSelect :global(.react-select__single-value) {

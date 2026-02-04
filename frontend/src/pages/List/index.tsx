@@ -3,8 +3,11 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styles from './styles.module.css';
 import { Table } from '../../components/Table';
-import { Modal } from '../../components/Modal';
-import { PersonForm } from '../../components/PersonForm';
+import { FormModal } from '../../components/FormModal';
+import { DoctorForm } from '../../components/Forms/DoctorForm';
+import { PatientForm } from '../../components/Forms/PatientForm';
+import { PlanForm } from '../../components/Forms/PlanForm';
+import { AppointmentForm } from '../../components/Forms/AppointmentForm';
 import { toast } from 'react-toastify';
 
 type ModuleType = 'doctors' | 'patients'| 'plans' | 'appointments';
@@ -14,6 +17,7 @@ const moduleConfig = {
     mainColor: '#2563EB',
     lightColor: '#EFF6FF',
     title: 'Gerenciar Doutores',
+    singularTitle: 'Doutor',
     subtitle: (count: number) => `${count} médicos cadastrados`,
     addLabel: 'Adicionar Doutor',
   },
@@ -21,6 +25,7 @@ const moduleConfig = {
     mainColor: '#059669',
     lightColor: '#ECFDF5',
     title: 'Gerenciar Pacientes',
+    singularTitle: 'Paciente',
     subtitle: (count: number) => `${count} pacientes cadastrados`,
     addLabel: 'Adicionar Paciente',
   },
@@ -28,6 +33,7 @@ const moduleConfig = {
     mainColor: '#A21CAF',
     lightColor: '#F3E8FF',
     title: 'Gerenciar Planos',
+    singularTitle: 'Plano',
     subtitle: (count: number) => `${count} planos cadastrados`,
     addLabel: 'Adicionar Plano',
   },
@@ -35,6 +41,7 @@ const moduleConfig = {
     mainColor: '#D97706',
     lightColor: '#FEF3C7',
     title: 'Gerenciar Consultas',
+    singularTitle: 'Consulta',
     subtitle: (count: number) => `${count} consultas cadastradas`,
     addLabel: 'Adicionar Consulta',
   },
@@ -79,6 +86,42 @@ interface Appointment {
     appointment_date: string;
 }
 
+// Types for form submissions
+type DoctorFormData = {
+    id?: number;
+    name: string;
+    specialty?: string;
+    crm: string;
+    phone?: string;
+    email: string;
+    plan_ids: number[];
+};
+
+type PatientFormData = {
+    id?: number;
+    name: string;
+    cpf: string;
+    phone?: string;
+    email: string;
+    plan_id?: number;
+};
+
+type PlanFormData = {
+    id?: number;
+    name: string;
+    code: string;
+    value: string;
+};
+
+type AppointmentFormData = {
+    id?: number;
+    doctor_id: number;
+    patient_id: number;
+    appointment_datetime: string;
+};
+
+type FormSubmissionData = DoctorFormData | PatientFormData | PlanFormData | AppointmentFormData;
+
 export function ListPage() {
     const params = useParams();
     const navigate = useNavigate();
@@ -110,6 +153,27 @@ export function ListPage() {
         fetchData();
         return () => { cancelled = true; };
     }, [selectedModule, reload]);
+
+    const handleFormSubmit = async (payload: FormSubmissionData) => {
+        const isEdit = Boolean(modalInitial?.id);
+        try {
+            const base = 'http://localhost:3000';
+            const url = isEdit ? `${base}/api/${selectedModule}/${modalInitial!.id}` : `${base}/api/${selectedModule}`;
+            const method = isEdit ? 'PUT' : 'POST';
+            const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const json = await res.json();
+
+            if (!res.ok) throw new Error(json.error || 'Failed to save');
+
+            setModalOpen(false);
+            setReload(r => r + 1);
+            toast.success(isEdit ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
+        } catch (error) {
+            console.error(error);
+            const msg = error instanceof Error ? error.message : (isEdit ? "Erro ao atualizar!" : "Erro ao criar!");
+            toast.error(msg);
+        }
+    };
 
     return (
         <div className={styles.listContainer}>
@@ -160,34 +224,47 @@ export function ListPage() {
                     }}
                 />
 
-                <Modal open={modalOpen} title={modalInitial ? 'Editar' : 'Adicionar'} onClose={() => setModalOpen(false)}>
-                    <PersonForm
-                        key={modalInitial ? `edit-${modalInitial.id}` : 'new'}
-                        module={selectedModule}
-                        initial={modalInitial}
-                        onCancel={() => setModalOpen(false)}
-                        onSubmit={async (payload) => {
-                            const isEdit = Boolean(modalInitial?.id);
-                            try {
-                                const base = 'http://localhost:3000';
-                                const url = isEdit ? `${base}/api/${selectedModule}/${modalInitial!.id}` : `${base}/api/${selectedModule}`;
-                                const method = isEdit ? 'PUT' : 'POST';
-                                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                                const json = await res.json();
-
-                                if (!res.ok) throw new Error(json.error || 'Failed to save');
-
-                                setModalOpen(false);
-                                setReload(r => r + 1);
-                                toast.success(isEdit ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
-                            } catch (error) {
-                                console.error(error);
-                                const msg = error instanceof Error ? error.message : (isEdit ? "Erro ao atualizar!" : "Erro ao criar!");
-                                toast.error(msg);
-                            }
-                        }}
-                    />
-                </Modal>
+                <FormModal 
+                    isOpen={modalOpen} 
+                    onClose={() => setModalOpen(false)}
+                    title={`${modalInitial ? 'Editar' : 'Adicionar'} ${moduleConfig[selectedModule].singularTitle}`}
+                >
+                    {selectedModule === 'doctors' && (
+                        <DoctorForm
+                            key={modalInitial ? `edit-${modalInitial.id}` : 'new'}
+                            initial={modalInitial as DoctorFormData | null}
+                            onCancel={() => setModalOpen(false)}
+                            onSubmit={handleFormSubmit}
+                        />
+                    )}
+                    
+                    {selectedModule === 'patients' && (
+                        <PatientForm
+                            key={modalInitial ? `edit-${modalInitial.id}` : 'new'}
+                            initial={modalInitial as PatientFormData | null}
+                            onCancel={() => setModalOpen(false)}
+                            onSubmit={handleFormSubmit}
+                        />
+                    )}
+                    
+                    {selectedModule === 'plans' && (
+                        <PlanForm
+                            key={modalInitial ? `edit-${modalInitial.id}` : 'new'}
+                            initial={modalInitial as PlanFormData | null}
+                            onCancel={() => setModalOpen(false)}
+                            onSubmit={handleFormSubmit}
+                        />
+                    )}
+                    
+                    {selectedModule === 'appointments' && (
+                        <AppointmentForm
+                            key={modalInitial ? `edit-${modalInitial.id}` : 'new'}
+                            initial={modalInitial as AppointmentFormData | null}
+                            onCancel={() => setModalOpen(false)}
+                            onSubmit={handleFormSubmit}
+                        />
+                    )}
+                </FormModal>
             </div>
         </div>
     )
