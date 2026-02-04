@@ -131,7 +131,15 @@ export function Table({ data, module, lightColor, onEdit = () => {}, onDelete = 
                 </>
               )}
 
-              {module !== 'plans' && (
+              {module === 'appointments' && (
+                <>
+                  <td className={styles.tdName}>{(item as Appointment).doctor_name}</td>
+                  <td className={styles.td}>{(item as Appointment).patient_name}</td>
+                  <td className={styles.td}>{new Date((item as Appointment).appointment_date).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</td>
+                </>
+              )}
+
+              {module !== 'plans' && module !== 'appointments' && (
                 <>
                   <td className={styles.td}>{('phone' in item ? item.phone : '')}</td>
                   <td className={styles.td}>{('email' in item ? item.email : '')}</td>

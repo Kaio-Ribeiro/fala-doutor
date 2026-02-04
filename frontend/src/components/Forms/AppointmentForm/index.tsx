@@ -20,7 +20,7 @@ interface AppointmentFormData {
   id?: number;
   doctor_id: number;
   patient_id: number;
-  appointment_datetime: string;
+  appointment_date: string;
 }
 
 interface Props {
@@ -85,11 +85,11 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     setIsSubmitting(true);
     
     try {
-      const appointment_datetime = `${form.selectedDate}T${form.selectedTime}:00`;
+      const appointment_date = `${form.selectedDate}T${form.selectedTime}:00`;
       await onSubmit({
         doctor_id: form.selectedDoctor.value,
         patient_id: form.selectedPatient.value,
-        appointment_datetime
+        appointment_date
       });
     } catch {
       // Error handling será feito pelo componente pai
@@ -138,28 +138,36 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
         />
       </FormField>
       
-      <FormField label="Data" required>
-        <input
-          type="date"
-          value={form.selectedDate}
-          onChange={(e) => setForm(prev => ({ ...prev, selectedDate: e.target.value }))}
-          className={styles.input}
-          required
-        />
-      </FormField>
-      
-      <FormField label="Horário" required>
-        <input
-          type="time"
-          value={form.selectedTime}
-          onChange={(e) => setForm(prev => ({ ...prev, selectedTime: e.target.value }))}
-          className={styles.input}
-          min="08:00"
-          max="17:00"
-          step="1800"
-          required
-        />
-      </FormField>
+      <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ flex: 1 }}>
+          <FormField label="Data" required>
+            <input
+              type="date"
+              value={form.selectedDate}
+              onChange={(e) => setForm(prev => ({ ...prev, selectedDate: e.target.value }))}
+              onClick={(e) => e.currentTarget.showPicker?.()}
+              className={styles.input}
+              min={new Date().toISOString().split('T')[0]}
+              required
+            />
+          </FormField>
+        </div>
+        
+        <div style={{ flex: 1 }}>
+          <FormField label="Horário" required>
+            <input
+              type="time"
+              value={form.selectedTime}
+              onChange={(e) => setForm(prev => ({ ...prev, selectedTime: e.target.value }))}
+              onClick={(e) => e.currentTarget.showPicker?.()}
+              className={styles.input}
+              min="08:00"
+              max="17:00"
+              required
+            />
+          </FormField>
+        </div>
+      </div>
 
       <FormActions 
         onCancel={onCancel}

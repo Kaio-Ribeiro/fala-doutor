@@ -18,7 +18,7 @@ export const appointmentController = {
   },
 
   async create(req: Request, res: Response) {
-    const requiredFields = ['doctor_id', 'patient_id', 'appointment_datetime'];
+    const requiredFields = ['doctor_id', 'patient_id', 'appointment_date'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
 
     if (missingFields.length > 0) {
@@ -34,7 +34,7 @@ export const appointmentController = {
   },
 
   async update(req: Request, res: Response) {
-    const requiredFields = ['doctor_id', 'patient_id', 'appointment_datetime'];
+    const requiredFields = ['doctor_id', 'patient_id', 'appointment_date'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
 
     if (missingFields.length > 0) {

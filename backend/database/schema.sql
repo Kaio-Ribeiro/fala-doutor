@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS appointments (
   id SERIAL PRIMARY KEY,
   doctor_id INT REFERENCES doctors(id) ON DELETE CASCADE,
   patient_id INT REFERENCES patients(id) ON DELETE CASCADE,
-  appointment_datetime TIMESTAMP NOT NULL,
+  appointment_date TIMESTAMP NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

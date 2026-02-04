@@ -5,7 +5,7 @@ export interface Appointment {
   id?: number;
   doctor_id?: string;
   patient_id?: number[];
-  appointment_datetime: Date;
+  appointment_date: Date;
   doctor_name?: string;
   patient_name?: string;
   created_at?: Date;
@@ -25,19 +25,19 @@ export class AppointmentModel {
     }
 
   async create(appointment: Appointment): Promise<Appointment> {
-    const { doctor_id, patient_id, appointment_datetime } = appointment;
+    const { doctor_id, patient_id, appointment_date } = appointment;
     const result = await pool.query(
-      'INSERT INTO appointments (doctor_id, patient_id, appointment_datetime) VALUES ($1, $2, $3) RETURNING *',
-      [doctor_id, patient_id, appointment_datetime]
+      'INSERT INTO appointments (doctor_id, patient_id, appointment_date) VALUES ($1, $2, $3) RETURNING *',
+      [doctor_id, patient_id, appointment_date]
     );
     return result.rows[0];
   }
 
   async update(id: number, appointment: Partial<Appointment>): Promise<Appointment | null> {
-    const { doctor_id, patient_id, appointment_datetime } = appointment;
+    const { doctor_id, patient_id, appointment_date } = appointment;
     const result = await pool.query(
-      'UPDATE appointments SET doctor_id = COALESCE($1, doctor_id), patient_id = COALESCE($2, patient_id), appointment_datetime = COALESCE($3, appointment_datetime) WHERE id = $4 RETURNING *',
-      [doctor_id, patient_id, appointment_datetime, id]
+      'UPDATE appointments SET doctor_id = COALESCE($1, doctor_id), patient_id = COALESCE($2, patient_id), appointment_date = COALESCE($3, appointment_date) WHERE id = $4 RETURNING *',
+      [doctor_id, patient_id, appointment_date, id]
     );
     return result.rows[0] || null;
   }

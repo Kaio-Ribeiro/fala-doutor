@@ -117,7 +117,7 @@ type AppointmentFormData = {
     id?: number;
     doctor_id: number;
     patient_id: number;
-    appointment_datetime: string;
+    appointment_date: string;
 };
 
 type FormSubmissionData = DoctorFormData | PatientFormData | PlanFormData | AppointmentFormData;
