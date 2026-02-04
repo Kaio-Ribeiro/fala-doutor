@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import doctorRoutes from './routes/doctorRoutes';
 import patientRoutes from './routes/patientRoutes';
 import planRoutes from './routes/planRoutes';
+import appointmenRoutes from './routes/appointmentRoutes';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/plans', planRoutes);
+app.use('/api/appointments', appointmenRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Fala Doutor API' });
