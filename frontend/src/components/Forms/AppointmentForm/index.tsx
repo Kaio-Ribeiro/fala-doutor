@@ -14,6 +14,7 @@ interface Doctor {
 interface Patient {
   id?: number;
   name: string;
+  plan_name?: string;
 }
 
 interface AppointmentFormData {
@@ -129,7 +130,8 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
   }));
 
   const selectedPatient = patientOptions.find(option => option.value === form.patient_id) || null;
-  const selectedDoctor = doctorOptions.find(option => option.value === form.doctor_id) || null;
+  const selectedDoctor = doctorOptions.find(option => option.value === form.doctor_id) || null
+  const selectedPlan = patients.find(p => p.id === form.patient_id)?.plan_name || '';
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
@@ -145,6 +147,15 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
           className={styles.reactSelect}
           classNamePrefix="react-select"
           required
+        />
+      </FormField>
+
+      <FormField label="Plano" required>
+        <input
+          type="text"
+          className={styles.input}
+          value={selectedPlan}
+          readOnly  
         />
       </FormField>
 
