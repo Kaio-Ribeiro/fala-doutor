@@ -8,6 +8,8 @@ export interface Appointment {
   appointment_date: Date;
   doctor_name?: string;
   patient_name?: string;
+  plan_id?: number;
+  plan_name?: string;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -15,10 +17,15 @@ export interface Appointment {
 export class AppointmentModel {
   async findAll(): Promise<Appointment[]> {
       const result = await pool.query(`
-        SELECT appointments.*, doctors.name as doctor_name, patients.name as patient_name
+        SELECT appointments.*, 
+        doctors.name as doctor_name, 
+        patients.name as patient_name,
+        plans.id as plan_id,
+        plans.name as plan_name
         FROM appointments 
         LEFT JOIN patients ON appointments.patient_id = patients.id 
         LEFT JOIN doctors ON appointments.doctor_id = doctors.id
+        LEFT JOIN plans ON patients.plan_id = plans.id
         ORDER BY appointments.id
       `);
       return result.rows;

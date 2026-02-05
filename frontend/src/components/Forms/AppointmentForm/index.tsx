@@ -20,7 +20,9 @@ interface AppointmentFormData {
   id?: number;
   doctor_id: number;
   patient_id: number;
-  appointment_date: string;
+  appointment_date?: string;
+  selected_date: string;
+  selected_time: string;
 }
 
 interface Props {
@@ -30,28 +32,23 @@ interface Props {
 }
 
 export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
-  const [form, setForm] = useState(() => {
-    if (initial?.appointment_date) {
-      const date = new Date(initial.appointment_date);
-      const selectedDate = date.toISOString().split('T')[0];
-      const selectedTime = date.toTimeString().slice(0, 5);
-      
-      return {
-        selectedDoctor: null as { value: number; label: string } | null,
-        selectedPatient: null as { value: number; label: string } | null,
-        selectedDate,
-        selectedTime,
-        ...initial
-      };
-    }
-    
-    return {
-      selectedDoctor: null as { value: number; label: string } | null,
-      selectedPatient: null as { value: number; label: string } | null,
-      selectedDate: '',
-      selectedTime: '',
+  const [form, setForm] = useState<AppointmentFormData>(() => {
+    const initialForm = {
+      doctor_id: 0,
+      patient_id: 0,
+      selected_date: '',
+      selected_time: '',
       ...initial
     };
+
+    // Se existe appointment_date nos dados iniciais, extrai date e time
+    if (initial?.appointment_date) {
+      const date = new Date(initial.appointment_date);
+      initialForm.selected_date = date.toISOString().split('T')[0];
+      initialForm.selected_time = date.toTimeString().slice(0, 5);
+    }
+
+    return initialForm;
   });
 
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -90,18 +87,30 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     return () => { cancelled = true; };
   }, []);
 
+  function handlePatientChange(selectedOption: { value?: number; label: string } | null) {
+    setForm(prev => ({ ...prev, patient_id: selectedOption?.value || 0 }));
+  }
+
+  function handleDoctorChange(selectedOption: { value?: number; label: string } | null) {
+    setForm(prev => ({ ...prev, doctor_id: selectedOption?.value || 0 }));
+  }
+
+  function handleDateChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setForm(prev => ({ ...prev, selected_date: e.target.value }));
+  }
+
+  function handleTimeChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setForm(prev => ({ ...prev, selected_time: e.target.value }));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     
     setIsSubmitting(true);
     
     try {
-      const appointment_date = `${form.selectedDate}T${form.selectedTime}:00`;
-      await onSubmit({
-        doctor_id: (selectedDoctor?.value || form.selectedDoctor?.value)!,
-        patient_id: (selectedPatient?.value || form.selectedPatient?.value)!,
-        appointment_date
-      });
+      const appointment_date = `${form.selected_date}T${form.selected_time}:00`;
+      await onSubmit({ ...form, appointment_date });
     } catch {
       // Error handling será feito pelo componente pai
     } finally {
@@ -119,38 +128,35 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     label: patient.name
   }));
 
-  const selectedDoctor = form.doctor_id ? 
-    doctorOptions.find(option => option.value === form.doctor_id) || null : 
-    form.selectedDoctor;
-    
-  const selectedPatient = form.patient_id ? 
-    patientOptions.find(option => option.value === form.patient_id) || null : 
-    form.selectedPatient;
+  const selectedPatient = patientOptions.find(option => option.value === form.patient_id) || null;
+  const selectedDoctor = doctorOptions.find(option => option.value === form.doctor_id) || null;
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      <FormField label="Doutor" required>
+      <FormField label="Paciente" required>
         <Select
-          options={doctorOptions}
-          value={selectedDoctor}
-          onChange={(selectedDoctor) => setForm(prev => ({ ...prev, selectedDoctor }))}
-          placeholder="Selecione um doutor"
+          options={patientOptions}
+          value={selectedPatient}
+          onChange={handlePatientChange}
+          placeholder="Selecione um paciente"
           isSearchable
-          noOptionsMessage={() => "Nenhum doutor encontrado"}
+          isClearable
+          noOptionsMessage={() => "Nenhum paciente encontrado"}
           className={styles.reactSelect}
           classNamePrefix="react-select"
           required
         />
       </FormField>
-      
-      <FormField label="Paciente" required>
+
+      <FormField label="Doutor" required>
         <Select
-          options={patientOptions}
-          value={selectedPatient}
-          onChange={(selectedPatient) => setForm(prev => ({ ...prev, selectedPatient }))}
-          placeholder="Selecione um paciente"
+          options={doctorOptions}
+          value={selectedDoctor}
+          onChange={handleDoctorChange}
+          placeholder="Selecione um doutor"
           isSearchable
-          noOptionsMessage={() => "Nenhum paciente encontrado"}
+          isClearable
+          noOptionsMessage={() => "Nenhum doutor encontrado"}
           className={styles.reactSelect}
           classNamePrefix="react-select"
           required
@@ -162,8 +168,8 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
           <FormField label="Data" required>
             <input
               type="date"
-              value={form.selectedDate}
-              onChange={(e) => setForm(prev => ({ ...prev, selectedDate: e.target.value }))}
+              value={form.selected_date}
+              onChange={handleDateChange}
               onClick={(e) => e.currentTarget.showPicker?.()}
               className={styles.input}
               min={new Date().toISOString().split('T')[0]}
@@ -176,8 +182,8 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
           <FormField label="Horário" required>
             <input
               type="time"
-              value={form.selectedTime}
-              onChange={(e) => setForm(prev => ({ ...prev, selectedTime: e.target.value }))}
+              value={form.selected_time}
+              onChange={handleTimeChange}
               onClick={(e) => e.currentTarget.showPicker?.()}
               className={styles.input}
               min="08:00"

@@ -84,6 +84,8 @@ interface Appointment {
     patient_name: string;
     created_at: string;
     appointment_date: string;
+    plan_id: number;
+    plan_name: string;
 }
 
 // Types for form submissions

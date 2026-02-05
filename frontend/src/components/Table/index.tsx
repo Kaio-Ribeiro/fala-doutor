@@ -37,6 +37,8 @@ type Appointment = {
     created_at: string;
     doctor_name: string;
     patient_name: string;
+    plan_id: number;
+    plan_name: string;
     appointment_date: string;
 };
 
@@ -78,6 +80,7 @@ const columnsConfig = {
     { key: 'created_at', label: 'Data de Criação' },
     { key: 'doctor_name', label: 'Doutor' },
     { key: 'patient_name', label: 'Paciente' },
+    { key: 'plan_name', label: 'Plano' },
     { key: 'appointment_date', label: 'Data da Consulta' },
   ],
 };
@@ -135,6 +138,7 @@ export function Table({ data, module, lightColor, onEdit = () => {}, onDelete = 
                 <>
                   <td className={styles.tdName}>{(item as Appointment).doctor_name}</td>
                   <td className={styles.td}>{(item as Appointment).patient_name}</td>
+                  <td className={styles.td}>{(item as Appointment).plan_name}</td>
                   <td className={styles.td}>{new Date((item as Appointment).appointment_date).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</td>
                 </>
               )}

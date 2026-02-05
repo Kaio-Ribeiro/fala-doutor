@@ -9,11 +9,7 @@ export const appointmentController = {
       const appointments = await appointmentModel.findAll();
       res.json(appointments);
     } catch (error) {
-    //   res.status(500).json({ error: 'Erro ao listar consultas' });
-        res.status(500).json({
-          error: 'Erro ao listar consultas', 
-          details: error instanceof Error ? error.message : String(error)
-        });
+      res.status(500).json({ error: 'Erro ao listar consultas' });
     }
   },
 
