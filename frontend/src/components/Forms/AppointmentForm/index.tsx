@@ -9,11 +9,13 @@ interface Doctor {
   id?: number;
   name: string;
   specialty?: string;
+  plan_ids?: number[];
 }
 
 interface Patient {
   id?: number;
   name: string;
+  plan_id?: number;
   plan_name?: string;
 }
 
@@ -119,10 +121,17 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     }
   }
 
-  const doctorOptions = doctors.map(doctor => ({
-    value: doctor.id!,
-    label: doctor.name
-  }));
+  const doctorOptions = doctors.map(doctor => {
+    const selectedPatient = patients.find(p => p.id === form.patient_id);
+    const attendsPlan = selectedPatient?.plan_id && doctor.plan_ids?.includes(selectedPatient.plan_id);
+    
+    return {
+      value: doctor.id!,
+      label: attendsPlan 
+        ? `${doctor.name} - Atende ao plano` 
+        : doctor.name
+    };
+  });
 
   const patientOptions = patients.map(patient => ({
     value: patient.id!,
