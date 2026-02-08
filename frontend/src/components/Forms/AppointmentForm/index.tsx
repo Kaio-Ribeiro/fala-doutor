@@ -22,12 +22,6 @@ interface Patient {
   plan_name?: string;
 }
 
-interface AppointmentDate {
-  appointment_date: string;
-  date: string;
-  time: string;
-}
-
 interface AppointmentFormData {
   id?: number;
   doctor_id: number;
@@ -58,7 +52,9 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
 
   const getSelectedTime = () => {
     if (!form.appointment_date) return '';
-    return form.appointment_date.split('T')[1]?.slice(0, 5) || '';
+    const timePart = form.appointment_date.split('T')[1];
+    if (!timePart) return '';
+    return timePart.slice(0, 5) || '';
   };
 
   const [form, setForm] = useState<AppointmentFormData>(() => {
@@ -73,39 +69,22 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [blockedTimeSlots, setBlockedTimeSlots] = useState<{[date: string]: string[]}>({});
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
 
-  const fetchAppointmentDates = async (type: 'doctor' | 'patient', id: number) => {
+  const fetchAvailableTimes = async (doctorId: number, patientId: number, date: string) => {
     try {
-      const endpoint = type === 'doctor' ? 'doctor' : 'patient';
-      const param = type === 'doctor' ? 'doctor_id' : 'patient_id';
-      const response = await fetch(`http://localhost:3000/api/appointments/dates/${endpoint}?${param}=${id}`);
-      const appointments: AppointmentDate[] = await response.json();
-      
-      // Agrupar por data
-      const timeSlots: {[date: string]: string[]} = {};
-      appointments.forEach((apt: AppointmentDate) => {
-        if (!timeSlots[apt.date]) {
-          timeSlots[apt.date] = [];
-        }
-        timeSlots[apt.date].push(apt.time);
-      });
-      
-      return timeSlots;
-    } catch (error) {
-      console.error(`Erro ao buscar horários do ${type}:`, error);
-      return {};
-    }
-  };
+      const params = new URLSearchParams();
+      if (doctorId > 0) params.append('doctor_id', doctorId.toString());
+      if (patientId > 0) params.append('patient_id', patientId.toString());
+      params.append('date', date);
 
-  // Helper para combinar múltiplos objetos de timeSlots
-  const combineTimeSlots = (timeSlotsArray: {[date: string]: string[]}[]) => {
-    return timeSlotsArray.reduce((combined, timeSlots) => {
-      Object.entries(timeSlots).forEach(([date, times]) => {
-        combined[date] = combined[date] ? [...combined[date], ...times] : [...times];
-      });
-      return combined;
-    }, {} as {[date: string]: string[]});
+      const response = await fetch(`http://localhost:3000/api/appointments/available-times?${params}`);
+      const times: string[] = await response.json();
+      setAvailableTimeSlots(times);
+    } catch (error) {
+      console.error('Erro ao buscar horários disponíveis:', error);
+      setAvailableTimeSlots([]);
+    }
   };
 
   useEffect(() => {
@@ -140,60 +119,36 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     return () => { cancelled = true; };
   }, []);
 
-  const updateBlockedTimeSlots = async (doctorId: number, patientId: number) => {
-    const promises = [];
-    
-    if (doctorId > 0) {
-      promises.push(fetchAppointmentDates('doctor', doctorId));
+  // Buscar horários disponíveis quando doutor, paciente e data estão preenchidos
+  useEffect(() => {
+    const selectedDate = getSelectedDate();
+    if (form.doctor_id > 0 && form.patient_id > 0 && selectedDate) {
+      fetchAvailableTimes(form.doctor_id, form.patient_id, selectedDate);
+    } else {
+      setAvailableTimeSlots([]);
     }
-    
-    if (patientId > 0) {
-      promises.push(fetchAppointmentDates('patient', patientId));
-    }
-    
-    try {
-      const results = await Promise.all(promises);
-      const combinedTimeSlots = combineTimeSlots(results);
-      setBlockedTimeSlots(combinedTimeSlots);
-    } catch (error) {
-      console.error('Erro ao atualizar horários bloqueados:', error);
-      setBlockedTimeSlots({});
-    }
-  };
-
-  const getAvailableTimeSlots = (selectedDate: string) => {
-    const allTimeSlots = [];
-    
-    // Gerar horários de 8:00 às 16:00 (intervalos de 1h)
-    for (let hour = 8; hour < 17; hour++) {
-      const timeString = `${hour.toString().padStart(2, '0')}:00`;
-      allTimeSlots.push(timeString);
-    }
-    
-    // Remover horários bloqueados para esta data
-    const blockedForDate = blockedTimeSlots[selectedDate] || [];
-    return allTimeSlots.filter(time => !blockedForDate.includes(time));
-  };
+  }, [form.doctor_id, form.patient_id, form.appointment_date]);
 
   function handlePatientChange(selectedOption: { value?: number; label: string } | null) {
     setForm(prev => ({ ...prev, patient_id: selectedOption?.value || 0 }));
-    
-    updateBlockedTimeSlots(form.doctor_id, selectedOption?.value || 0);
   }
 
   function handleDoctorChange(selectedOption: { value?: number; label: string } | null) {
     setForm(prev => ({ ...prev, doctor_id: selectedOption?.value || 0 }));
-    
-    updateBlockedTimeSlots(selectedOption?.value || 0, form.patient_id);
   }
 
   function handleDatePickerChange(date: Date | null) {
-    const currentTime = getSelectedTime() || '08:00';
-    
     if (date) {
       const formattedDate = formatDate(date);
-      const newAppointmentDate = `${formattedDate}T${currentTime}:00`;
-      setForm(prev => ({ ...prev, appointment_date: newAppointmentDate }));
+      const currentTime = getSelectedTime() || (availableTimeSlots.length > 0 ? availableTimeSlots[0] : '');
+      
+      if (currentTime) {
+        const newAppointmentDate = `${formattedDate}T${currentTime}:00`;
+        setForm(prev => ({ ...prev, appointment_date: newAppointmentDate }));
+      } else {
+        // Se não há horários disponíveis, deixar apenas com a data
+        setForm(prev => ({ ...prev, appointment_date: formattedDate }));
+      }
     } else {
       setForm(prev => ({ ...prev, appointment_date: '' }));
     }
@@ -316,14 +271,14 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
         <div style={{ flex: 1 }}>
           <FormField label="Horário" required>
             <Select
-              options={getAvailableTimeSlots(getSelectedDate()).map(time => ({
+              options={availableTimeSlots.map(time => ({
                 value: time,
                 label: time
               }))}
               value={getSelectedTime() ? { value: getSelectedTime(), label: getSelectedTime() } : null}
               onChange={handleTimeChange}
               placeholder="Selecione um horário"
-              isDisabled={!getSelectedDate()}
+              isDisabled={!form.doctor_id || !form.patient_id || !getSelectedDate()}
               noOptionsMessage={() => "Nenhum horário disponível"}
               className={styles.reactSelect}
               classNamePrefix="react-select"
