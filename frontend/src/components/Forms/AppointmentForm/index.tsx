@@ -60,6 +60,33 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [excludedDates, setExcludedDates] = useState<Date[]>([]);
+
+  const fetchAppointmentDatesDoctor = async (doctorId: number) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/appointments/dates/doctor?doctor_id=${doctorId}`);
+      const dates = await response.json();
+      
+      const dateObjects = dates.map((dateString: string) => new Date(dateString));
+      return dateObjects;
+    } catch (error) {
+      console.error('Erro ao buscar datas indisponíveis:', error);
+      return [];
+    }
+  };
+
+  const fetchAppointmentDatesPatient = async (patientId: number) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/appointments/dates/patient?patient_id=${patientId}`);
+      const dates = await response.json();
+      
+      const dateObjects = dates.map((dateString: string) => new Date(dateString));
+      return dateObjects;
+    } catch (error) {
+      console.error('Erro ao buscar datas indisponíveis do paciente:', error);
+      return [];
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -93,12 +120,41 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     return () => { cancelled = true; };
   }, []);
 
+  const updateExcludedDates = async (doctorId: number, patientId: number) => {
+    const promises = [];
+    
+    if (doctorId > 0) {
+      promises.push(fetchAppointmentDatesDoctor(doctorId));
+    }
+    
+    if (patientId > 0) {
+      promises.push(fetchAppointmentDatesPatient(patientId));
+    }
+    
+    try {
+      const results = await Promise.all(promises);
+      const allDates = results.flat();
+      const uniqueDates = allDates.filter((date, index, self) => 
+        index === self.findIndex(d => d.getTime() === date.getTime())
+      );
+      
+      setExcludedDates(uniqueDates);
+    } catch (error) {
+      console.error('Erro ao atualizar datas excluídas:', error);
+      setExcludedDates([]);
+    }
+  };
+
   function handlePatientChange(selectedOption: { value?: number; label: string } | null) {
     setForm(prev => ({ ...prev, patient_id: selectedOption?.value || 0 }));
+    
+    updateExcludedDates(form.doctor_id, selectedOption?.value || 0);
   }
 
   function handleDoctorChange(selectedOption: { value?: number; label: string } | null) {
     setForm(prev => ({ ...prev, doctor_id: selectedOption?.value || 0 }));
+    
+    updateExcludedDates(selectedOption?.value || 0, form.patient_id);
   }
 
   function handleDatePickerChange(date: Date | null) {
@@ -204,7 +260,7 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
         <div style={{ flex: 1 }}>
           <FormField label="Data" required>
             <DatePicker 
-              selected={form.selected_date ? new Date(form.selected_date) : null}
+              selected={form.selected_date ? new Date(form.selected_date + 'T00:00:00') : null}
               onChange={handleDatePickerChange}
               customInput={<MaskedInput/>}
               minDate={new Date()}
@@ -216,6 +272,7 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
               showMonthDropdown
               showYearDropdown
               dropdownMode="select"
+              excludeDates={excludedDates}
             />
           </FormField>
         </div>
