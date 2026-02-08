@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import { toast } from 'react-toastify';
 import Select from 'react-select';
 import { FormField } from '../shared/FormField';
 import { FormActions } from '../shared/FormActions';
 import styles from '../shared/styles.module.css';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import IMaskInput from 'react-imask/esm/input';
 
 interface Doctor {
   id?: number;
@@ -98,8 +101,13 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     setForm(prev => ({ ...prev, doctor_id: selectedOption?.value || 0 }));
   }
 
-  function handleDateChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm(prev => ({ ...prev, selected_date: e.target.value }));
+  function handleDatePickerChange(date: Date | null) {
+    if (date) {
+      const formattedDate = date.toISOString().split('T')[0];
+      setForm(prev => ({ ...prev, selected_date: formattedDate }));
+    } else {
+      setForm(prev => ({ ...prev, selected_date: '' }));
+    }
   }
 
   function handleTimeChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -137,6 +145,15 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     value: patient.id!,
     label: patient.name
   }));
+
+  const MaskedInput = forwardRef((props, ref) => (
+  <IMaskInput
+    {...props}
+    mask="00/00/0000"
+    placeholder="dd/mm/aaaa"
+    ref={ref}
+  />
+));
 
   const selectedPatient = patientOptions.find(option => option.value === form.patient_id) || null;
   const selectedDoctor = doctorOptions.find(option => option.value === form.doctor_id) || null
@@ -186,14 +203,19 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
       <div style={{ display: 'flex', gap: '1rem' }}>
         <div style={{ flex: 1 }}>
           <FormField label="Data" required>
-            <input
-              type="date"
-              value={form.selected_date}
-              onChange={handleDateChange}
-              onClick={(e) => e.currentTarget.showPicker?.()}
+            <DatePicker 
+              selected={form.selected_date ? new Date(form.selected_date) : null}
+              onChange={handleDatePickerChange}
+              customInput={<MaskedInput/>}
+              minDate={new Date()}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="Selecione uma data"
               className={styles.input}
-              min={new Date().toISOString().split('T')[0]}
+              isClearable
               required
+              showMonthDropdown
+              showYearDropdown
+              dropdownMode="select"
             />
           </FormField>
         </div>
