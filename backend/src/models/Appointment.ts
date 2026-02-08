@@ -53,4 +53,28 @@ export class AppointmentModel {
     const result = await pool.query('DELETE FROM appointments WHERE id = $1', [id]);
     return result.rowCount! > 0;
   }
+
+  async findAppointmentDatesDoctor(doctorId: number): Promise<string[]> {
+    const result = await pool.query(
+      `SELECT appointments.*, 
+        appointments.appointment_date
+        FROM appointments
+        WHERE appointments.doctor_id = $1
+        AND appointments.appointment_date >= NOW()
+        ORDER BY appointments.id`, [doctorId]
+    )
+    return result.rows.map(row => row.appointment_date.toISOString());
+  }
+
+  async findAppointmentDatesPatient(patientId: number): Promise<string[]> {
+    const result = await pool.query(
+      `SELECT appointments.*, 
+        appointments.appointment_date
+        FROM appointments
+        WHERE appointments.patient_id = $1
+        AND appointments.appointment_date >= NOW()
+        ORDER BY appointments.id`, [patientId]
+    )
+    return result.rows.map(row => row.appointment_date.toISOString());
+  }
 }

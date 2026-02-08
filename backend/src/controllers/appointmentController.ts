@@ -46,7 +46,7 @@ export const appointmentController = {
     } catch (error) {
         res.status(500).json({ error: 'Erro ao atualizar consulta' });
     }
-},
+  },
 
   async delete(req: Request, res: Response) {
     try {
@@ -59,4 +59,32 @@ export const appointmentController = {
       res.status(500).json({ error: 'Erro ao deletar consulta' });
     }
   },
+
+  async getAppointmentDatesDoctor(req: Request, res: Response) {
+    try {
+      if (req.query.doctor_id) {
+        const doctorId = Number(req.query.doctor_id);
+        const appointments = await appointmentModel.findAppointmentDatesDoctor(doctorId);
+        res.json(appointments);
+      } else {
+        return res.status(400).json({ error: 'Parâmetro doctor_id é obrigatório' });
+      }
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Erro ao buscar datas indisponíveis' });
+    }
+  },
+
+  async getAppointmentDatesPatient(req: Request, res: Response) {
+    try {
+      if (req.query.patient_id) {
+        const patientId = Number(req.query.patient_id);
+        const appointments = await appointmentModel.findAppointmentDatesPatient(patientId);
+        res.json(appointments);
+      } else {
+        return res.status(400).json({ error: 'Parâmetro patient_id é obrigatório' });
+      }
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Erro ao buscar datas indisponíveis' });
+    }
+  }
 };
