@@ -54,27 +54,47 @@ export class AppointmentModel {
     return result.rowCount! > 0;
   }
 
-  async findAppointmentDatesDoctor(doctorId: number): Promise<string[]> {
+  async findAppointmentDatesDoctor(doctorId: number): Promise<{appointment_date: string, date: string, time: string}[]> {
     const result = await pool.query(
-      `SELECT appointments.*, 
-        appointments.appointment_date
+      `SELECT appointments.appointment_date
         FROM appointments
         WHERE appointments.doctor_id = $1
         AND appointments.appointment_date >= NOW()
-        ORDER BY appointments.id`, [doctorId]
+        ORDER BY appointments.appointment_date`, [doctorId]
     )
-    return result.rows.map(row => row.appointment_date.toISOString());
+    
+    return result.rows.map(row => {
+      const appointmentDate = new Date(row.appointment_date);
+      const date = appointmentDate.toISOString().split('T')[0];
+      const time = appointmentDate.toTimeString().slice(0, 5);
+      
+      return {
+        appointment_date: row.appointment_date.toISOString(),
+        date,
+        time
+      };
+    });
   }
 
-  async findAppointmentDatesPatient(patientId: number): Promise<string[]> {
+  async findAppointmentDatesPatient(patientId: number): Promise<{appointment_date: string, date: string, time: string}[]> {
     const result = await pool.query(
-      `SELECT appointments.*, 
-        appointments.appointment_date
+      `SELECT appointments.appointment_date
         FROM appointments
         WHERE appointments.patient_id = $1
         AND appointments.appointment_date >= NOW()
-        ORDER BY appointments.id`, [patientId]
+        ORDER BY appointments.appointment_date`, [patientId]
     )
-    return result.rows.map(row => row.appointment_date.toISOString());
+    
+    return result.rows.map(row => {
+      const appointmentDate = new Date(row.appointment_date);
+      const date = appointmentDate.toISOString().split('T')[0];
+      const time = appointmentDate.toTimeString().slice(0, 5);
+      
+      return {
+        appointment_date: row.appointment_date.toISOString(),
+        date,
+        time
+      };
+    });
   }
 }

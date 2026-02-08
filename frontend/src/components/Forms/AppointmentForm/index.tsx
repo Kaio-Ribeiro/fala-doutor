@@ -22,13 +22,17 @@ interface Patient {
   plan_name?: string;
 }
 
+interface AppointmentDate {
+  appointment_date: string;
+  date: string;
+  time: string;
+}
+
 interface AppointmentFormData {
   id?: number;
   doctor_id: number;
   patient_id: number;
   appointment_date?: string;
-  selected_date: string;
-  selected_time: string;
 }
 
 interface Props {
@@ -38,54 +42,70 @@ interface Props {
 }
 
 export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
+  // Função helper para formatação de data consistente
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Helpers para extrair data e hora do appointment_date
+  const getSelectedDate = () => {
+    if (!form.appointment_date) return '';
+    return form.appointment_date.split('T')[0];
+  };
+
+  const getSelectedTime = () => {
+    if (!form.appointment_date) return '';
+    return form.appointment_date.split('T')[1]?.slice(0, 5) || '';
+  };
+
   const [form, setForm] = useState<AppointmentFormData>(() => {
-    const initialForm = {
+    return {
       doctor_id: 0,
       patient_id: 0,
-      selected_date: '',
-      selected_time: '',
+      appointment_date: initial?.appointment_date || '',
       ...initial
     };
-
-    // Se existe appointment_date nos dados iniciais, extrai date e time
-    if (initial?.appointment_date) {
-      const date = new Date(initial.appointment_date);
-      initialForm.selected_date = date.toISOString().split('T')[0];
-      initialForm.selected_time = date.toTimeString().slice(0, 5);
-    }
-
-    return initialForm;
   });
 
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [excludedDates, setExcludedDates] = useState<Date[]>([]);
+  const [blockedTimeSlots, setBlockedTimeSlots] = useState<{[date: string]: string[]}>({});
 
-  const fetchAppointmentDatesDoctor = async (doctorId: number) => {
+  const fetchAppointmentDates = async (type: 'doctor' | 'patient', id: number) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/appointments/dates/doctor?doctor_id=${doctorId}`);
-      const dates = await response.json();
+      const endpoint = type === 'doctor' ? 'doctor' : 'patient';
+      const param = type === 'doctor' ? 'doctor_id' : 'patient_id';
+      const response = await fetch(`http://localhost:3000/api/appointments/dates/${endpoint}?${param}=${id}`);
+      const appointments: AppointmentDate[] = await response.json();
       
-      const dateObjects = dates.map((dateString: string) => new Date(dateString));
-      return dateObjects;
+      // Agrupar por data
+      const timeSlots: {[date: string]: string[]} = {};
+      appointments.forEach((apt: AppointmentDate) => {
+        if (!timeSlots[apt.date]) {
+          timeSlots[apt.date] = [];
+        }
+        timeSlots[apt.date].push(apt.time);
+      });
+      
+      return timeSlots;
     } catch (error) {
-      console.error('Erro ao buscar datas indisponíveis:', error);
-      return [];
+      console.error(`Erro ao buscar horários do ${type}:`, error);
+      return {};
     }
   };
 
-  const fetchAppointmentDatesPatient = async (patientId: number) => {
-    try {
-      const response = await fetch(`http://localhost:3000/api/appointments/dates/patient?patient_id=${patientId}`);
-      const dates = await response.json();
-      
-      const dateObjects = dates.map((dateString: string) => new Date(dateString));
-      return dateObjects;
-    } catch (error) {
-      console.error('Erro ao buscar datas indisponíveis do paciente:', error);
-      return [];
-    }
+  // Helper para combinar múltiplos objetos de timeSlots
+  const combineTimeSlots = (timeSlotsArray: {[date: string]: string[]}[]) => {
+    return timeSlotsArray.reduce((combined, timeSlots) => {
+      Object.entries(timeSlots).forEach(([date, times]) => {
+        combined[date] = combined[date] ? [...combined[date], ...times] : [...times];
+      });
+      return combined;
+    }, {} as {[date: string]: string[]});
   };
 
   useEffect(() => {
@@ -120,54 +140,72 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     return () => { cancelled = true; };
   }, []);
 
-  const updateExcludedDates = async (doctorId: number, patientId: number) => {
+  const updateBlockedTimeSlots = async (doctorId: number, patientId: number) => {
     const promises = [];
     
     if (doctorId > 0) {
-      promises.push(fetchAppointmentDatesDoctor(doctorId));
+      promises.push(fetchAppointmentDates('doctor', doctorId));
     }
     
     if (patientId > 0) {
-      promises.push(fetchAppointmentDatesPatient(patientId));
+      promises.push(fetchAppointmentDates('patient', patientId));
     }
     
     try {
       const results = await Promise.all(promises);
-      const allDates = results.flat();
-      const uniqueDates = allDates.filter((date, index, self) => 
-        index === self.findIndex(d => d.getTime() === date.getTime())
-      );
-      
-      setExcludedDates(uniqueDates);
+      const combinedTimeSlots = combineTimeSlots(results);
+      setBlockedTimeSlots(combinedTimeSlots);
     } catch (error) {
-      console.error('Erro ao atualizar datas excluídas:', error);
-      setExcludedDates([]);
+      console.error('Erro ao atualizar horários bloqueados:', error);
+      setBlockedTimeSlots({});
     }
+  };
+
+  const getAvailableTimeSlots = (selectedDate: string) => {
+    const allTimeSlots = [];
+    
+    // Gerar horários de 8:00 às 16:00 (intervalos de 1h)
+    for (let hour = 8; hour < 17; hour++) {
+      const timeString = `${hour.toString().padStart(2, '0')}:00`;
+      allTimeSlots.push(timeString);
+    }
+    
+    // Remover horários bloqueados para esta data
+    const blockedForDate = blockedTimeSlots[selectedDate] || [];
+    return allTimeSlots.filter(time => !blockedForDate.includes(time));
   };
 
   function handlePatientChange(selectedOption: { value?: number; label: string } | null) {
     setForm(prev => ({ ...prev, patient_id: selectedOption?.value || 0 }));
     
-    updateExcludedDates(form.doctor_id, selectedOption?.value || 0);
+    updateBlockedTimeSlots(form.doctor_id, selectedOption?.value || 0);
   }
 
   function handleDoctorChange(selectedOption: { value?: number; label: string } | null) {
     setForm(prev => ({ ...prev, doctor_id: selectedOption?.value || 0 }));
     
-    updateExcludedDates(selectedOption?.value || 0, form.patient_id);
+    updateBlockedTimeSlots(selectedOption?.value || 0, form.patient_id);
   }
 
   function handleDatePickerChange(date: Date | null) {
+    const currentTime = getSelectedTime() || '08:00';
+    
     if (date) {
-      const formattedDate = date.toISOString().split('T')[0];
-      setForm(prev => ({ ...prev, selected_date: formattedDate }));
+      const formattedDate = formatDate(date);
+      const newAppointmentDate = `${formattedDate}T${currentTime}:00`;
+      setForm(prev => ({ ...prev, appointment_date: newAppointmentDate }));
     } else {
-      setForm(prev => ({ ...prev, selected_date: '' }));
+      setForm(prev => ({ ...prev, appointment_date: '' }));
     }
   }
 
-  function handleTimeChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm(prev => ({ ...prev, selected_time: e.target.value }));
+  function handleTimeChange(selectedOption: { value?: string; label: string } | null) {
+    const currentDate = getSelectedDate();
+    
+    if (selectedOption?.value && currentDate) {
+      const newAppointmentDate = `${currentDate}T${selectedOption.value}:00`;
+      setForm(prev => ({ ...prev, appointment_date: newAppointmentDate }));
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -176,8 +214,7 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     setIsSubmitting(true);
     
     try {
-      const appointment_date = `${form.selected_date}T${form.selected_time}:00`;
-      await onSubmit({ ...form, appointment_date });
+      await onSubmit(form);
     } catch {
       // Error handling será feito pelo componente pai
     } finally {
@@ -260,7 +297,7 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
         <div style={{ flex: 1 }}>
           <FormField label="Data" required>
             <DatePicker 
-              selected={form.selected_date ? new Date(form.selected_date + 'T00:00:00') : null}
+              selected={getSelectedDate() ? new Date(getSelectedDate() + 'T00:00:00') : null}
               onChange={handleDatePickerChange}
               customInput={<MaskedInput/>}
               minDate={new Date()}
@@ -272,21 +309,28 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
               showMonthDropdown
               showYearDropdown
               dropdownMode="select"
-              excludeDates={excludedDates}
             />
           </FormField>
         </div>
         
         <div style={{ flex: 1 }}>
           <FormField label="Horário" required>
-            <input
-              type="time"
-              value={form.selected_time}
+            <Select
+              options={getAvailableTimeSlots(getSelectedDate()).map(time => ({
+                value: time,
+                label: time
+              }))}
+              value={getSelectedTime() ? { value: getSelectedTime(), label: getSelectedTime() } : null}
               onChange={handleTimeChange}
-              onClick={(e) => e.currentTarget.showPicker?.()}
-              className={styles.input}
-              min="08:00"
-              max="17:00"
+              placeholder="Selecione um horário"
+              isDisabled={!getSelectedDate()}
+              noOptionsMessage={() => "Nenhum horário disponível"}
+              className={styles.reactSelect}
+              classNamePrefix="react-select"
+              menuPortalTarget={document.body}
+              styles={{
+                menuPortal: (base) => ({ ...base, zIndex: 99999 })
+              }}
               required
             />
           </FormField>
