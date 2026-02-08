@@ -130,25 +130,28 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
   }, [form.doctor_id, form.patient_id, form.appointment_date]);
 
   function handlePatientChange(selectedOption: { value?: number; label: string } | null) {
-    setForm(prev => ({ ...prev, patient_id: selectedOption?.value || 0 }));
+    const currentDate = getSelectedDate();
+    setForm(prev => ({ 
+      ...prev, 
+      patient_id: selectedOption?.value || 0,
+      appointment_date: currentDate || ''
+    }));
   }
 
   function handleDoctorChange(selectedOption: { value?: number; label: string } | null) {
-    setForm(prev => ({ ...prev, doctor_id: selectedOption?.value || 0 }));
+      const currentDate = getSelectedDate();
+      setForm(prev => ({ 
+        ...prev, 
+        doctor_id: selectedOption?.value || 0,
+        appointment_date: currentDate || '' // Manter apenas a data se existir
+      }));
   }
 
   function handleDatePickerChange(date: Date | null) {
     if (date) {
       const formattedDate = formatDate(date);
-      const currentTime = getSelectedTime() || (availableTimeSlots.length > 0 ? availableTimeSlots[0] : '');
-      
-      if (currentTime) {
-        const newAppointmentDate = `${formattedDate}T${currentTime}:00`;
-        setForm(prev => ({ ...prev, appointment_date: newAppointmentDate }));
-      } else {
-        // Se não há horários disponíveis, deixar apenas com a data
-        setForm(prev => ({ ...prev, appointment_date: formattedDate }));
-      }
+      // Não tentar manter horário anterior, deixar apenas com a data
+      setForm(prev => ({ ...prev, appointment_date: formattedDate }));
     } else {
       setForm(prev => ({ ...prev, appointment_date: '' }));
     }
