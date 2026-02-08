@@ -54,47 +54,54 @@ export class AppointmentModel {
     return result.rowCount! > 0;
   }
 
-  async findAppointmentDatesDoctor(doctorId: number): Promise<{appointment_date: string, date: string, time: string}[]> {
+  async getAvailableTimes(doctorId: number, patientId: number, date: string): Promise<string[]> {
+    // Buscar agendamentos do doutor e paciente para a data específica
     const result = await pool.query(
-      `SELECT appointments.appointment_date
-        FROM appointments
-        WHERE appointments.doctor_id = $1
-        AND appointments.appointment_date >= NOW()
-        ORDER BY appointments.appointment_date`, [doctorId]
-    )
-    
-    return result.rows.map(row => {
-      const appointmentDate = new Date(row.appointment_date);
-      const date = appointmentDate.toISOString().split('T')[0];
-      const time = appointmentDate.toTimeString().slice(0, 5);
-      
-      return {
-        appointment_date: row.appointment_date.toISOString(),
-        date,
-        time
-      };
-    });
-  }
+      `SELECT appointment_date 
+       FROM appointments 
+       WHERE (doctor_id = $1 OR patient_id = $2)
+       AND DATE(appointment_date) = $3`,
+      [doctorId, patientId, date]
+    );
 
-  async findAppointmentDatesPatient(patientId: number): Promise<{appointment_date: string, date: string, time: string}[]> {
-    const result = await pool.query(
-      `SELECT appointments.appointment_date
-        FROM appointments
-        WHERE appointments.patient_id = $1
-        AND appointments.appointment_date >= NOW()
-        ORDER BY appointments.appointment_date`, [patientId]
-    )
-    
-    return result.rows.map(row => {
-      const appointmentDate = new Date(row.appointment_date);
-      const date = appointmentDate.toISOString().split('T')[0];
-      const time = appointmentDate.toTimeString().slice(0, 5);
+    // Extrair horários ocupados
+    const occupiedTimes = new Set<string>();
+    result.rows.forEach(row => {
+      const appointmentTime = new Date(row.appointment_date);
+      const hours = appointmentTime.getHours();
+      const minutes = appointmentTime.getMinutes();
       
-      return {
-        appointment_date: row.appointment_date.toISOString(),
-        date,
-        time
-      };
+      // Horário da consulta
+      const timeSlot = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+      occupiedTimes.add(timeSlot);
+      
+      // Como consulta dura 1h, bloquear próximo slot de 30min também
+      const nextMinutes = minutes + 30;
+      if (nextMinutes < 60) {
+        const nextSlot = `${hours.toString().padStart(2, '0')}:${nextMinutes.toString().padStart(2, '0')}`;
+        occupiedTimes.add(nextSlot);
+      } else {
+        const nextHour = hours + 1;
+        if (nextHour <= 17) {
+          const nextSlot = `${nextHour.toString().padStart(2, '0')}:${(nextMinutes - 60).toString().padStart(2, '0')}`;
+          occupiedTimes.add(nextSlot);
+        }
+      }
     });
+
+    // Gerar todos os horários possíveis (08:00 às 17:30, intervalos de 30min)
+    const allTimeSlots: string[] = [];
+    for (let hour = 8; hour <= 17; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        // Última slot é 17:30
+        if (hour === 17 && minute > 30) break;
+        
+        const timeSlot = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        allTimeSlots.push(timeSlot);
+      }
+    }
+
+    // Retornar apenas horários disponíveis
+    return allTimeSlots.filter(time => !occupiedTimes.has(time));
   }
 }

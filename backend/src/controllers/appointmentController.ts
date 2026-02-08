@@ -60,31 +60,27 @@ export const appointmentController = {
     }
   },
 
-  async getAppointmentDatesDoctor(req: Request, res: Response) {
+  async getAvailableTimes(req: Request, res: Response) {
     try {
-      if (req.query.doctor_id) {
-        const doctorId = Number(req.query.doctor_id);
-        const appointments = await appointmentModel.findAppointmentDatesDoctor(doctorId);
-        res.json(appointments);
-      } else {
-        return res.status(400).json({ error: 'Parâmetro doctor_id é obrigatório' });
-      }
-    } catch (error) {
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Erro ao buscar datas indisponíveis' });
-    }
-  },
+      const { doctor_id, patient_id, date } = req.query;
 
-  async getAppointmentDatesPatient(req: Request, res: Response) {
-    try {
-      if (req.query.patient_id) {
-        const patientId = Number(req.query.patient_id);
-        const appointments = await appointmentModel.findAppointmentDatesPatient(patientId);
-        res.json(appointments);
-      } else {
-        return res.status(400).json({ error: 'Parâmetro patient_id é obrigatório' });
+      // Validar se data foi fornecida
+      if (!date) {
+        return res.status(400).json({ error: 'Parâmetro date é obrigatório' });
       }
+
+      // Validar se pelo menos um ID foi fornecido
+      if (!doctor_id && !patient_id) {
+        return res.status(400).json({ error: 'Pelo menos doctor_id ou patient_id é obrigatório' });
+      }
+
+      const doctorId = doctor_id ? Number(doctor_id) : 0;
+      const patientId = patient_id ? Number(patient_id) : 0;
+      
+      const availableTimes = await appointmentModel.getAvailableTimes(doctorId, patientId, String(date));
+      res.json(availableTimes);
     } catch (error) {
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Erro ao buscar datas indisponíveis' });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Erro ao buscar horários disponíveis' });
     }
   }
 };
