@@ -64,57 +64,30 @@ export class AppointmentModel {
       [doctorId, patientId, date]
     );
 
-    // Extrair horários ocupados
-    const occupiedTimes = new Set<string>();
+    let timeSlots: Date[] = [];
     result.rows.forEach(row => {
       const appointmentTime = new Date(row.appointment_date);
-      const hours = appointmentTime.getHours();
-      const minutes = appointmentTime.getMinutes();
-      
-      // Horário da consulta
-      const timeSlot = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-      occupiedTimes.add(timeSlot);
-      
-      // Como consulta dura 1h, bloquear próximo slot de 30min também
-      const nextMinutes = minutes + 30;
-      if (nextMinutes < 60) {
-        const nextSlot = `${hours.toString().padStart(2, '0')}:${nextMinutes.toString().padStart(2, '0')}`;
-        occupiedTimes.add(nextSlot);
-      } else {
-        const nextHour = hours + 1;
-        if (nextHour <= 17) {
-          const nextSlot = `${nextHour.toString().padStart(2, '0')}:${(nextMinutes - 60).toString().padStart(2, '0')}`;
-          occupiedTimes.add(nextSlot);
-        }
-      }
 
-      // Bloquear também o slot 30 minutos antes da consulta
-      const prevMinutes = minutes - 30;
-      if (prevMinutes >= 0) {
-        const prevSlot = `${hours.toString().padStart(2, '0')}:${prevMinutes.toString().padStart(2, '0')}`;
-        occupiedTimes.add(prevSlot);
-      } else {
-        const prevHour = hours - 1;
-        if (prevHour >= 8) {
-          const prevSlot = `${prevHour.toString().padStart(2, '0')}:${(prevMinutes + 60).toString().padStart(2, '0')}`;
-          occupiedTimes.add(prevSlot);
-        }
-      }
+      timeSlots.push(
+        new Date(appointmentTime),
+        new Date(appointmentTime.getTime() + 30 * 60 * 1000),
+        new Date(appointmentTime.getTime() - 30 * 60 * 1000)
+      );
+    })
+
+    const timeStrings = timeSlots.map(time => {
+      const hours = time.getHours().toString().padStart(2, '0');
+      const minutes = time.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
     });
 
-    // Gerar todos os horários possíveis (08:00 às 17:30, intervalos de 30min)
-    const allTimeSlots: string[] = [];
-    for (let hour = 8; hour <= 17; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
-        // Última slot é 17:30
-        if (hour === 17 && minute > 30) break;
-        
-        const timeSlot = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        allTimeSlots.push(timeSlot);
-      }
-    }
+    const allTimeSlots: string[] = [
+      '08:00', '08:30', '09:00', '09:30', 
+      '10:00', '10:30', '11:00', '11:30', 
+      '12:00', '12:30', '13:00', '13:30', 
+      '14:00', '14:30', '15:00', '15:30', 
+      '16:00', '16:30', '17:00', '17:30'];
 
-    // Retornar apenas horários disponíveis
-    return allTimeSlots.filter(time => !occupiedTimes.has(time));
+    return allTimeSlots.filter(time => !timeStrings.includes(time));
   }
 }
