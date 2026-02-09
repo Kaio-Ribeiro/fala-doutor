@@ -121,7 +121,7 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
 
   // Buscar horários disponíveis quando doutor, paciente e data estão preenchidos
   useEffect(() => {
-    const selectedDate = getSelectedDate();
+    const selectedDate = form.appointment_date ? form.appointment_date.split('T')[0] : '';
     if (form.doctor_id > 0 && form.patient_id > 0 && selectedDate) {
       fetchAvailableTimes(form.doctor_id, form.patient_id, selectedDate);
     } else {
