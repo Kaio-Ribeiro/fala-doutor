@@ -87,6 +87,19 @@ export class AppointmentModel {
           occupiedTimes.add(nextSlot);
         }
       }
+
+      // Bloquear também o slot 30 minutos antes da consulta
+      const prevMinutes = minutes - 30;
+      if (prevMinutes >= 0) {
+        const prevSlot = `${hours.toString().padStart(2, '0')}:${prevMinutes.toString().padStart(2, '0')}`;
+        occupiedTimes.add(prevSlot);
+      } else {
+        const prevHour = hours - 1;
+        if (prevHour >= 8) {
+          const prevSlot = `${prevHour.toString().padStart(2, '0')}:${(prevMinutes + 60).toString().padStart(2, '0')}`;
+          occupiedTimes.add(prevSlot);
+        }
+      }
     });
 
     // Gerar todos os horários possíveis (08:00 às 17:30, intervalos de 30min)
