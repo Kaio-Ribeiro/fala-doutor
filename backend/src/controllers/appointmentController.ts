@@ -62,7 +62,7 @@ export const appointmentController = {
 
   async getAvailableTimes(req: Request, res: Response) {
     try {
-      const { doctor_id, patient_id, date } = req.query;
+      const { doctor_id, patient_id, date, appointment_id } = req.query;
 
       // Validar se data foi fornecida
       if (!date) {
@@ -76,8 +76,9 @@ export const appointmentController = {
 
       const doctorId = doctor_id ? Number(doctor_id) : 0;
       const patientId = patient_id ? Number(patient_id) : 0;
-      
-      const availableTimes = await appointmentModel.getAvailableTimes(doctorId, patientId, String(date));
+      const appointmentId = appointment_id ? Number(appointment_id) : null;
+
+      const availableTimes = await appointmentModel.getAvailableTimes(doctorId, patientId, String(date), appointmentId);
       res.json(availableTimes);
     } catch (error) {
       res.status(500).json({ error: error instanceof Error ? error.message : 'Erro ao buscar horários disponíveis' });

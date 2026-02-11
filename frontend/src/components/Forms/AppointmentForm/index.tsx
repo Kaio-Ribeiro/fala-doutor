@@ -57,12 +57,26 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     return timePart.slice(0, 5) || '';
   };
 
+  // Converte uma ISO (UTC) para uma string datetime local sem sufixo de timezone
+  const toLocalDateTimeString = (iso?: string) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const seconds = String(d.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  };
+
   const [form, setForm] = useState<AppointmentFormData>(() => {
+    const appointment_date = initial?.appointment_date ? toLocalDateTimeString(initial.appointment_date) : (initial?.appointment_date || '');
     return {
       doctor_id: 0,
       patient_id: 0,
-      appointment_date: initial?.appointment_date || '',
-      ...initial
+      ...initial,
+      appointment_date
     };
   });
 
@@ -71,11 +85,12 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
 
-  const fetchAvailableTimes = async (doctorId: number, patientId: number, date: string) => {
+  const fetchAvailableTimes = async (doctorId: number, patientId: number, date: string, appointmentId?: number) => {
     try {
       const params = new URLSearchParams();
       if (doctorId > 0) params.append('doctor_id', doctorId.toString());
       if (patientId > 0) params.append('patient_id', patientId.toString());
+      if (appointmentId && appointmentId > 0) params.append('appointment_id', appointmentId.toString());
       params.append('date', date);
 
       const response = await fetch(`http://localhost:3000/api/appointments/available-times?${params}`);
@@ -123,11 +138,11 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
   useEffect(() => {
     const selectedDate = form.appointment_date ? form.appointment_date.split('T')[0] : '';
     if (form.doctor_id > 0 && form.patient_id > 0 && selectedDate) {
-      fetchAvailableTimes(form.doctor_id, form.patient_id, selectedDate);
+      fetchAvailableTimes(form.doctor_id, form.patient_id, selectedDate, form.id);
     } else {
       setAvailableTimeSlots([]);
     }
-  }, [form.doctor_id, form.patient_id, form.appointment_date]);
+  }, [form.doctor_id, form.patient_id, form.appointment_date, form.id]);
 
   function handlePatientChange(selectedOption: { value?: number; label: string } | null) {
     const currentDate = getSelectedDate();

@@ -1,5 +1,4 @@
 import { pool } from '../config/database';
-import { Doctor } from './Doctor';
 
 export interface Appointment {
   id?: number;
@@ -54,15 +53,21 @@ export class AppointmentModel {
     return result.rowCount! > 0;
   }
 
-  async getAvailableTimes(doctorId: number, patientId: number, date: string): Promise<string[]> {
+  async getAvailableTimes(doctorId: number, patientId: number, date: string, appointmentId?: number | null): Promise<string[]> {
     // Buscar agendamentos do doutor e paciente para a data específica
-    const result = await pool.query(
-      `SELECT appointment_date 
+    // Se `appointmentId` for informado, excluir esse registro da busca
+    let query = `SELECT appointment_date 
        FROM appointments 
        WHERE (doctor_id = $1 OR patient_id = $2)
-       AND DATE(appointment_date) = $3`,
-      [doctorId, patientId, date]
-    );
+       AND DATE(appointment_date) = $3`;
+    const params: any[] = [doctorId, patientId, date];
+
+     if (appointmentId) {
+      query += ' AND id <> $4';
+      params.push(appointmentId);
+    }
+
+    const result = await pool.query(query, params);
 
     let timeSlots: Date[] = [];
     result.rows.forEach(row => {
