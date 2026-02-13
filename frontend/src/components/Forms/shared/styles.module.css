@@ -19,6 +19,22 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+.inputBirthDate {
+  padding: 10px;
+  border: 1px solid #e6edf3;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  color: #0f172a;
+  font-family: inherit;
+  width: 95%;
+}
+
+.inputBirthDate:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
 /* Estilos específicos para inputs de data e hora */
 .input[type="date"]:focus,
 .input[type="time"]:focus {

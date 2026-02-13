@@ -5,6 +5,7 @@ import Select from 'react-select';
 import { FormField } from '../shared/FormField';
 import { FormActions } from '../shared/FormActions';
 import styles from '../shared/styles.module.css';
+import { DatePicker } from 'react-datepicker';
 
 interface Plan {
   id?: number;
@@ -69,6 +70,15 @@ export function PatientForm({ initial = null, onCancel, onSubmit }: Props) {
     setForm(prev => ({ ...prev, [name]: newValue }));
   }
 
+  function handleDatePickerChange(date: Date | null) {
+    if (date) {
+      const formattedDate = date.toISOString().slice(0, 10);
+      setForm(prev => ({ ...prev, birth_date: formattedDate }));
+    } else {
+      setForm(prev => ({ ...prev, birth_date: '' }));
+    }
+  }
+
   function handlePlanChange(selectedOption: { value?: number; label: string } | null) {
     setForm(prev => ({ ...prev, plan_id: selectedOption?.value || undefined }));
   }
@@ -119,13 +129,17 @@ export function PatientForm({ initial = null, onCancel, onSubmit }: Props) {
       </FormField>
 
       <FormField label="Data de Nascimento" required>
-        <input 
-          name="birth_date" 
-          value={form.birth_date} 
-          onChange={handleChange} 
-          className={styles.input} 
-          type="date"
-          required 
+        <DatePicker
+          selected={form.birth_date ? new Date(form.birth_date  + 'T00:00:00') : null}
+          onChange={handleDatePickerChange}
+          dateFormat="dd/MM/yyyy"
+          placeholderText="Selecione uma data"
+          className={styles.inputBirthDate}
+          isClearable
+          required
+          showMonthDropdown
+          showYearDropdown
+          dropdownMode="select"
         />
       </FormField>
 
