@@ -22,6 +22,14 @@ export const doctorController = {
       return res.status(400).json({ error: `Campos obrigatórios ausentes: ${missingFields.join(', ')}` });
     }
 
+    const birthDate = new Date(req.body.birth_date);
+    const today = new Date();
+    const minBirthDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+
+    if (birthDate > minBirthDate) {
+      return res.status(400).json({ error: 'A idade mínima é 18 anos.' });
+    }
+
     const existingEmail = await doctorModel.findByEmail(req.body.email);
     if (existingEmail) {
       return res.status(400).json({ error: 'E-mail já cadastrado.' });
@@ -60,6 +68,14 @@ export const doctorController = {
     if (missingFields.length > 0) {
       return res.status(400).json({ error: `Campos obrigatórios ausentes: ${missingFields.join(', ')}` });
     }
+
+    const birthDate = new Date(req.body.birth_date);
+    const today = new Date();
+    const minBirthDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+
+    if (birthDate > minBirthDate) {
+      return res.status(400).json({ error: 'A idade mínima é 18 anos.' });
+    }  
 
     const existingEmail = await doctorModel.findByEmail(req.body.email, Number(req.params.id));
     if (existingEmail) {

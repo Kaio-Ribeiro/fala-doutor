@@ -52,6 +52,9 @@ const specialties = [
   'Radiologia'
 ];
 
+const eighteenYearsAgo = new Date();
+eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+
 export function DoctorForm({ initial = null, onCancel, onSubmit }: Props) {
   const [form, setForm] = useState<DoctorFormData>(() => {
     return {
@@ -183,6 +186,7 @@ export function DoctorForm({ initial = null, onCancel, onSubmit }: Props) {
           dateFormat="dd/MM/yyyy"
           placeholderText="Selecione uma data"
           className={styles.inputBirthDate}
+          maxDate={eighteenYearsAgo}
           isClearable
           required
           showMonthDropdown
