@@ -195,17 +195,18 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     }
   }
 
-  const doctorOptions = doctors.map(doctor => {
+  const doctorOptions = doctors
+  .filter(doctor => {
     const selectedPatient = patients.find(p => p.id === form.patient_id);
-    const attendsPlan = selectedPatient?.plan_id && doctor.plan_ids?.includes(selectedPatient.plan_id);
-    
-    return {
-      value: doctor.id!,
-      label: attendsPlan 
-        ? `${doctor.name} - Atende ao plano` 
-        : doctor.name
-    };
-  });
+    // Se nenhum paciente selecionado, não mostrar doutores
+    if (!selectedPatient?.plan_id) return false;
+    // Mostrar apenas doutores que atendem ao plano do paciente
+    return doctor.plan_ids?.includes(selectedPatient.plan_id);
+  })
+  .map(doctor => ({
+    value: doctor.id!,
+    label: doctor.name // Pode remover o "- Atende ao plano" já que todos vão atender
+  }));
 
   const patientOptions = patients.map(patient => ({
     value: patient.id!,
