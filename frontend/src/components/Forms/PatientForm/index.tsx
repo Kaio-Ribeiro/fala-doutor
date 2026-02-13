@@ -15,6 +15,7 @@ interface PatientFormData {
   id?: number;
   name: string;
   cpf: string;
+  birth_date: string
   phone?: string;
   email: string;
   plan_id?: number;
@@ -33,7 +34,8 @@ export function PatientForm({ initial = null, onCancel, onSubmit }: Props) {
     phone: '',
     email: '',
     plan_id: undefined,
-    ...initial
+    ...initial,
+    birth_date: initial?.birth_date?.slice(0,10) || ''
   }));
 
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -58,7 +60,13 @@ export function PatientForm({ initial = null, onCancel, onSubmit }: Props) {
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+
+    let newValue: string | number | string[] = value;
+    if (name === 'birth_date') {
+      newValue = value ? value.slice(0,10) : ''
+    }
+
+    setForm(prev => ({ ...prev, [name]: newValue }));
   }
 
   function handlePlanChange(selectedOption: { value?: number; label: string } | null) {
@@ -107,6 +115,17 @@ export function PatientForm({ initial = null, onCancel, onSubmit }: Props) {
           className={styles.input}
           placeholder="000.000.000-00"
           required
+        />
+      </FormField>
+
+      <FormField label="Data de Nascimento" required>
+        <input 
+          name="birth_date" 
+          value={form.birth_date} 
+          onChange={handleChange} 
+          className={styles.input} 
+          type="date"
+          required 
         />
       </FormField>
 

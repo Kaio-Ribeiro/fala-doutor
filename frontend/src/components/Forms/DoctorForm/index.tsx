@@ -18,6 +18,7 @@ interface DoctorFormData {
   name: string;
   specialty?: string;
   crm: string;
+  birth_date?: string;
   phone?: string;
   email: string;
   plan_ids: number[];
@@ -51,15 +52,18 @@ const specialties = [
 ];
 
 export function DoctorForm({ initial = null, onCancel, onSubmit }: Props) {
-  const [form, setForm] = useState<DoctorFormData>(() => ({
-    name: '',
-    specialty: '',
-    crm: '',
-    phone: '',
-    email: '',
-    plan_ids: [],
-    ...initial
-  }));
+  const [form, setForm] = useState<DoctorFormData>(() => {
+    return {
+      name: '',
+      specialty: '',
+      crm: '',
+      phone: '',
+      email: '',
+      plan_ids: [],
+      ...initial,
+      birth_date: initial?.birth_date?.slice(0,10) || ''
+    }
+  });
 
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -83,7 +87,13 @@ export function DoctorForm({ initial = null, onCancel, onSubmit }: Props) {
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+
+    let newValue: string | number | string[] = value;
+    if (name === 'birth_date') {
+      newValue = value ? value.slice(0,10) : ''
+    }
+
+    setForm(prev => ({ ...prev, [name]: newValue }));
   }
 
   function handleSpecialtyChange(selectedOption: { value: string; label: string } | null) {
@@ -158,6 +168,17 @@ export function DoctorForm({ initial = null, onCancel, onSubmit }: Props) {
           onChange={handleChange} 
           className={styles.input} 
           placeholder="CRM/CE 123456"
+          required 
+        />
+      </FormField>
+
+      <FormField label="Data de Nascimento" required>
+        <input 
+          name="birth_date" 
+          value={form.birth_date} 
+          onChange={handleChange} 
+          className={styles.input} 
+          type="date"
           required 
         />
       </FormField>

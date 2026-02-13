@@ -7,6 +7,7 @@ type Doctor = {
   name: string;
   specialty: string;
   crm: string;
+  birth_date: string;
   phone: string;
   email: string;
   plan_names?: string;
@@ -18,6 +19,7 @@ type Patient = {
   created_at: string;
   name: string;
   cpf: string;
+  birth_date: string;
   phone: string;
   email: string;
   plan_id: number;
@@ -58,6 +60,7 @@ const columnsConfig = {
     { key: 'name', label: 'Nome' },
     { key: 'specialty', label: 'Especialidade' },
     { key: 'crm', label: 'CRM' },
+    { key: 'birth_date', label: 'Data de Nascimento' },
     { key: 'plan_names', label: 'Planos' },
     { key: 'phone', label: 'Telefone' },
     { key: 'email', label: 'E-mail' },
@@ -66,6 +69,7 @@ const columnsConfig = {
     { key: 'created_at', label: 'Data de Criação' },
     { key: 'name', label: 'Nome' },
     { key: 'cpf', label: 'CPF' },
+    { key: 'birth_date', label: 'Data de Nascimento' },
     { key: 'plan_name', label: 'Plano' },
     { key: 'phone', label: 'Telefone' },
     { key: 'email', label: 'E-mail' },
@@ -114,6 +118,7 @@ export function Table({ data, module, lightColor, onEdit = () => {}, onDelete = 
                   <td className={styles.tdName}>{(item as Doctor).name}</td>
                   <td className={styles.td}>{(item as Doctor).specialty}</td>
                   <td className={styles.td}>{(item as Doctor).crm}</td>
+                  <td className={styles.td}>{new Date((item as Doctor).birth_date).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</td>
                   <td className={styles.td}>{(item as Doctor).plan_names}</td>
                 </>
               )}
@@ -122,6 +127,7 @@ export function Table({ data, module, lightColor, onEdit = () => {}, onDelete = 
                 <>
                   <td className={styles.tdName}>{(item as Patient).name}</td>
                   <td className={styles.td}>{formatCPF((item as Patient).cpf)}</td>
+                  <td className={styles.td}>{new Date((item as Patient).birth_date).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</td>
                   <td className={styles.td}>{(item as Patient).plan_name}</td>
                 </>
               )}

@@ -53,6 +53,7 @@ interface Doctor {
     name: string;
     specialty: string;
     crm: string;
+    birth_date: string;
     phone: string;
     email: string;
     plan_names?: string;
@@ -64,6 +65,7 @@ interface Patient {
     created_at: string;
     name: string;
     cpf: string;
+    birth_date: string;
     phone: string;
     email: string;
     plan_id: number;
@@ -94,6 +96,7 @@ type DoctorFormData = {
     name: string;
     specialty?: string;
     crm: string;
+    birth_date?: string;
     phone?: string;
     email: string;
     plan_ids: number[];
@@ -103,6 +106,7 @@ type PatientFormData = {
     id?: number;
     name: string;
     cpf: string;
+    birth_date: string;
     phone?: string;
     email: string;
     plan_id?: number;
@@ -119,7 +123,7 @@ type AppointmentFormData = {
     id?: number;
     doctor_id: number;
     patient_id: number;
-    appointment_date: string;
+    appointment_date?: string | undefined;
 };
 
 type FormSubmissionData = DoctorFormData | PatientFormData | PlanFormData | AppointmentFormData;
