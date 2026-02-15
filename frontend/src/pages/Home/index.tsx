@@ -49,6 +49,15 @@ export function HomePage() {
           accessTextColor="#D97706"
           onClick={() => navigate('/list/appointments')}
         />
+
+        <Card
+          title="Relatórios"
+          subtitle="Analise os relatórios e seus dados"
+          icon={<Calendar size={64} color="#DC2626" />}
+          bgColor="#FEE2E2"
+          accessTextColor="#DC2626"
+          onClick={() => navigate('/pages/reports')}
+        />
       </div>
 
     </Container>

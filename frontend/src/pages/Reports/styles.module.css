@@ -1,0 +1,171 @@
+.listContainer {
+    min-height: 100vh;
+    background-color: #F9FAFB;
+    padding: 2rem;
+}
+
+.listContent {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.listHeader {
+    margin-bottom: 2rem;
+}
+
+.backButton {
+    display: flex;
+    align-items: center;
+    color: #4B5563;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.backIcon {
+    margin-right: 0.5rem;
+}
+
+.listHeaderContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.listTitle {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #1F2937;
+    margin-bottom: 0.5rem;
+}
+
+.listSubtitle {
+    font-size: 1.5rem;
+    color: #6B7280;
+}
+
+/* Tabs Styles */
+.tabsContainer {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.tabsNav {
+    display: flex;
+    background-color: #F9FAFB;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.tab:hover {
+    background-color: #F3F4F6;
+}
+
+.tabActive {
+    background-color: white;
+    border-bottom-width: 3px;
+}
+
+.tabContent {
+    padding: 2rem;
+}
+
+/* Charts Grid */
+.chartsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.chartCard {
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chartTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 1rem;
+}
+
+.chartContainer {
+    height: 200px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+/* Bar Chart */
+.barChart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 100%;
+    width: 100%;
+    max-width: 200px;
+    padding: 0 1rem;
+}
+
+.bar {
+    flex: 1;
+    min-height: 20px;
+    border-radius: 3px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.bar:hover {
+    opacity: 1;
+}
+
+/* Line Chart */
+.lineChart {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lineSvg {
+    width: 80%;
+    height: 80%;
+}
+
+/* Pie Chart */
+.pieChart {
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pieSvg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
