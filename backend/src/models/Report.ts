@@ -6,12 +6,12 @@ export interface Report {
 }
 
 export class ReportModel {
-    async getDoctorsBySpeciality(): Promise<Report[]> {
+    async getDoctorsBySpecialty(): Promise<Report[]> {
         const result = await pool.query(`
-            SELECT doctors.speciality as name,
-            COUNT(doctors.id) as value
+            SELECT doctors.specialty as name,
+            COUNT(doctors.id)::INTEGER as value
             FROM doctors
-            GROUP BY doctors.speciality
+            GROUP BY doctors.specialty
         `);
         return result.rows;
     }
@@ -19,7 +19,7 @@ export class ReportModel {
     async getDoctorsByPlans(): Promise<Report[]> {
         const result = await pool.query(`
             SELECT plans.name as name,
-            COUNT(doctors.id) as value
+            COUNT(doctors.id)::INTEGER as value
             FROM doctors
             JOIN doctors_plans ON doctors.id = doctors_plans.doctor_id
             JOIN plans ON doctors_plans.plan_id = plans.id

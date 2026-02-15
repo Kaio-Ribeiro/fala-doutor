@@ -9,8 +9,8 @@ export const reportController = {
             const { type } = req.query;
 
             let reports;
-            if (type === 'speciality') {
-                reports = await reportModel.getDoctorsBySpeciality();
+            if (type === 'specialty') {
+                reports = await reportModel.getDoctorsBySpecialty();
             } else if (type === 'plans') {
                 reports = await reportModel.getDoctorsByPlans();
             } else {
