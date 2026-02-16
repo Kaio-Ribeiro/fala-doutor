@@ -1,0 +1,43 @@
+.chartCard {
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chartTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 1rem;
+}
+
+.chartContainer {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.barChart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 100%;
+    width: 100%;
+    max-width: 200px;
+    padding: 0 1rem;
+}
+
+.bar {
+    flex: 1;
+    min-height: 20px;
+    border-radius: 3px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.bar:hover {
+    opacity: 1;
+}
