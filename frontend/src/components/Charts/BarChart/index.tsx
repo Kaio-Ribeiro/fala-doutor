@@ -3,8 +3,7 @@ import {
     BarChart as RechartsBarChart, 
     XAxis, 
     YAxis, 
-    Tooltip, 
-    Legend, 
+    Tooltip,
     CartesianGrid, 
     Bar, 
     Cell,
@@ -25,9 +24,15 @@ export function BarChart({ color, data, hideWrapper = false }: BarChartProps) {
       <ResponsiveContainer>
           <RechartsBarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis 
+                dataKey="name"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                interval={0}
+              />
               <YAxis />
-              <Tooltip />
+              
               <Bar dataKey="value" fill={color}>
                   <LabelList dataKey="value" position="inside" fill="white" />
                   {data?.map((_, index) => (
@@ -37,7 +42,14 @@ export function BarChart({ color, data, hideWrapper = false }: BarChartProps) {
                   />
                   ))}
               </Bar>
-              <Legend verticalAlign="bottom" height={36} />
+              <Tooltip 
+                formatter={(value, _name, { payload }) => [
+                  `${payload.name}: ${value}`,
+                  null
+                ]}
+                labelFormatter={() => ""}
+                itemStyle={{ color: "#000" }}
+              />
           </RechartsBarChart>
       </ResponsiveContainer>
     </div>
