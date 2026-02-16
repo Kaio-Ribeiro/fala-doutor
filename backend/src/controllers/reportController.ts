@@ -1,4 +1,4 @@
-import {Request, Response} from 'express';
+import e, {Request, Response} from 'express';
 import { ReportModel } from '../models/Report';
 
 const reportModel = new ReportModel();
@@ -13,6 +13,8 @@ export const reportController = {
                 reports = await reportModel.getDoctorsBySpecialty();
             } else if (type === 'plans') {
                 reports = await reportModel.getDoctorsByPlans();
+            } else if (type === 'age') {
+                reports = await reportModel.getDoctorsByAge();
             } else {
                 return res.status(400).json({error: 'Tipo de relatório inválido'});
             }
@@ -29,7 +31,10 @@ export const reportController = {
             let reports;
             if (type === 'plans') {
                 reports = await reportModel.getPatientsByPlans();
-            } else {
+            } else if (type === 'age') {
+                reports = await reportModel.getPatientsByAge();
+            }
+            else {
                 return res.status(400).json({error: 'Tipo de relatório inválido'});
             }
             res.json(reports);

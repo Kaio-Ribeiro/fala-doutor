@@ -28,6 +28,22 @@ export class ReportModel {
         return result.rows;
     }
 
+    async getDoctorsByAge(): Promise<Report[]> {
+        const result = await pool.query(`
+            SELECT 
+                (age || ' Anos') AS name,
+                COUNT(*)::INTEGER AS value
+            FROM (
+                SELECT EXTRACT(YEAR FROM AGE(birth_date))::INTEGER AS age
+                FROM doctors
+                WHERE birth_date IS NOT NULL
+            ) sub
+            GROUP BY age
+            ORDER BY age;
+        `);
+        return result.rows;
+    }
+
     async getPatientsByPlans(): Promise<Report[]> {
         const result = await pool.query(`
             SELECT plans.name as name,
@@ -35,6 +51,25 @@ export class ReportModel {
             FROM patients
             JOIN plans ON patients.plan_id = plans.id
             GROUP BY plans.name
+        `);
+        return result.rows;
+    }
+
+    async getPatientsByAge(): Promise<Report[]> {
+        const result = await pool.query(`
+            SELECT 
+                CASE 
+                    WHEN age = 0 THEN 'Menos de 1 Ano'
+                    ELSE age || ' Anos'
+                END AS name,
+                COUNT(*)::INTEGER AS value
+            FROM (
+                SELECT EXTRACT(YEAR FROM AGE(birth_date))::INTEGER AS age
+                FROM patients
+                WHERE birth_date IS NOT NULL
+            ) sub
+            GROUP BY age
+            ORDER BY age;
         `);
         return result.rows;
     }

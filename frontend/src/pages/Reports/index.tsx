@@ -16,12 +16,12 @@ export function ReportsPage() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<TabType>('doctors');
     const [data, setData] = useState<{
-        doctors: { specialty: ReportData[], plans: ReportData[] };
-        patients: { plans: ReportData[] };
+        doctors: { specialty: ReportData[], plans: ReportData[], age: ReportData[] };
+        patients: { plans: ReportData[], age: ReportData[] };
         appointments: { plans: ReportData[] };
     }>({
-        doctors: { specialty: [], plans: [] },
-        patients: { plans: [] },
+        doctors: { specialty: [], plans: [], age: [] },
+        patients: { plans: [], age: [] },
         appointments: { plans: [] }
     });
 
@@ -35,38 +35,49 @@ export function ReportsPage() {
             const base = 'http://localhost:3000';
             
             if (activeTab === 'doctors') {
-                const [specialtyRes, plansRes] = await Promise.all([
-                fetch(`${base}/api/reports/doctors?type=specialty`),
-                fetch(`${base}/api/reports/doctors?type=plans`)
+                const [specialtyRes, plansRes, ageRes] = await Promise.all([
+                    fetch(`${base}/api/reports/doctors?type=specialty`),
+                    fetch(`${base}/api/reports/doctors?type=plans`),
+                    fetch(`${base}/api/reports/doctors?type=age`),
                 ]);
                 
-                if (!specialtyRes.ok || !plansRes.ok) {
+                if (!specialtyRes.ok || !plansRes.ok || !ageRes.ok) {
                 throw new Error('Falha ao buscar dados');
                 }
 
                 const specialtyData = await specialtyRes.json();
                 const plansData = await plansRes.json();
+                const ageData = await ageRes.json();
                 
                 if (!cancelled) {
                     setData(prev => ({
                         ...prev,
                         doctors: {
-                        specialty: specialtyData,
-                        plans: plansData
+                            specialty: specialtyData,
+                            plans: plansData,
+                            age: ageData
                         }
                     }));
                 }
             } else if (activeTab === 'patients') {
-                const plansRes = await fetch(`${base}/api/reports/patients?type=plans`);
-                if (!plansRes.ok) {
-                    throw new Error('Falha ao buscar dados');
+                const [plansRes, ageRes] = await Promise.all([
+                    fetch(`${base}/api/reports/patients?type=plans`),
+                    fetch(`${base}/api/reports/patients?type=age`),
+                ]);
+                
+                if (!plansRes.ok || !ageRes.ok) {
+                throw new Error('Falha ao buscar dados');
                 }
+
                 const plansData = await plansRes.json();
+                const ageData = await ageRes.json();
+                
                 if (!cancelled) {
                     setData(prev => ({
                         ...prev,
                         patients: {
-                            plans: plansData
+                            plans: plansData,
+                            age: ageData
                         }
                     }));
                 }
@@ -108,13 +119,19 @@ export function ReportsPage() {
                     <div className={styles.chartsGrid}>
                         <ChartWrapper 
                             data={data.doctors.specialty} 
-                            title="Doutores por Especialidade" 
+                            title="Distribuição de Doutores por Especialidade" 
                             color="#2563EB"
                             defaultType="bar"
                         />
                         <ChartWrapper 
                             data={data.doctors.plans} 
-                            title="Distribuição por Plano" 
+                            title="Distribuição de Doutores por Plano" 
+                            color="#2563EB"
+                            defaultType="pie"
+                        />
+                        <ChartWrapper 
+                            data={data.doctors.age} 
+                            title="Distribuição de Doutores por Idade" 
                             color="#2563EB"
                             defaultType="pie"
                         />
@@ -125,7 +142,13 @@ export function ReportsPage() {
                     <div className={styles.chartsGrid}>
                         <ChartWrapper 
                             data={data.patients.plans} 
-                            title="Pacientes por Plano" 
+                            title="Distribuição de Pacientes por Plano" 
+                            color="#059669"
+                            defaultType="pie"
+                        />
+                        <ChartWrapper 
+                            data={data.patients.age} 
+                            title="Distribuição de Pacientes por Idade" 
                             color="#059669"
                             defaultType="pie"
                         />
