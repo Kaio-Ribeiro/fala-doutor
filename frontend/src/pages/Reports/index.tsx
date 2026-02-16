@@ -1,13 +1,99 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './styles.module.css';
+import { toast } from 'react-toastify';
 import { ArrowLeft, Stethoscope, Users, Calendar } from 'lucide-react';
+import { ChartWrapper } from '../../components/Charts/ChartWrapper';
 
 type TabType = 'doctors' | 'patients' | 'appointments';
+
+interface ReportData {
+    name: string;
+    value: number;
+}
 
 export function ReportsPage() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<TabType>('doctors');
+    const [data, setData] = useState<{
+        doctors: { specialty: ReportData[], plans: ReportData[] };
+        patients: { plans: ReportData[] };
+        appointments: { plans: ReportData[] };
+    }>({
+        doctors: { specialty: [], plans: [] },
+        patients: { plans: [] },
+        appointments: { plans: [] }
+    });
+
+
+
+    useEffect(() => {
+        let cancelled = false;
+        
+        const fetchData = async () => {
+            try {
+            const base = 'http://localhost:3000';
+            
+            if (activeTab === 'doctors') {
+                const [specialtyRes, plansRes] = await Promise.all([
+                fetch(`${base}/api/reports/doctors?type=specialty`),
+                fetch(`${base}/api/reports/doctors?type=plans`)
+                ]);
+                
+                if (!specialtyRes.ok || !plansRes.ok) {
+                throw new Error('Falha ao buscar dados');
+                }
+
+                const specialtyData = await specialtyRes.json();
+                const plansData = await plansRes.json();
+                
+                if (!cancelled) {
+                    setData(prev => ({
+                        ...prev,
+                        doctors: {
+                        specialty: specialtyData,
+                        plans: plansData
+                        }
+                    }));
+                }
+            } else if (activeTab === 'patients') {
+                const plansRes = await fetch(`${base}/api/reports/patients?type=plans`);
+                if (!plansRes.ok) {
+                    throw new Error('Falha ao buscar dados');
+                }
+                const plansData = await plansRes.json();
+                if (!cancelled) {
+                    setData(prev => ({
+                        ...prev,
+                        patients: {
+                            plans: plansData
+                        }
+                    }));
+                }
+            } else if (activeTab === 'appointments') {
+                const plansRes = await fetch(`${base}/api/reports/appointments?type=plans`);
+                if (!plansRes.ok) {
+                    throw new Error('Falha ao buscar dados');
+                }
+                const plansData = await plansRes.json();
+                if (!cancelled) {
+                    setData(prev => ({
+                        ...prev,
+                        appointments: {
+                            plans: plansData
+                        }
+                    }));
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao carregar dados:', error);
+            toast.error('Erro ao carregar dados dos relatórios!');
+            }
+        };
+        
+        fetchData();
+        return () => { cancelled = true; };
+    }, [activeTab]);
 
     const tabs = [
         { id: 'doctors' as TabType, label: 'Doutores', icon: Stethoscope, color: '#2563EB' },
@@ -15,80 +101,45 @@ export function ReportsPage() {
         { id: 'appointments' as TabType, label: 'Consultas', icon: Calendar, color: '#D97706' }
     ];
 
-    const ChartMockup = ({ title, color, type }: { title: string; color: string; type: 'bar' | 'line' | 'pie' }) => (
-        <div className={styles.chartCard}>
-            <h3 className={styles.chartTitle}>{title}</h3>
-            <div className={styles.chartContainer}>
-                {type === 'bar' && (
-                    <div className={styles.barChart}>
-                        {[40, 70, 30, 85, 60].map((height, index) => (
-                            <div 
-                                key={index} 
-                                className={styles.bar} 
-                                style={{ height: `${height}%`, backgroundColor: color }}
-                            />
-                        ))}
-                    </div>
-                )}
-                {type === 'line' && (
-                    <div className={styles.lineChart}>
-                        <svg viewBox="0 0 300 150" className={styles.lineSvg}>
-                            <polyline 
-                                points="20,120 80,80 140,100 200,60 260,90" 
-                                fill="none" 
-                                stroke={color} 
-                                strokeWidth="3"
-                            />
-                            {[20, 80, 140, 200, 260].map((x, index) => (
-                                <circle key={index} cx={x} cy={[120, 80, 100, 60, 90][index]} r="4" fill={color} />
-                            ))}
-                        </svg>
-                    </div>
-                )}
-                {type === 'pie' && (
-                    <div className={styles.pieChart}>
-                        <svg viewBox="0 0 100 100" className={styles.pieSvg}>
-                            <circle cx="50" cy="50" r="40" fill="#f3f4f6" />
-                            <circle 
-                                cx="50" 
-                                cy="50" 
-                                r="20" 
-                                fill="none" 
-                                stroke={color} 
-                                strokeWidth="40" 
-                                strokeDasharray="60 40" 
-                                strokeDashoffset="25"
-                            />
-                        </svg>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-
     const renderContent = () => {
         switch (activeTab) {
             case 'doctors':
                 return (
                     <div className={styles.chartsGrid}>
-                        <ChartMockup title="Doutores por Especialidade" color="#2563EB" type="bar" />
-                        <ChartMockup title="Consultas por Mês" color="#2563EB" type="line" />
-                        <ChartMockup title="Distribuição por Plano" color="#2563EB" type="pie" />
+                        <ChartWrapper 
+                            data={data.doctors.specialty} 
+                            title="Doutores por Especialidade" 
+                            color="#2563EB"
+                            defaultType="bar"
+                        />
+                        <ChartWrapper 
+                            data={data.doctors.plans} 
+                            title="Distribuição por Plano" 
+                            color="#2563EB"
+                            defaultType="pie"
+                        />
                     </div>
                 );
             case 'patients':
                 return (
                     <div className={styles.chartsGrid}>
-                        <ChartMockup title="Pacientes por Idade" color="#059669" type="bar" />
-                        <ChartMockup title="Cadastros por Mês" color="#059669" type="line" />
-                        <ChartMockup title="Pacientes por Plano" color="#059669" type="pie" />
+                        <ChartWrapper 
+                            data={data.patients.plans} 
+                            title="Pacientes por Plano" 
+                            color="#059669"
+                            defaultType="pie"
+                        />
                     </div>
                 );
             case 'appointments':
                 return (
                     <div className={styles.chartsGrid}>
-                        <ChartMockup title="Consultas por Dia" color="#D97706" type="line" />
-                        <ChartMockup title="Status das Consultas" color="#D97706" type="bar" />
+                        <ChartWrapper 
+                            data={data.appointments.plans} 
+                            title="Status das Consultas" 
+                            color="#D97706"
+                            defaultType="pie"
+                        />
                     </div>
                 );
             default:
