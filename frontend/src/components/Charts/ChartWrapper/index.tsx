@@ -33,9 +33,9 @@ export function ChartWrapper({ data, title, color, defaultType = 'pie' }: ChartW
       
       <div className={styles.chartContent}>
         {chartType === 'pie' ? (
-          <PieChart data={data} title="" color={color} hideWrapper={true} />
+          <PieChart data={data} color={color} hideWrapper={true} />
         ) : (
-          <BarChart data={data} title="" color={color} hideWrapper={true} />
+          <BarChart data={data} color={color} hideWrapper={true} />
         )}
       </div>
     </div>

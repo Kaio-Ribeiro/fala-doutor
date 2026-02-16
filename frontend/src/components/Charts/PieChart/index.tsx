@@ -3,14 +3,13 @@ import styles from './styles.module.css';
 
 interface PieChartProps {
   data: { name: string; value: number }[];
-  title: string;
   color: string;
   hideWrapper?: boolean;
 }
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#8dd1e1', '#d084d0'];
 
-export function PieChart({ data, title, hideWrapper = false }: PieChartProps) {
+export function PieChart({ data, hideWrapper = false }: PieChartProps) {
   const chartContent = (
     <div className={styles.chartContainer}>
       <ResponsiveContainer>
@@ -61,7 +60,6 @@ export function PieChart({ data, title, hideWrapper = false }: PieChartProps) {
 
   return (
     <div className={styles.chartCard}>
-      <h3 className={styles.chartTitle}>{title}</h3>
       {chartContent}
     </div>
   );

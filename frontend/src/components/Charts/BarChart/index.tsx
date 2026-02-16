@@ -12,7 +12,6 @@ import {
 import styles from './styles.module.css';
 
 interface BarChartProps {
-  title: string;
   color: string;
   data?: { name: string; value: number }[];
   hideWrapper?: boolean;
@@ -20,7 +19,7 @@ interface BarChartProps {
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#8dd1e1', '#d084d0'];
 
-export function BarChart({ title, color, data, hideWrapper = false }: BarChartProps) {
+export function BarChart({ color, data, hideWrapper = false }: BarChartProps) {
   const chartContent = (
     <div className={styles.chartContainer}>
       <ResponsiveContainer>
@@ -50,7 +49,6 @@ export function BarChart({ title, color, data, hideWrapper = false }: BarChartPr
 
   return (
     <div className={styles.chartCard}>
-      <h3 className={styles.chartTitle}>{title}</h3>
       {chartContent}
     </div>
   );
