@@ -85,8 +85,8 @@ export class ReportModel {
 
     async getAppointmentsByValue(): Promise<Report[]> {
         const result = await pool.query(`
-            SELECT plans.value as name,
-            COUNT(appointments.id) as value
+            SELECT plans.value::TEXT as name,
+            COUNT(appointments.id)::INTEGER as value
             FROM appointments
             JOIN patients ON appointments.patient_id = patients.id
             JOIN plans ON patients.plan_id = plans.id

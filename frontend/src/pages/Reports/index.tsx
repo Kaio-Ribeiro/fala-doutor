@@ -18,11 +18,11 @@ export function ReportsPage() {
     const [data, setData] = useState<{
         doctors: { specialty: ReportData[], plans: ReportData[], age: ReportData[] };
         patients: { plans: ReportData[], age: ReportData[] };
-        appointments: { plans: ReportData[] };
+        appointments: { plans: ReportData[], value: ReportData[] };
     }>({
         doctors: { specialty: [], plans: [], age: [] },
         patients: { plans: [], age: [] },
-        appointments: { plans: [] }
+        appointments: { plans: [], value: [] }
     });
 
 
@@ -33,6 +33,10 @@ export function ReportsPage() {
         const formatAge = (age: string): string => {
             const ageNum = parseInt(age);
             return ageNum === 0 ? 'Menos de 1 ano' : `${age} anos`;
+        }
+
+        const formatCurrency = (amount: string): string => {
+            return `R$ ${parseFloat(amount).toFixed(2)}`;
         }
         
         const fetchData = async () => {
@@ -93,16 +97,26 @@ export function ReportsPage() {
                     }));
                 }
             } else if (activeTab === 'appointments') {
-                const plansRes = await fetch(`${base}/api/reports/appointments?type=plans`);
-                if (!plansRes.ok) {
+                const [plansRes, valueRes] = await Promise.all([
+                    fetch(`${base}/api/reports/appointments?type=plans`),
+                    fetch(`${base}/api/reports/appointments?type=value`),
+                ]);
+                
+                if (!plansRes.ok || !valueRes.ok) {
                     throw new Error('Falha ao buscar dados');
                 }
                 const plansData = await plansRes.json();
+                const valueData = await valueRes.json();
+
                 if (!cancelled) {
                     setData(prev => ({
                         ...prev,
                         appointments: {
-                            plans: plansData
+                            plans: plansData,
+                            value: valueData.map((item: ReportData) => ({
+                                ...item,
+                                name: formatCurrency(item.name)
+                             }) )
                         }
                     }));
                 }
@@ -170,7 +184,14 @@ export function ReportsPage() {
                     <div className={styles.chartsGrid}>
                         <ChartWrapper 
                             data={data.appointments.plans} 
-                            title="Status das Consultas" 
+                            title="Distribuição de Consultas por Plano" 
+                            color="#D97706"
+                            defaultType="pie"
+                        />
+
+                        <ChartWrapper 
+                            data={data.appointments.value} 
+                            title="Distribuição de Consultas por Valor" 
                             color="#D97706"
                             defaultType="pie"
                         />
