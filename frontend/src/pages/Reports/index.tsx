@@ -18,11 +18,11 @@ export function ReportsPage() {
     const [data, setData] = useState<{
         doctors: { specialty: ReportData[], plans: ReportData[], age: ReportData[] };
         patients: { plans: ReportData[], age: ReportData[] };
-        appointments: { plans: ReportData[], value: ReportData[] };
+        appointments: { plans: ReportData[], value: ReportData[], date: ReportData[] };
     }>({
         doctors: { specialty: [], plans: [], age: [] },
         patients: { plans: [], age: [] },
-        appointments: { plans: [], value: [] }
+        appointments: { plans: [], value: [], date: [] }
     });
 
 
@@ -37,6 +37,18 @@ export function ReportsPage() {
 
         const formatCurrency = (amount: string): string => {
             return `R$ ${parseFloat(amount).toFixed(2)}`;
+        }
+
+        const formatDate = (dateString: string): string => {
+            try {
+                const date = new Date(dateString);
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            } catch {
+                return dateString;
+            }
         }
         
         const fetchData = async () => {
@@ -97,22 +109,28 @@ export function ReportsPage() {
                     }));
                 }
             } else if (activeTab === 'appointments') {
-                const [plansRes, valueRes] = await Promise.all([
+                const [plansRes, valueRes, dateRes] = await Promise.all([
                     fetch(`${base}/api/reports/appointments?type=plans`),
                     fetch(`${base}/api/reports/appointments?type=value`),
+                    fetch(`${base}/api/reports/appointments?type=date`),
                 ]);
                 
-                if (!plansRes.ok || !valueRes.ok) {
+                if (!plansRes.ok || !valueRes.ok || !dateRes.ok) {
                     throw new Error('Falha ao buscar dados');
                 }
                 const plansData = await plansRes.json();
                 const valueData = await valueRes.json();
+                const dateData = await dateRes.json();
 
                 if (!cancelled) {
                     setData(prev => ({
                         ...prev,
                         appointments: {
                             plans: plansData,
+                            date: dateData.map((item: ReportData) => ({
+                                ...item,
+                                name: formatDate(item.name)
+                            })),
                             value: valueData.map((item: ReportData) => ({
                                 ...item,
                                 name: formatCurrency(item.name)
@@ -144,19 +162,19 @@ export function ReportsPage() {
                     <div className={styles.chartsGrid}>
                         <ChartWrapper 
                             data={data.doctors.specialty} 
-                            title="Distribuição de Doutores por Especialidade" 
+                            title="Doutores por Especialidade" 
                             color="#2563EB"
                             defaultType="bar"
                         />
                         <ChartWrapper 
                             data={data.doctors.plans} 
-                            title="Distribuição de Doutores por Plano" 
+                            title="Doutores por Plano" 
                             color="#2563EB"
                             defaultType="pie"
                         />
                         <ChartWrapper 
                             data={data.doctors.age} 
-                            title="Distribuição de Doutores por Idade" 
+                            title="Doutores por Idade" 
                             color="#2563EB"
                             defaultType="pie"
                         />
@@ -167,13 +185,13 @@ export function ReportsPage() {
                     <div className={styles.chartsGrid}>
                         <ChartWrapper 
                             data={data.patients.plans} 
-                            title="Distribuição de Pacientes por Plano" 
+                            title="Pacientes por Plano" 
                             color="#059669"
                             defaultType="pie"
                         />
                         <ChartWrapper 
                             data={data.patients.age} 
-                            title="Distribuição de Pacientes por Idade" 
+                            title="Pacientes por Idade" 
                             color="#059669"
                             defaultType="pie"
                         />
@@ -183,15 +201,21 @@ export function ReportsPage() {
                 return (
                     <div className={styles.chartsGrid}>
                         <ChartWrapper 
+                            data={data.appointments.date} 
+                            title="Consultas por Data" 
+                            color="#D97706"
+                            defaultType="bar"
+                        />
+                        <ChartWrapper 
                             data={data.appointments.plans} 
-                            title="Distribuição de Consultas por Plano" 
+                            title="Consultas por Plano" 
                             color="#D97706"
                             defaultType="pie"
                         />
 
                         <ChartWrapper 
                             data={data.appointments.value} 
-                            title="Distribuição de Consultas por Valor" 
+                            title="Consultas por Valor" 
                             color="#D97706"
                             defaultType="pie"
                         />

@@ -53,6 +53,8 @@ export const reportController = {
                 reports = await reportModel.getAppointmentsByPlans();
             } else if (type === 'value') {
                 reports = await reportModel.getAppointmentsByValue();
+            } else if (type === 'date') {
+                reports = await reportModel.getAppointmentsByDate();
             } else {
                 return res.status(400).json({error: 'Tipo de relatório inválido'});
             }

@@ -94,4 +94,15 @@ export class ReportModel {
         `);
         return result.rows;
     }
+
+    async getAppointmentsByDate(): Promise<Report[]> {
+        const result = await pool.query(`
+            SELECT appointments.created_at::DATE as name,
+            COUNT(appointments.id)::INTEGER as value
+            FROM appointments
+            GROUP BY appointments.created_at::DATE
+            ORDER BY appointments.created_at::DATE
+        `);
+        return result.rows;
+    }
 }
