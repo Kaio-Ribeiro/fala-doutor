@@ -29,6 +29,11 @@ export function ReportsPage() {
 
     useEffect(() => {
         let cancelled = false;
+
+        const formatAge = (age: string): string => {
+            const ageNum = parseInt(age);
+            return ageNum === 0 ? 'Menos de 1 ano' : `${age} anos`;
+        }
         
         const fetchData = async () => {
             try {
@@ -55,7 +60,10 @@ export function ReportsPage() {
                         doctors: {
                             specialty: specialtyData,
                             plans: plansData,
-                            age: ageData
+                            age: ageData.map((item: ReportData) => ({
+                                name: formatAge(item.name),
+                                value: item.value
+                             }) )
                         }
                     }));
                 }
@@ -77,7 +85,10 @@ export function ReportsPage() {
                         ...prev,
                         patients: {
                             plans: plansData,
-                            age: ageData
+                            age: ageData.map((item: ReportData) => ({
+                                ...item,
+                                name: formatAge(item.name)
+                             }) )
                         }
                     }));
                 }
