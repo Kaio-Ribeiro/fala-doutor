@@ -16,9 +16,14 @@ interface BarChartProps {
   hideWrapper?: boolean;
 }
 
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#8dd1e1', '#d084d0'];
+const generateColors = (count: number) => {
+  return Array.from({ length: count }, (_, i) => 
+    `hsl(${(i * 360) / count}, 70%, 60%)`
+  );
+};
 
 export function BarChart({ color, data, hideWrapper = false }: BarChartProps) {
+  const COLORS = generateColors(data?.length || 0);
   const chartContent = (
     <div className={styles.chartContainer}>
       <ResponsiveContainer>
