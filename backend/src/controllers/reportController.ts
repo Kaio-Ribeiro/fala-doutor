@@ -55,6 +55,8 @@ export const reportController = {
                 reports = await reportModel.getAppointmentsByValue();
             } else if (type === 'date') {
                 reports = await reportModel.getAppointmentsByDate();
+            } else if (type === 'hour') {
+                reports = await reportModel.getAppointmentsByHour();
             } else {
                 return res.status(400).json({error: 'Tipo de relatório inválido'});
             }

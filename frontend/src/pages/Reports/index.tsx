@@ -18,11 +18,11 @@ export function ReportsPage() {
     const [data, setData] = useState<{
         doctors: { specialty: ReportData[], plans: ReportData[], age: ReportData[] };
         patients: { plans: ReportData[], age: ReportData[] };
-        appointments: { plans: ReportData[], value: ReportData[], date: ReportData[] };
+        appointments: { plans: ReportData[], value: ReportData[], date: ReportData[], hour: ReportData[] };
     }>({
         doctors: { specialty: [], plans: [], age: [] },
         patients: { plans: [], age: [] },
-        appointments: { plans: [], value: [], date: [] }
+        appointments: { plans: [], value: [], date: [], hour: [] }
     });
 
 
@@ -49,6 +49,10 @@ export function ReportsPage() {
             } catch {
                 return dateString;
             }
+        }
+
+        const formatHour = (hour: string): string => {
+            return `${hour}:00`;
         }
         
         const fetchData = async () => {
@@ -109,24 +113,30 @@ export function ReportsPage() {
                     }));
                 }
             } else if (activeTab === 'appointments') {
-                const [plansRes, valueRes, dateRes] = await Promise.all([
+                const [plansRes, valueRes, dateRes, hourRes] = await Promise.all([
                     fetch(`${base}/api/reports/appointments?type=plans`),
                     fetch(`${base}/api/reports/appointments?type=value`),
                     fetch(`${base}/api/reports/appointments?type=date`),
+                    fetch(`${base}/api/reports/appointments?type=hour`),
                 ]);
                 
-                if (!plansRes.ok || !valueRes.ok || !dateRes.ok) {
+                if (!plansRes.ok || !valueRes.ok || !dateRes.ok || !hourRes.ok) {
                     throw new Error('Falha ao buscar dados');
                 }
                 const plansData = await plansRes.json();
                 const valueData = await valueRes.json();
                 const dateData = await dateRes.json();
+                const hourData = await hourRes.json();
 
                 if (!cancelled) {
                     setData(prev => ({
                         ...prev,
                         appointments: {
                             plans: plansData,
+                            hour: hourData.map((item: ReportData) => ({
+                                ...item,
+                                name: formatHour(item.name)
+                             }) ),
                             date: dateData.map((item: ReportData) => ({
                                 ...item,
                                 name: formatDate(item.name)
@@ -201,12 +211,6 @@ export function ReportsPage() {
                 return (
                     <div className={styles.chartsGrid}>
                         <ChartWrapper 
-                            data={data.appointments.date} 
-                            title="Consultas por Data" 
-                            color="#D97706"
-                            defaultType="bar"
-                        />
-                        <ChartWrapper 
                             data={data.appointments.plans} 
                             title="Consultas por Plano" 
                             color="#D97706"
@@ -218,6 +222,20 @@ export function ReportsPage() {
                             title="Consultas por Valor" 
                             color="#D97706"
                             defaultType="pie"
+                        />
+
+                        <ChartWrapper 
+                            data={data.appointments.date} 
+                            title="Consultas por Data" 
+                            color="#D97706"
+                            defaultType="bar"
+                        />
+
+                        <ChartWrapper 
+                            data={data.appointments.hour} 
+                            title="Consultas por Hora" 
+                            color="#D97706"
+                            defaultType="bar"
                         />
                     </div>
                 );

@@ -105,4 +105,16 @@ export class ReportModel {
         `);
         return result.rows;
     }
+
+    async getAppointmentsByHour(): Promise<Report[]> {
+        const result = await pool.query(`
+            SELECT 
+                TO_CHAR(appointments.appointment_date, 'HH24') AS name,
+                COUNT(appointments.id)::INTEGER AS value
+            FROM appointments
+            GROUP BY TO_CHAR(appointments.appointment_date, 'HH24')
+            ORDER BY TO_CHAR(appointments.appointment_date, 'HH24');
+        `);
+        return result.rows;
+    }
 }
