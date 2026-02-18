@@ -36,7 +36,7 @@ const specialties = [
   'Dermatologia', 
   'Endocrinologia',
   'Gastroenterologia',
-  'Ginecologia e Obstetrícia',
+  'Ginecologia',
   'Neurologia',
   'Oftalmologia',
   'Ortopedia',

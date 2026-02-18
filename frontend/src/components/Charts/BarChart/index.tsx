@@ -24,6 +24,10 @@ const generateColors = (count: number) => {
 
 export function BarChart({ color, data, hideWrapper = false }: BarChartProps) {
   const COLORS = generateColors(data?.length || 0);
+  
+  // Verifica se algum label tem mais de 12 caracteres
+  const hasLongLabels = data?.some(item => item.name.length >= 10) || false;
+  
   const chartContent = (
     <div className={styles.chartContainer}>
       <ResponsiveContainer>
@@ -31,10 +35,14 @@ export function BarChart({ color, data, hideWrapper = false }: BarChartProps) {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
                 dataKey="name"
-                angle={-45}
-                textAnchor="end"
-                height={80}
-                interval={0}
+                {...(hasLongLabels && {
+                  angle: -15,
+                  textAnchor: "end",
+                  height: 60,
+                  interval: 0,
+                  dy: 10,
+                  dx: -30
+                })}
               />
               <YAxis />
               

@@ -97,11 +97,17 @@ export class ReportModel {
 
     async getAppointmentsByDate(): Promise<Report[]> {
         const result = await pool.query(`
-            SELECT TO_CHAR(appointments.appointment_date, 'DD/MM/YYYY') as name,
-            COUNT(appointments.id)::INTEGER as value
+            SELECT 
+                TO_CHAR(date_group, 'DD/MM/YYYY') as name,
+                value
+            FROM (
+            SELECT 
+                DATE(appointments.appointment_date) as date_group,
+                COUNT(appointments.id)::INTEGER as value
             FROM appointments
-            GROUP BY TO_CHAR(appointments.appointment_date, 'DD/MM/YYYY')
-            ORDER BY TO_CHAR(appointments.appointment_date, 'DD/MM/YYYY')
+            GROUP BY DATE(appointments.appointment_date)
+            ) sub
+            ORDER BY date_group;
         `);
         return result.rows;
     }
@@ -109,11 +115,11 @@ export class ReportModel {
     async getAppointmentsByHour(): Promise<Report[]> {
         const result = await pool.query(`
             SELECT 
-                TO_CHAR(DATE_TRUNC('hour', appointments.appointment_date), 'HH24:MI') AS name,
+                LPAD(EXTRACT(HOUR FROM appointment_date)::TEXT, 2, '0') || ':00' AS name,
                 COUNT(*)::INTEGER AS value
             FROM appointments
-            GROUP BY TO_CHAR(DATE_TRUNC('hour', appointments.appointment_date), 'HH24:MI')
-            ORDER BY TO_CHAR(DATE_TRUNC('hour', appointments.appointment_date), 'HH24:MI')
+            GROUP BY EXTRACT(HOUR FROM appointment_date)
+            ORDER BY EXTRACT(HOUR FROM appointment_date)
         `);
         return result.rows;
     }
