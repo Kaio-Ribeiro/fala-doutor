@@ -38,22 +38,6 @@ export function ReportsPage() {
         const formatCurrency = (amount: string): string => {
             return `R$ ${parseFloat(amount).toFixed(2)}`;
         }
-
-        const formatDate = (dateString: string): string => {
-            try {
-                const date = new Date(dateString);
-                const day = date.getDate().toString().padStart(2, '0');
-                const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                const year = date.getFullYear();
-                return `${day}/${month}/${year}`;
-            } catch {
-                return dateString;
-            }
-        }
-
-        const formatHour = (hour: string): string => {
-            return `${hour}:00`;
-        }
         
         const fetchData = async () => {
             try {
@@ -133,14 +117,8 @@ export function ReportsPage() {
                         ...prev,
                         appointments: {
                             plans: plansData,
-                            hour: hourData.map((item: ReportData) => ({
-                                ...item,
-                                name: formatHour(item.name)
-                             }) ),
-                            date: dateData.map((item: ReportData) => ({
-                                ...item,
-                                name: formatDate(item.name)
-                            })),
+                            hour: hourData,
+                            date: dateData,
                             value: valueData.map((item: ReportData) => ({
                                 ...item,
                                 name: formatCurrency(item.name)
