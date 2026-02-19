@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../styles.module.css';
 import { Table } from '../../components/Table';
-import { FormModal } from '../../components/FormModal';
+import { Modal } from '../../components/Modal';
 import { PatientForm } from '../../components/Forms/PatientForm';
 import { toast } from 'react-toastify';
 import type { Patient, PatientFormData, FormSubmissionData, TypeData, TypeDataArrays } from '../../types';
@@ -103,8 +103,8 @@ export function PatientsPage() {
                     }}
                 />
 
-                <FormModal 
-                    isOpen={modalOpen} 
+                <Modal 
+                    open={modalOpen} 
                     onClose={() => setModalOpen(false)}
                     title={`${modalInitial ? 'Editar' : 'Adicionar'} Paciente`}
                 >
@@ -114,7 +114,7 @@ export function PatientsPage() {
                         onCancel={() => setModalOpen(false)}
                         onSubmit={handleFormSubmit}
                     />
-                </FormModal>
+                </Modal>
             </div>
         </div>
     )

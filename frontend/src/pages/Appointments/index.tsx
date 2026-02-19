@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../styles.module.css';
 import { Table } from '../../components/Table';
-import { FormModal } from '../../components/FormModal';
+import { Modal } from '../../components/Modal';
 import { AppointmentForm } from '../../components/Forms/AppointmentForm';
 import { toast } from 'react-toastify';
 import type { Appointment, AppointmentFormData, FormSubmissionData, TypeData, TypeDataArrays } from '../../types';
@@ -48,7 +48,7 @@ export function AppointmentsPage() {
 
             setModalOpen(false);
             setReload(r => r + 1);
-            toast.success(isEdit ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
+            toast.success(isEdit ? 'Consulta atualizada com sucesso!' : 'Consulta criada com sucesso!');
         } catch (error) {
             console.error(error);
             const msg = error instanceof Error ? error.message : (isEdit ? "Erro ao atualizar consulta!" : "Erro ao criar consulta!");
@@ -105,8 +105,8 @@ export function AppointmentsPage() {
                     }}
                 />
 
-                <FormModal 
-                    isOpen={modalOpen} 
+                <Modal 
+                    open={modalOpen} 
                     onClose={() => setModalOpen(false)}
                     title={`${modalInitial ? 'Editar' : 'Adicionar'} Consulta`}
                 >
@@ -116,7 +116,7 @@ export function AppointmentsPage() {
                         onCancel={() => setModalOpen(false)}
                         onSubmit={handleFormSubmit}
                     />
-                </FormModal>
+                </Modal>
             </div>
         </div>
     )

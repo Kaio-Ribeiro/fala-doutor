@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../styles.module.css';
 import { Table } from '../../components/Table';
-import { FormModal } from '../../components/FormModal';
+import { Modal } from '../../components/Modal';
 import { PlanForm } from '../../components/Forms/PlanForm';
 import { toast } from 'react-toastify';
 import type { Plan, FormSubmissionData, TypeData, TypeDataArrays } from '../../types';
@@ -104,8 +104,8 @@ export function PlansPage() {
                     }}
                 />
 
-                <FormModal 
-                    isOpen={modalOpen} 
+                <Modal 
+                    open={modalOpen} 
                     onClose={() => setModalOpen(false)}
                     title={`${modalInitial ? 'Editar' : 'Adicionar'} Plano`}
                 >
@@ -115,7 +115,7 @@ export function PlansPage() {
                         onCancel={() => setModalOpen(false)}
                         onSubmit={handleFormSubmit}
                     />
-                </FormModal>
+                </Modal>
             </div>
         </div>
     )
