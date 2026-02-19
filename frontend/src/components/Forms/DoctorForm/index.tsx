@@ -6,24 +6,7 @@ import { FormField } from '../shared/FormField';
 import { FormActions } from '../shared/FormActions';
 import styles from '../shared/styles.module.css';
 import { DatePicker } from 'react-datepicker';
-
-interface Plan {
-  id?: number;
-  name: string;
-  code?: string;
-  value?: string;
-}
-
-interface DoctorFormData {
-  id?: number;
-  name: string;
-  specialty?: string;
-  crm: string;
-  birth_date?: string;
-  phone?: string;
-  email: string;
-  plan_ids: number[];
-}
+import type { DoctorFormData, Plan } from '../../../types';
 
 interface Props {
   initial?: DoctorFormData | null;

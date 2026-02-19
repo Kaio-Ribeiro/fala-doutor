@@ -1,57 +1,13 @@
 import { Edit2, Trash2 } from 'lucide-react';
 import styles from './styles.module.css';
-
-type Doctor = {
-  id: number;
-  created_at: string;
-  name: string;
-  specialty: string;
-  crm: string;
-  birth_date: string;
-  phone: string;
-  email: string;
-  plan_names?: string;
-  plan_ids?: number[];
-}
-
-type Patient = {
-  id: number;
-  created_at: string;
-  name: string;
-  cpf: string;
-  birth_date: string;
-  phone: string;
-  email: string;
-  plan_id: number;
-  plan_name: string;
-}
-
-type Plan = {
-  id: number;
-  created_at: string;
-  name: string;
-  code: string;
-  value: string;
-}
-
-type Appointment = {
-    id: number;
-    created_at: string;
-    doctor_name: string;
-    patient_name: string;
-    plan_id: number;
-    plan_name: string;
-    appointment_date: string;
-};
-
-type ModuleType = 'doctors' | 'patients'| 'plans' | 'appointments';
+import type { Doctor, Patient, Plan, Appointment, ModuleType, TypeData } from '../../types';
 
 interface TableProps {
-  data: Array<Doctor | Patient | Plan | Appointment>;
+  data: Array<TypeData>;
   module: ModuleType;
   lightColor?: string;
-  onEdit?: (item: Doctor | Patient | Plan | Appointment) => void;
-  onDelete?: (item: Doctor | Patient | Plan | Appointment) => void;
+  onEdit?: (item: TypeData) => void;
+  onDelete?: (item: TypeData) => void;
 }
 
 const columnsConfig = {

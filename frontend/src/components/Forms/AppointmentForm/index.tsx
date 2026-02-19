@@ -7,27 +7,7 @@ import styles from '../shared/styles.module.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import IMaskInput from 'react-imask/esm/input';
-
-interface Doctor {
-  id?: number;
-  name: string;
-  specialty?: string;
-  plan_ids?: number[];
-}
-
-interface Patient {
-  id?: number;
-  name: string;
-  plan_id?: number;
-  plan_name?: string;
-}
-
-interface AppointmentFormData {
-  id?: number;
-  doctor_id: number;
-  patient_id: number;
-  appointment_date?: string;
-}
+import type { Doctor, Patient, AppointmentFormData } from '../../../types';
 
 interface Props {
   initial?: AppointmentFormData | null;

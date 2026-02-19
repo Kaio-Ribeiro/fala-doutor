@@ -9,8 +9,8 @@ import { PatientForm } from '../../components/Forms/PatientForm';
 import { PlanForm } from '../../components/Forms/PlanForm';
 import { AppointmentForm } from '../../components/Forms/AppointmentForm';
 import { toast } from 'react-toastify';
-
-type ModuleType = 'doctors' | 'patients'| 'plans' | 'appointments';
+import type { Doctor, Patient, ModuleType, FormSubmissionData, TypeData, TypeDataArrays } from '../../types';
+import type { DoctorFormData, PatientFormData, PlanFormData, AppointmentFormData } from '../../types';
 
 const moduleConfig = {
   doctors: {
@@ -47,87 +47,6 @@ const moduleConfig = {
   },
 } as const;
 
-interface Doctor {
-    id: number;
-    created_at: string;
-    name: string;
-    specialty: string;
-    crm: string;
-    birth_date: string;
-    phone: string;
-    email: string;
-    plan_names?: string;
-    plan_ids?: number[];
-}
-
-interface Patient {
-    id: number;
-    created_at: string;
-    name: string;
-    cpf: string;
-    birth_date: string;
-    phone: string;
-    email: string;
-    plan_id: number;
-    plan_name: string;
-}
-
-interface Plan {
-    id: number;
-    created_at: string;
-    name: string;
-    code: string;
-    value: string;
-}
-
-interface Appointment {
-    id: number;
-    doctor_name: string;
-    patient_name: string;
-    created_at: string;
-    appointment_date: string;
-    plan_id: number;
-    plan_name: string;
-}
-
-// Types for form submissions
-type DoctorFormData = {
-    id?: number;
-    name: string;
-    specialty?: string;
-    crm: string;
-    birth_date?: string;
-    phone?: string;
-    email: string;
-    plan_ids: number[];
-};
-
-type PatientFormData = {
-    id?: number;
-    name: string;
-    cpf: string;
-    birth_date: string;
-    phone?: string;
-    email: string;
-    plan_id?: number;
-};
-
-type PlanFormData = {
-    id?: number;
-    name: string;
-    code: string;
-    value: string;
-};
-
-type AppointmentFormData = {
-    id?: number;
-    doctor_id: number;
-    patient_id: number;
-    appointment_date?: string | undefined;
-};
-
-type FormSubmissionData = DoctorFormData | PatientFormData | PlanFormData | AppointmentFormData;
-
 export function ListPage() {
     const params = useParams();
     const navigate = useNavigate();
@@ -135,10 +54,10 @@ export function ListPage() {
 
     const selectedModule: ModuleType = moduleParam ?? 'doctors';
 
-    const [data, setData] = useState<Doctor[] | Patient[] | Plan[] | Appointment[]>([]);
+    const [data, setData] = useState<TypeDataArrays>([]);
     const [reload, setReload] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
-    const [modalInitial, setModalInitial] = useState<Doctor | Patient | Plan | Appointment | null>(null);
+    const [modalInitial, setModalInitial] = useState<TypeData | null>(null);
 
     const config = moduleConfig[selectedModule];
 

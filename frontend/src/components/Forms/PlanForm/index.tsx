@@ -2,13 +2,8 @@ import React, { useState } from 'react';
 import { FormField } from '../shared/FormField';
 import { FormActions } from '../shared/FormActions';
 import styles from '../shared/styles.module.css';
+import type { PlanFormData } from '../../../types';
 
-interface PlanFormData {
-  id?: number;
-  name: string;
-  code: string;
-  value: string;
-}
 
 interface Props {
   initial?: PlanFormData | null;
