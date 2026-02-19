@@ -32,7 +32,7 @@ export function BarChart({ color, data, hideWrapper = false }: BarChartProps) {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
                 type="number" 
-                domain={[0, 'dataMax + 1']}
+                domain={[0, 'dataMax + 0.5']}
               />
               <YAxis 
                 type="category"

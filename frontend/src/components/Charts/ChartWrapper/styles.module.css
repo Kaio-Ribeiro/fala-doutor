@@ -33,15 +33,3 @@
     transition: all 0.2s ease;
     color: #6B7280;
 }
-
-.toggleButton:hover {
-    background-color: #F3F4F6;
-    border-color: #D1D5DB;
-    transform: scale(1.05);
-    color: #4B5563;
-}
-
-.toggleButton:active {
-    transform: scale(0.95);
-}
-

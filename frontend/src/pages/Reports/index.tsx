@@ -118,7 +118,11 @@ export function ReportsPage() {
                         appointments: {
                             plans: plansData,
                             hour: hourData,
-                            date: dateData,
+                            date: dateData.sort((a: ReportData, b: ReportData) => {
+                                const dateA = new Date(a.name);
+                                const dateB = new Date(b.name);
+                                return dateA.getTime() - dateB.getTime();
+                            }),
                             value: valueData.map((item: ReportData) => ({
                                 ...item,
                                 name: formatCurrency(item.name)
