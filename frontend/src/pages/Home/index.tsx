@@ -20,7 +20,7 @@ export function HomePage() {
           icon={<Stethoscope size={64} color="#2563EB" />}
           bgColor="#DBEAFE"
           accessTextColor="#2563EB"
-          onClick={() => navigate('/list/doctors')}
+          onClick={() => navigate('/doctors')}
         />
 
         <Card
@@ -29,7 +29,7 @@ export function HomePage() {
           icon={<Users size={64} color="#059669" />}
           bgColor="#D1FAE5"
           accessTextColor="#059669"
-          onClick={() => navigate('/list/patients')}
+          onClick={() => navigate('/patients')}
         />
 
         <Card
@@ -38,7 +38,7 @@ export function HomePage() {
           icon={<HeartPulse size={64} color="#A21CAF" />}
           bgColor="#F3E8FF"
           accessTextColor="#A21CAF"
-          onClick={() => navigate('/list/plans')}
+          onClick={() => navigate('/plans')}
         />
 
         <Card
@@ -47,7 +47,7 @@ export function HomePage() {
           icon={<Calendar size={64} color="#D97706" />}
           bgColor="#FEF3C7"
           accessTextColor="#D97706"
-          onClick={() => navigate('/list/appointments')}
+          onClick={() => navigate('/appointments')}
         />
 
         <Card
@@ -56,7 +56,7 @@ export function HomePage() {
           icon={<Calendar size={64} color="#DC2626" />}
           bgColor="#FEE2E2"
           accessTextColor="#DC2626"
-          onClick={() => navigate('/pages/reports')}
+          onClick={() => navigate('/reports')}
         />
       </div>
 
