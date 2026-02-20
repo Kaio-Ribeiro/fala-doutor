@@ -6,15 +6,15 @@ import { Table } from '../../components/Table';
 import { Modal } from '../../components/Modal';
 import { PlanForm } from '../../components/Forms/PlanForm';
 import { toast } from 'react-toastify';
-import type { Plan, FormSubmissionData, TypeData, TypeDataArrays } from '../../types';
+import type { Plan, FormSubmissionData } from '../../types';
 import type { PlanFormData } from '../../types';
 import { useFetch } from '../../hooks/useFetch';
 
 export function PlansPage() {
     const navigate = useNavigate();
     const [modalOpen, setModalOpen] = useState(false);
-    const [modalInitial, setModalInitial] = useState<TypeData | null>(null);
-    const { data, refetch } = useFetch<TypeDataArrays>('/plans');
+    const [modalInitial, setModalInitial] = useState<Plan | null>(null);
+    const { data, refetch } = useFetch<Plan[]>('/plans');
 
     const handleFormSubmit = async (payload: FormSubmissionData) => {
         const isEdit = Boolean(modalInitial?.id);

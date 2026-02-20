@@ -84,5 +84,3 @@ export type ModuleType = 'doctors' | 'patients' | 'plans' | 'appointments';
 export type FormSubmissionData = DoctorFormData | PatientFormData | PlanFormData | AppointmentFormData;
 
 export type TypeData = Doctor | Patient | Plan | Appointment;
-
-export type TypeDataArrays = Doctor[] | Patient[] | Plan[] | Appointment[];

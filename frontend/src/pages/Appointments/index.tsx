@@ -6,14 +6,14 @@ import { Table } from '../../components/Table';
 import { Modal } from '../../components/Modal';
 import { AppointmentForm } from '../../components/Forms/AppointmentForm';
 import { toast } from 'react-toastify';
-import type { Appointment, AppointmentFormData, FormSubmissionData, TypeDataArrays } from '../../types';
+import type { Appointment, AppointmentFormData, FormSubmissionData } from '../../types';
 import { useFetch} from '../../hooks/useFetch';
 
 export function AppointmentsPage() {
     const navigate = useNavigate();
     const [modalOpen, setModalOpen] = useState(false);
-    const [modalInitial, setModalInitial] = useState<TypeData | null>(null);
-    const { data, refetch } = useFetch<TypeDataArrays>('/appointments');
+    const [modalInitial, setModalInitial] = useState<Appointment | null>(null);
+    const { data, refetch } = useFetch<Appointment[]>('/appointments');
 
     const handleFormSubmit = async (payload: FormSubmissionData) => {
         const isEdit = Boolean(modalInitial?.id);

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, forwardRef } from 'react';
-import { toast } from 'react-toastify';
 import Select from 'react-select';
 import { FormField } from '../shared/FormField';
 import { FormActions } from '../shared/FormActions';
@@ -8,6 +7,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import IMaskInput from 'react-imask/esm/input';
 import type { Doctor, Patient, AppointmentFormData } from '../../../types';
+import { useFetch } from '../../../hooks/useFetch';
 
 interface Props {
   initial?: AppointmentFormData | null;
@@ -60,8 +60,6 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     };
   });
 
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [patients, setPatients] = useState<Patient[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
 
@@ -82,37 +80,8 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     }
   };
 
-  useEffect(() => {
-    let cancelled = false;
-    const fetchData = async () => {
-      try {
-        const [patientsRes, doctorsRes] = await Promise.all([
-          fetch('http://localhost:3000/api/patients'),
-          fetch('http://localhost:3000/api/doctors')
-        ]);
-        
-        if (!patientsRes.ok || !doctorsRes.ok) {
-          throw new Error('Falha ao buscar dados');
-        }
-        
-        const [patientsJson, doctorsJson] = await Promise.all([
-          patientsRes.json(),
-          doctorsRes.json()
-        ]);
-        
-        if (!cancelled) {
-          setPatients(patientsJson);
-          setDoctors(doctorsJson);
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error('Erro ao carregar pacientes e doutores!');
-      }
-    };
-    
-    fetchData();
-    return () => { cancelled = true; };
-  }, []);
+  const { data: doctorsData } = useFetch<Doctor[]>('/doctors');
+  const { data: patientsData } = useFetch<Patient[]>('/patients');
 
   // Buscar horários disponíveis quando doutor, paciente e data estão preenchidos
   useEffect(() => {
@@ -175,9 +144,8 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     }
   }
 
-  const doctorOptions = doctors
-  .filter(doctor => {
-    const selectedPatient = patients.find(p => p.id === form.patient_id);
+  const doctorOptions = doctorsData?.filter(doctor => {
+    const selectedPatient = patientsData?.find(p => p.id === form.patient_id);
     // Se nenhum paciente selecionado, não mostrar doutores
     if (!selectedPatient?.plan_id) return false;
     // Mostrar apenas doutores que atendem ao plano do paciente
@@ -186,12 +154,12 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
   .map(doctor => ({
     value: doctor.id!,
     label: doctor.name // Pode remover o "- Atende ao plano" já que todos vão atender
-  }));
+  })) || [];
 
-  const patientOptions = patients.map(patient => ({
+  const patientOptions = patientsData?.map(patient => ({
     value: patient.id!,
     label: patient.name
-  }));
+  })) || [];
 
   const MaskedInput = forwardRef((props, ref) => (
   <IMaskInput
@@ -203,8 +171,8 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
 ));
 
   const selectedPatient = patientOptions.find(option => option.value === form.patient_id) || null;
-  const selectedDoctor = doctorOptions.find(option => option.value === form.doctor_id) || null
-  const selectedPlan = patients.find(p => p.id === form.patient_id)?.plan_name || '';
+  const selectedDoctor = doctorOptions.find(option => option.value === form.doctor_id) || null;
+  const selectedPlan = patientsData?.find(p => p.id === form.patient_id)?.plan_name || '';
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>

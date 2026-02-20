@@ -6,16 +6,16 @@ import { Table } from '../../components/Table';
 import { Modal } from '../../components/Modal';
 import { PatientForm } from '../../components/Forms/PatientForm';
 import { toast } from 'react-toastify';
-import type { Patient, PatientFormData, FormSubmissionData, TypeData, TypeDataArrays } from '../../types';
+import type { Patient, PatientFormData, FormSubmissionData } from '../../types';
 import { useFetch } from '../../hooks/useFetch';
 
 export function PatientsPage() {
     const navigate = useNavigate();
     
     const [modalOpen, setModalOpen] = useState(false);
-    const [modalInitial, setModalInitial] = useState<TypeData | null>(null);
+    const [modalInitial, setModalInitial] = useState<Patient | null>(null);
 
-    const { data, refetch } = useFetch<TypeDataArrays>('/patients');
+    const { data, refetch } = useFetch<Patient[]>('/patients');
 
     const handleFormSubmit = async (payload: FormSubmissionData) => {
         const isEdit = Boolean(modalInitial?.id);
