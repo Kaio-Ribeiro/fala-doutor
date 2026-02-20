@@ -1,5 +1,5 @@
 import { Plus, ArrowLeft } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../styles.module.css';
 import { Table } from '../../components/Table';
@@ -7,31 +7,15 @@ import { Modal } from '../../components/Modal';
 import { PatientForm } from '../../components/Forms/PatientForm';
 import { toast } from 'react-toastify';
 import type { Patient, PatientFormData, FormSubmissionData, TypeData, TypeDataArrays } from '../../types';
+import { useFetch } from '../../hooks/useFetch';
 
 export function PatientsPage() {
     const navigate = useNavigate();
-    const [data, setData] = useState<TypeDataArrays>([]);
-    const [reload, setReload] = useState(0);
+    
     const [modalOpen, setModalOpen] = useState(false);
     const [modalInitial, setModalInitial] = useState<TypeData | null>(null);
 
-    useEffect(() => {
-        let cancelled = false;
-        const fetchData = async () => {
-            try {
-                const base = 'http://localhost:3000';
-                const res = await fetch(`${base}/api/patients`);
-                if (!res.ok) throw new Error(`Falha ao carregar pacientes`);
-                const json = await res.json();
-                if (!cancelled) setData(json);
-            } catch (err) {
-                console.error(err);
-                toast.error('Erro ao carregar pacientes!');
-            }
-        };
-        fetchData();
-        return () => { cancelled = true; };
-    }, [reload]);
+    const { data, refetch } = useFetch<TypeDataArrays>('/patients');
 
     const handleFormSubmit = async (payload: FormSubmissionData) => {
         const isEdit = Boolean(modalInitial?.id);
@@ -45,7 +29,7 @@ export function PatientsPage() {
             if (!res.ok) throw new Error(json.error || 'Falha ao salvar paciente');
 
             setModalOpen(false);
-            setReload(r => r + 1);
+            refetch();
             toast.success(isEdit ? 'Paciente atualizado com sucesso!' : 'Paciente criado com sucesso!');
         } catch (error) {
             console.error(error);
@@ -71,7 +55,7 @@ export function PatientsPage() {
                         Gerenciar Pacientes
                     </h1>
                     <p className={styles.listSubtitle}>
-                        {data.length} pacientes cadastrados
+                        {data?.length || 0} pacientes cadastrados
                     </p>
                     </div>
                         <button 
@@ -85,7 +69,7 @@ export function PatientsPage() {
                 </div>
                 </div>
                 <Table
-                    data={data}
+                    data={data || []}
                     module={'patients'}
                     lightColor={'#ECFDF5'}
                     onEdit={(item) => { setModalInitial(item as Patient); setModalOpen(true); }}
@@ -94,7 +78,7 @@ export function PatientsPage() {
                             const base = 'http://localhost:3000';
                             const res = await fetch(`${base}/api/patients/${item.id}`, { method: 'DELETE' });
                             if (!res.ok) throw new Error('Falha ao excluir paciente');
-                            setReload(r => r + 1);
+                            refetch();
                             toast.success('Paciente excluído com sucesso!');
                         } catch (error) {
                             console.error(error);

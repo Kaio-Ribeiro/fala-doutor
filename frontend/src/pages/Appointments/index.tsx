@@ -1,39 +1,19 @@
 import { Plus, ArrowLeft } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../styles.module.css';
 import { Table } from '../../components/Table';
 import { Modal } from '../../components/Modal';
 import { AppointmentForm } from '../../components/Forms/AppointmentForm';
 import { toast } from 'react-toastify';
-import type { Appointment, AppointmentFormData, FormSubmissionData, TypeData, TypeDataArrays } from '../../types';
-import type {  } from '../../types';
+import type { Appointment, AppointmentFormData, FormSubmissionData, TypeDataArrays } from '../../types';
+import { useFetch} from '../../hooks/useFetch';
 
 export function AppointmentsPage() {
     const navigate = useNavigate();
-    const [data, setData] = useState<TypeDataArrays>([]);
-    const [reload, setReload] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalInitial, setModalInitial] = useState<TypeData | null>(null);
-
-
-    useEffect(() => {
-        let cancelled = false;
-        const fetchData = async () => {
-            try {
-                const base = 'http://localhost:3000';
-                const res = await fetch(`${base}/api/appointments`);
-                if (!res.ok) throw new Error(`Falha ao carregar consultas`);
-                const json = await res.json();
-                if (!cancelled) setData(json);
-            } catch (err) {
-                console.error(err);
-                toast.error('Erro ao carregar consultas!');
-            }
-        };
-        fetchData();
-        return () => { cancelled = true; };
-    }, [reload]);
+    const { data, refetch } = useFetch<TypeDataArrays>('/appointments');
 
     const handleFormSubmit = async (payload: FormSubmissionData) => {
         const isEdit = Boolean(modalInitial?.id);
@@ -47,7 +27,7 @@ export function AppointmentsPage() {
             if (!res.ok) throw new Error(json.error || 'Falha ao salvar consulta');
 
             setModalOpen(false);
-            setReload(r => r + 1);
+            refetch();
             toast.success(isEdit ? 'Consulta atualizada com sucesso!' : 'Consulta criada com sucesso!');
         } catch (error) {
             console.error(error);
@@ -73,7 +53,7 @@ export function AppointmentsPage() {
                         Gerenciar Consultas
                     </h1>
                     <p className={styles.listSubtitle}>
-                        {data.length} consultas cadastradas
+                        {data?.length || 0} consultas cadastradas
                     </p>
                     </div>
                         <button 
@@ -87,7 +67,7 @@ export function AppointmentsPage() {
                 </div>
                 </div>
                 <Table
-                    data={data}
+                    data={data || []}
                     module={'appointments'}
                     lightColor={'#FEF3C7'}
                     onEdit={(item) => { setModalInitial(item as Appointment); setModalOpen(true); }}
@@ -96,7 +76,7 @@ export function AppointmentsPage() {
                             const base = 'http://localhost:3000';
                             const res = await fetch(`${base}/api/appointments/${item.id}`, { method: 'DELETE' });
                             if (!res.ok) throw new Error('Falha ao excluir consulta');
-                            setReload(r => r + 1);
+                            refetch();
                             toast.success('Consulta excluída com sucesso!');
                         } catch (error) {
                             console.error(error);

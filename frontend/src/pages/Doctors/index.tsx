@@ -1,5 +1,5 @@
 import { Plus, ArrowLeft } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../styles.module.css';
 import { Table } from '../../components/Table';
@@ -7,31 +7,13 @@ import { Modal } from '../../components/Modal';
 import { DoctorForm } from '../../components/Forms/DoctorForm';
 import { toast } from 'react-toastify';
 import type { Doctor, FormSubmissionData, DoctorFormData, TypeData, TypeDataArrays } from '../../types';
+import { useFetch } from '../../hooks/useFetch';
 
 export function DoctorsPage() {
     const navigate = useNavigate();
-    const [data, setData] = useState<TypeDataArrays>([]);
-    const [reload, setReload] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalInitial, setModalInitial] = useState<TypeData | null>(null);
-
-    useEffect(() => {
-        let cancelled = false;
-        const fetchData = async () => {
-            try {
-                const base = 'http://localhost:3000';
-                const res = await fetch(`${base}/api/doctors`);
-                if (!res.ok) throw new Error(`Falha ao carregar doutores`);
-                const json = await res.json();
-                if (!cancelled) setData(json);
-            } catch (err) {
-                console.error(err);
-                toast.error('Erro ao carregar doutores!');
-            }
-        };
-        fetchData();
-        return () => { cancelled = true; };
-    }, [reload]);
+    const { data, refetch } = useFetch<TypeDataArrays>('/doctors');
 
     const handleFormSubmit = async (payload: FormSubmissionData) => {
         const isEdit = Boolean(modalInitial?.id);
@@ -45,7 +27,7 @@ export function DoctorsPage() {
             if (!res.ok) throw new Error(json.error || 'Falha ao salvar doutor');
 
             setModalOpen(false);
-            setReload(r => r + 1);
+            refetch();
             toast.success(isEdit ? 'Doutor atualizado com sucesso!' : 'Doutor criado com sucesso!');
         } catch (error) {
             console.error(error);
@@ -71,7 +53,7 @@ export function DoctorsPage() {
                             Gerenciar Doutores
                         </h1>
                         <p className={styles.listSubtitle}>
-                            {data.length} doutores cadastrados
+                            {data?.length || 0} doutores cadastrados
                         </p>
                         </div>
                             <button 
@@ -85,7 +67,7 @@ export function DoctorsPage() {
                     </div>
                 </div>
                 <Table
-                    data={data}
+                    data={data || []}
                     module={'doctors'}
                     lightColor={'#EFF6FF'}
                     onEdit={(item) => { setModalInitial(item as Doctor); setModalOpen(true); }}
@@ -94,7 +76,7 @@ export function DoctorsPage() {
                             const base = 'http://localhost:3000';
                             const res = await fetch(`${base}/api/doctors/${item.id}`, { method: 'DELETE' });
                             if (!res.ok) throw new Error('Falha ao excluir doutor');
-                            setReload(r => r + 1);
+                            refetch();
                             toast.success('Doutor excluído com sucesso!');
                         } catch (error) {
                             console.error(error);
