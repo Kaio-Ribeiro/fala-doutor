@@ -10,9 +10,8 @@ export function HomePage() {
   const navigate = useNavigate();
 
   return (
-    <Container>
+    <Container background="linear-gradient(to bottom right, #EFF6FF, #E0E7FF)">
       <Logo />
-
       <div className={styles.cardContainer}>
         <Card
           title="Doutores"

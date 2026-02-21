@@ -1,11 +1,10 @@
 .container {
   box-sizing: border-box;
   min-height: 100vh;
-  background: linear-gradient(to bottom right, #EFF6FF, #E0E7FF);
   padding: 2rem;
 }
 
 .content {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }

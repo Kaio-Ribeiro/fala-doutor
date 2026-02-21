@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from '../styles.module.css';
 import { Table } from '../../components/Table';
 import { Modal } from '../../components/Modal';
+import { Container } from "../../components/Container";
 import { PatientForm } from '../../components/Forms/PatientForm';
 import { toast } from 'react-toastify';
 import type { Patient, PatientFormData, FormSubmissionData } from '../../types';
@@ -39,67 +40,65 @@ export function PatientsPage() {
     };
 
     return (
-        <div className={styles.listContainer}>
-            <div className={styles.listContent}>
-                <div className={styles.listHeader}>
-                <button
-                    className={styles.backButton}
-                    onClick={() => navigate(-1)}
-                >
-                    <ArrowLeft size={20} className={styles.backIcon} />
-                    Voltar
-                </button>
-                <div className={styles.listHeaderContent}>
-                    <div>
-                    <h1 className={styles.listTitle}>
-                        Gerenciar Pacientes
-                    </h1>
-                    <p className={styles.listSubtitle}>
-                        {data?.length || 0} pacientes cadastrados
-                    </p>
-                    </div>
-                        <button 
-                            className={styles.addButton}
-                            style={{ backgroundColor: '#059669' }}
-                            onClick={() => { setModalInitial(null); setModalOpen(true); }}
-                            >
-                            <Plus size={20} />
-                            <span>Adicionar Paciente</span>
-                        </button>
+        <Container>
+            <div className={styles.listHeader}>
+            <button
+                className={styles.backButton}
+                onClick={() => navigate(-1)}
+            >
+                <ArrowLeft size={20} className={styles.backIcon} />
+                Voltar
+            </button>
+            <div className={styles.listHeaderContent}>
+                <div>
+                <h1 className={styles.listTitle}>
+                    Gerenciar Pacientes
+                </h1>
+                <p className={styles.listSubtitle}>
+                    {data?.length || 0} pacientes cadastrados
+                </p>
                 </div>
-                </div>
-                <Table
-                    data={data || []}
-                    module={'patients'}
-                    lightColor={'#ECFDF5'}
-                    onEdit={(item) => { setModalInitial(item as Patient); setModalOpen(true); }}
-                    onDelete={async (item) => {
-                        try {
-                            const base = 'http://localhost:3000';
-                            const res = await fetch(`${base}/api/patients/${item.id}`, { method: 'DELETE' });
-                            if (!res.ok) throw new Error('Falha ao excluir paciente');
-                            refetch();
-                            toast.success('Paciente excluído com sucesso!');
-                        } catch (error) {
-                            console.error(error);
-                            toast.error('Erro ao excluir paciente!');
-                        }
-                    }}
-                />
-
-                <Modal 
-                    open={modalOpen} 
-                    onClose={() => setModalOpen(false)}
-                    title={`${modalInitial ? 'Editar' : 'Adicionar'} Paciente`}
-                >
-                    <PatientForm
-                        key={modalInitial ? `edit-${modalInitial.id}` : 'new'}
-                        initial={modalInitial as PatientFormData | null}
-                        onCancel={() => setModalOpen(false)}
-                        onSubmit={handleFormSubmit}
-                    />
-                </Modal>
+                    <button 
+                        className={styles.addButton}
+                        style={{ backgroundColor: '#059669' }}
+                        onClick={() => { setModalInitial(null); setModalOpen(true); }}
+                        >
+                        <Plus size={20} />
+                        <span>Adicionar Paciente</span>
+                    </button>
             </div>
-        </div>
+            </div>
+            <Table
+                data={data || []}
+                module={'patients'}
+                lightColor={'#ECFDF5'}
+                onEdit={(item) => { setModalInitial(item as Patient); setModalOpen(true); }}
+                onDelete={async (item) => {
+                    try {
+                        const base = 'http://localhost:3000';
+                        const res = await fetch(`${base}/api/patients/${item.id}`, { method: 'DELETE' });
+                        if (!res.ok) throw new Error('Falha ao excluir paciente');
+                        refetch();
+                        toast.success('Paciente excluído com sucesso!');
+                    } catch (error) {
+                        console.error(error);
+                        toast.error('Erro ao excluir paciente!');
+                    }
+                }}
+            />
+
+            <Modal 
+                open={modalOpen} 
+                onClose={() => setModalOpen(false)}
+                title={`${modalInitial ? 'Editar' : 'Adicionar'} Paciente`}
+            >
+                <PatientForm
+                    key={modalInitial ? `edit-${modalInitial.id}` : 'new'}
+                    initial={modalInitial as PatientFormData | null}
+                    onCancel={() => setModalOpen(false)}
+                    onSubmit={handleFormSubmit}
+                />
+            </Modal>
+        </Container>
     )
 }

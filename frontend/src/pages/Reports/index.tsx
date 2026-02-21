@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './styles.module.css';
 import { toast } from 'react-toastify';
+import { Container } from "../../components/Container";
 import { ArrowLeft, Stethoscope, Users, Calendar } from 'lucide-react';
 import { ChartWrapper } from '../../components/Charts/ChartWrapper';
 
@@ -227,54 +228,52 @@ export function ReportsPage() {
     };
 
     return (
-        <div className={styles.listContainer}>
-            <div className={styles.listContent}>
-                <div className={styles.listHeader}>
-                    <button
-                        className={styles.backButton}
-                        onClick={() => navigate(-1)}
-                    >
-                        <ArrowLeft size={20} className={styles.backIcon} />
-                        Voltar
-                    </button>
-                    <div className={styles.listHeaderContent}>
-                        <div>
-                            <h1 className={styles.listTitle}>
-                                Relatórios
-                            </h1>
-                            <p className={styles.listSubtitle}>
-                                Analise os relatórios e seus dados
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className={styles.tabsContainer}>
-                    <div className={styles.tabsNav}>
-                        {tabs.map((tab) => {
-                            const Icon = tab.icon;
-                            return (
-                                <button
-                                    key={tab.id}
-                                    className={`${styles.tab} ${activeTab === tab.id ? styles.tabActive : ''}`}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    style={{
-                                        borderBottomColor: activeTab === tab.id ? tab.color : 'transparent',
-                                        color: activeTab === tab.id ? tab.color : '#6B7280'
-                                    }}
-                                >
-                                    <Icon size={20} />
-                                    <span>{tab.label}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    <div className={styles.tabContent}>
-                        {renderContent()}
+        <Container>
+            <div className={styles.listHeader}>
+                <button
+                    className={styles.backButton}
+                    onClick={() => navigate(-1)}
+                >
+                    <ArrowLeft size={20} className={styles.backIcon} />
+                    Voltar
+                </button>
+                <div className={styles.listHeaderContent}>
+                    <div>
+                        <h1 className={styles.listTitle}>
+                            Relatórios
+                        </h1>
+                        <p className={styles.listSubtitle}>
+                            Analise os relatórios e seus dados
+                        </p>
                     </div>
                 </div>
             </div>
-        </div>
+
+            <div className={styles.tabsContainer}>
+                <div className={styles.tabsNav}>
+                    {tabs.map((tab) => {
+                        const Icon = tab.icon;
+                        return (
+                            <button
+                                key={tab.id}
+                                className={`${styles.tab} ${activeTab === tab.id ? styles.tabActive : ''}`}
+                                onClick={() => setActiveTab(tab.id)}
+                                style={{
+                                    borderBottomColor: activeTab === tab.id ? tab.color : 'transparent',
+                                    color: activeTab === tab.id ? tab.color : '#6B7280'
+                                }}
+                            >
+                                <Icon size={20} />
+                                <span>{tab.label}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+
+                <div className={styles.tabContent}>
+                    {renderContent()}
+                </div>
+            </div>
+        </Container>
     )
 }

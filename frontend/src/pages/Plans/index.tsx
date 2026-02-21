@@ -5,6 +5,7 @@ import styles from '../styles.module.css';
 import { Table } from '../../components/Table';
 import { Modal } from '../../components/Modal';
 import { PlanForm } from '../../components/Forms/PlanForm';
+import { Container } from "../../components/Container";
 import { toast } from 'react-toastify';
 import type { Plan, FormSubmissionData } from '../../types';
 import type { PlanFormData } from '../../types';
@@ -38,67 +39,65 @@ export function PlansPage() {
     };
 
     return (
-        <div className={styles.listContainer}>
-            <div className={styles.listContent}>
-                <div className={styles.listHeader}>
-                <button
-                    className={styles.backButton}
-                    onClick={() => navigate(-1)}
-                >
-                    <ArrowLeft size={20} className={styles.backIcon} />
-                    Voltar
-                </button>
-                <div className={styles.listHeaderContent}>
-                    <div>
-                    <h1 className={styles.listTitle}>
-                        Gerenciar Planos
-                    </h1>
-                    <p className={styles.listSubtitle}>
-                        {data?.length || 0} planos cadastrados
-                    </p>
-                    </div>
-                        <button 
-                            className={styles.addButton}
-                            style={{ backgroundColor: '#A21CAF' }}
-                            onClick={() => { setModalInitial(null); setModalOpen(true); }}
-                            >
-                            <Plus size={20} />
-                            <span>Adicionar Plano</span>
-                        </button>
+        <Container>
+            <div className={styles.listHeader}>
+            <button
+                className={styles.backButton}
+                onClick={() => navigate(-1)}
+            >
+                <ArrowLeft size={20} className={styles.backIcon} />
+                Voltar
+            </button>
+            <div className={styles.listHeaderContent}>
+                <div>
+                <h1 className={styles.listTitle}>
+                    Gerenciar Planos
+                </h1>
+                <p className={styles.listSubtitle}>
+                    {data?.length || 0} planos cadastrados
+                </p>
                 </div>
-                </div>
-                <Table
-                    data={data || []}
-                    module={'plans'}
-                    lightColor={'#F3E8FF'}
-                    onEdit={(item) => { setModalInitial(item as Plan); setModalOpen(true); }}
-                    onDelete={async (item) => {
-                        try {
-                            const base = 'http://localhost:3000';
-                            const res = await fetch(`${base}/api/plans/${item.id}`, { method: 'DELETE' });
-                            if (!res.ok) throw new Error('Falha ao excluir plano');
-                            refetch();
-                            toast.success('Plano excluído com sucesso!');
-                        } catch (error) {
-                            console.error(error);
-                            toast.error('Erro ao excluir plano!');
-                        }
-                    }}
-                />
-
-                <Modal 
-                    open={modalOpen} 
-                    onClose={() => setModalOpen(false)}
-                    title={`${modalInitial ? 'Editar' : 'Adicionar'} Plano`}
-                >
-                    <PlanForm
-                        key={modalInitial ? `edit-${modalInitial.id}` : 'new'}
-                        initial={modalInitial as PlanFormData | null}
-                        onCancel={() => setModalOpen(false)}
-                        onSubmit={handleFormSubmit}
-                    />
-                </Modal>
+                    <button 
+                        className={styles.addButton}
+                        style={{ backgroundColor: '#A21CAF' }}
+                        onClick={() => { setModalInitial(null); setModalOpen(true); }}
+                        >
+                        <Plus size={20} />
+                        <span>Adicionar Plano</span>
+                    </button>
             </div>
-        </div>
+            </div>
+            <Table
+                data={data || []}
+                module={'plans'}
+                lightColor={'#F3E8FF'}
+                onEdit={(item) => { setModalInitial(item as Plan); setModalOpen(true); }}
+                onDelete={async (item) => {
+                    try {
+                        const base = 'http://localhost:3000';
+                        const res = await fetch(`${base}/api/plans/${item.id}`, { method: 'DELETE' });
+                        if (!res.ok) throw new Error('Falha ao excluir plano');
+                        refetch();
+                        toast.success('Plano excluído com sucesso!');
+                    } catch (error) {
+                        console.error(error);
+                        toast.error('Erro ao excluir plano!');
+                    }
+                }}
+            />
+
+            <Modal 
+                open={modalOpen} 
+                onClose={() => setModalOpen(false)}
+                title={`${modalInitial ? 'Editar' : 'Adicionar'} Plano`}
+            >
+                <PlanForm
+                    key={modalInitial ? `edit-${modalInitial.id}` : 'new'}
+                    initial={modalInitial as PlanFormData | null}
+                    onCancel={() => setModalOpen(false)}
+                    onSubmit={handleFormSubmit}
+                />
+            </Modal>
+        </Container>
     )
 }
