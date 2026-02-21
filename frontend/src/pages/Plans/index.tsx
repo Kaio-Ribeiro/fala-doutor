@@ -6,11 +6,11 @@ import { Table } from '../../components/Table';
 import { Modal } from '../../components/Modal';
 import { PlanForm } from '../../components/Forms/PlanForm';
 import { Container } from "../../components/Container";
-import { toast } from 'react-toastify';
 import type { Plan, FormSubmissionData } from '../../types';
 import type { PlanFormData } from '../../types';
 import { useFetch } from '../../hooks/useFetch';
-import { useDelete } from '../../hooks/useDelete'; 
+import { useDelete } from '../../hooks/useDelete';
+import { useSubmit } from '../../hooks/useSubmit';
 
 export function PlansPage() {
     const navigate = useNavigate();
@@ -18,26 +18,11 @@ export function PlansPage() {
     const [modalInitial, setModalInitial] = useState<Plan | null>(null);
     const { data, refetch } = useFetch<Plan[]>('/plans');
     const deleteItem = useDelete('/plans', refetch)
+    const submitData = useSubmit('/plans', refetch, () => setModalOpen(false))
 
     const handleFormSubmit = async (payload: FormSubmissionData) => {
         const isEdit = Boolean(modalInitial?.id);
-        try {
-            const base = 'http://localhost:3000';
-            const url = isEdit ? `${base}/api/plans/${modalInitial!.id}` : `${base}/api/plans`;
-            const method = isEdit ? 'PUT' : 'POST';
-            const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            const json = await res.json();
-
-            if (!res.ok) throw new Error(json.error || 'Falha ao salvar plano');
-
-            setModalOpen(false);
-            refetch();
-            toast.success(isEdit ? 'Plano atualizado com sucesso!' : 'Plano criado com sucesso!');
-        } catch (error) {
-            console.error(error);
-            const msg = error instanceof Error ? error.message : (isEdit ? "Erro ao atualizar plano!" : "Erro ao criar plano!");
-            toast.error(msg);
-        }
+        submitData(isEdit, modalInitial?.id, payload)
     };
 
     return (

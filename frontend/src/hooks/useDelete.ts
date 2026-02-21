@@ -14,6 +14,6 @@ export function useDelete(endpoint: string, refetch: () => void) {
             console.error(error);
             toast.error("Erro ao excluir item");
         }
-    }, [refetch, endpoint])
+    }, [endpoint, refetch])
 
 }

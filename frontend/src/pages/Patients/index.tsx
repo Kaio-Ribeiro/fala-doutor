@@ -6,10 +6,10 @@ import { Table } from '../../components/Table';
 import { Modal } from '../../components/Modal';
 import { Container } from "../../components/Container";
 import { PatientForm } from '../../components/Forms/PatientForm';
-import { toast } from 'react-toastify';
 import type { Patient, PatientFormData, FormSubmissionData } from '../../types';
 import { useFetch } from '../../hooks/useFetch';
 import { useDelete } from '../../hooks/useDelete';
+import { useSubmit } from '../../hooks/useSubmit';
 
 export function PatientsPage() {
     const navigate = useNavigate();
@@ -19,26 +19,11 @@ export function PatientsPage() {
 
     const { data, refetch } = useFetch<Patient[]>('/patients');
     const deleteItem = useDelete('/patients', refetch);
+    const submitData = useSubmit('/patients', refetch, () => setModalOpen(false))
 
     const handleFormSubmit = async (payload: FormSubmissionData) => {
         const isEdit = Boolean(modalInitial?.id);
-        try {
-            const base = 'http://localhost:3000';
-            const url = isEdit ? `${base}/api/patients/${modalInitial!.id}` : `${base}/api/patients`;
-            const method = isEdit ? 'PUT' : 'POST';
-            const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            const json = await res.json();
-
-            if (!res.ok) throw new Error(json.error || 'Falha ao salvar paciente');
-
-            setModalOpen(false);
-            refetch();
-            toast.success(isEdit ? 'Paciente atualizado com sucesso!' : 'Paciente criado com sucesso!');
-        } catch (error) {
-            console.error(error);
-            const msg = error instanceof Error ? error.message : (isEdit ? "Erro ao atualizar paciente!" : "Erro ao criar paciente!");
-            toast.error(msg);
-        }
+        submitData(isEdit, modalInitial?.id, payload)
     };
 
     return (

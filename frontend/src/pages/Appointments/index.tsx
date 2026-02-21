@@ -6,10 +6,10 @@ import { Table } from '../../components/Table';
 import { Modal } from '../../components/Modal';
 import { AppointmentForm } from '../../components/Forms/AppointmentForm';
 import { Container } from "../../components/Container";
-import { toast } from 'react-toastify';
 import type { Appointment, AppointmentFormData, FormSubmissionData } from '../../types';
 import { useFetch} from '../../hooks/useFetch';
 import { useDelete } from '../../hooks/useDelete'
+import { useSubmit } from '../../hooks/useSubmit'
 
 export function AppointmentsPage() {
     const navigate = useNavigate();
@@ -17,26 +17,11 @@ export function AppointmentsPage() {
     const [modalInitial, setModalInitial] = useState<Appointment | null>(null);
     const { data, refetch } = useFetch<Appointment[]>('/appointments');
     const deleteItem = useDelete('/appointments', refetch)
+    const submitData = useSubmit('/appointments', refetch, () => setModalOpen(false))
 
     const handleFormSubmit = async (payload: FormSubmissionData) => {
         const isEdit = Boolean(modalInitial?.id);
-        try {
-            const base = 'http://localhost:3000';
-            const url = isEdit ? `${base}/api/appointments/${modalInitial!.id}` : `${base}/api/appointments`;
-            const method = isEdit ? 'PUT' : 'POST';
-            const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            const json = await res.json();
-
-            if (!res.ok) throw new Error(json.error || 'Falha ao salvar consulta');
-
-            setModalOpen(false);
-            refetch();
-            toast.success(isEdit ? 'Consulta atualizada com sucesso!' : 'Consulta criada com sucesso!');
-        } catch (error) {
-            console.error(error);
-            const msg = error instanceof Error ? error.message : (isEdit ? "Erro ao atualizar consulta!" : "Erro ao criar consulta!");
-            toast.error(msg);
-        }
+        submitData(isEdit, modalInitial?.id, payload)
     };
 
     return (
