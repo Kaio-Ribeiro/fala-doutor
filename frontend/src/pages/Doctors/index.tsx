@@ -9,12 +9,14 @@ import { DoctorForm } from '../../components/Forms/DoctorForm';
 import { toast } from 'react-toastify';
 import type { Doctor, FormSubmissionData, DoctorFormData } from '../../types';
 import { useFetch } from '../../hooks/useFetch';
+import { useDelete } from '../../hooks/useDelete';
 
 export function DoctorsPage() {
     const navigate = useNavigate();
     const [modalOpen, setModalOpen] = useState(false);
     const [modalInitial, setModalInitial] = useState<Doctor | null>(null);
     const { data, refetch } = useFetch<Doctor[]>('/doctors');
+    const deleteItem = useDelete('/doctors', refetch);
 
     const handleFormSubmit = async (payload: FormSubmissionData) => {
         const isEdit = Boolean(modalInitial?.id);
@@ -49,12 +51,12 @@ export function DoctorsPage() {
                 </button>
                 <div className={styles.listHeaderContent}>
                     <div>
-                    <h1 className={styles.listTitle}>
-                        Gerenciar Doutores
-                    </h1>
-                    <p className={styles.listSubtitle}>
-                        {data?.length || 0} doutores cadastrados
-                    </p>
+                        <h1 className={styles.listTitle}>
+                            Gerenciar Doutores
+                        </h1>
+                        <p className={styles.listSubtitle}>
+                            {data?.length || 0} doutores cadastrados
+                        </p>
                     </div>
                         <button 
                             className={styles.addButton}
@@ -71,18 +73,7 @@ export function DoctorsPage() {
                 module={'doctors'}
                 lightColor={'#EFF6FF'}
                 onEdit={(item) => { setModalInitial(item as Doctor); setModalOpen(true); }}
-                onDelete={async (item) => {
-                    try {
-                        const base = 'http://localhost:3000';
-                        const res = await fetch(`${base}/api/doctors/${item.id}`, { method: 'DELETE' });
-                        if (!res.ok) throw new Error('Falha ao excluir doutor');
-                        refetch();
-                        toast.success('Doutor excluído com sucesso!');
-                    } catch (error) {
-                        console.error(error);
-                        toast.error('Erro ao excluir doutor!');
-                    }
-                }}
+                onDelete={deleteItem}
             />
 
             <Modal 

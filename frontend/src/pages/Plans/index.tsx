@@ -10,12 +10,14 @@ import { toast } from 'react-toastify';
 import type { Plan, FormSubmissionData } from '../../types';
 import type { PlanFormData } from '../../types';
 import { useFetch } from '../../hooks/useFetch';
+import { useDelete } from '../../hooks/useDelete'; 
 
 export function PlansPage() {
     const navigate = useNavigate();
     const [modalOpen, setModalOpen] = useState(false);
     const [modalInitial, setModalInitial] = useState<Plan | null>(null);
     const { data, refetch } = useFetch<Plan[]>('/plans');
+    const deleteItem = useDelete('/plans', refetch)
 
     const handleFormSubmit = async (payload: FormSubmissionData) => {
         const isEdit = Boolean(modalInitial?.id);
@@ -72,18 +74,7 @@ export function PlansPage() {
                 module={'plans'}
                 lightColor={'#F3E8FF'}
                 onEdit={(item) => { setModalInitial(item as Plan); setModalOpen(true); }}
-                onDelete={async (item) => {
-                    try {
-                        const base = 'http://localhost:3000';
-                        const res = await fetch(`${base}/api/plans/${item.id}`, { method: 'DELETE' });
-                        if (!res.ok) throw new Error('Falha ao excluir plano');
-                        refetch();
-                        toast.success('Plano excluído com sucesso!');
-                    } catch (error) {
-                        console.error(error);
-                        toast.error('Erro ao excluir plano!');
-                    }
-                }}
+                onDelete={deleteItem}
             />
 
             <Modal 

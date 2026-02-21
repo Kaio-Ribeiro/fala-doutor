@@ -9,6 +9,7 @@ import { PatientForm } from '../../components/Forms/PatientForm';
 import { toast } from 'react-toastify';
 import type { Patient, PatientFormData, FormSubmissionData } from '../../types';
 import { useFetch } from '../../hooks/useFetch';
+import { useDelete } from '../../hooks/useDelete';
 
 export function PatientsPage() {
     const navigate = useNavigate();
@@ -17,6 +18,7 @@ export function PatientsPage() {
     const [modalInitial, setModalInitial] = useState<Patient | null>(null);
 
     const { data, refetch } = useFetch<Patient[]>('/patients');
+    const deleteItem = useDelete('/patients', refetch);
 
     const handleFormSubmit = async (payload: FormSubmissionData) => {
         const isEdit = Boolean(modalInitial?.id);
@@ -73,18 +75,7 @@ export function PatientsPage() {
                 module={'patients'}
                 lightColor={'#ECFDF5'}
                 onEdit={(item) => { setModalInitial(item as Patient); setModalOpen(true); }}
-                onDelete={async (item) => {
-                    try {
-                        const base = 'http://localhost:3000';
-                        const res = await fetch(`${base}/api/patients/${item.id}`, { method: 'DELETE' });
-                        if (!res.ok) throw new Error('Falha ao excluir paciente');
-                        refetch();
-                        toast.success('Paciente excluído com sucesso!');
-                    } catch (error) {
-                        console.error(error);
-                        toast.error('Erro ao excluir paciente!');
-                    }
-                }}
+                onDelete={deleteItem}
             />
 
             <Modal 

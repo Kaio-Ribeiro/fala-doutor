@@ -9,12 +9,14 @@ import { Container } from "../../components/Container";
 import { toast } from 'react-toastify';
 import type { Appointment, AppointmentFormData, FormSubmissionData } from '../../types';
 import { useFetch} from '../../hooks/useFetch';
+import { useDelete } from '../../hooks/useDelete'
 
 export function AppointmentsPage() {
     const navigate = useNavigate();
     const [modalOpen, setModalOpen] = useState(false);
     const [modalInitial, setModalInitial] = useState<Appointment | null>(null);
     const { data, refetch } = useFetch<Appointment[]>('/appointments');
+    const deleteItem = useDelete('/appointments', refetch)
 
     const handleFormSubmit = async (payload: FormSubmissionData) => {
         const isEdit = Boolean(modalInitial?.id);
@@ -71,18 +73,7 @@ export function AppointmentsPage() {
                 module={'appointments'}
                 lightColor={'#FEF3C7'}
                 onEdit={(item) => { setModalInitial(item as Appointment); setModalOpen(true); }}
-                onDelete={async (item) => {
-                    try {
-                        const base = 'http://localhost:3000';
-                        const res = await fetch(`${base}/api/appointments/${item.id}`, { method: 'DELETE' });
-                        if (!res.ok) throw new Error('Falha ao excluir consulta');
-                        refetch();
-                        toast.success('Consulta excluída com sucesso!');
-                    } catch (error) {
-                        console.error(error);
-                        toast.error('Erro ao excluir consulta!');
-                    }
-                }}
+                onDelete={deleteItem}
             />
 
             <Modal 
