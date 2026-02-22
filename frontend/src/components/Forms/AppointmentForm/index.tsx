@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef } from 'react';
+import React, { useState, forwardRef } from 'react';
 import Select from 'react-select';
 import { FormField } from '../shared/FormField';
 import { FormActions } from '../shared/FormActions';
@@ -8,6 +8,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import IMaskInput from 'react-imask/esm/input';
 import type { Doctor, Patient, AppointmentFormData } from '../../../types';
 import { useFetch } from '../../../hooks/useFetch';
+import { useAvailableTime } from '../../../hooks/useAvailableTime';
 
 interface Props {
   initial?: AppointmentFormData | null;
@@ -61,37 +62,18 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
-
-  const fetchAvailableTimes = async (doctorId: number, patientId: number, date: string, appointmentId?: number) => {
-    try {
-      const params = new URLSearchParams();
-      if (doctorId > 0) params.append('doctor_id', doctorId.toString());
-      if (patientId > 0) params.append('patient_id', patientId.toString());
-      if (appointmentId && appointmentId > 0) params.append('appointment_id', appointmentId.toString());
-      params.append('date', date);
-
-      const response = await fetch(`http://localhost:3000/api/appointments/available-times?${params}`);
-      const times: string[] = await response.json();
-      setAvailableTimeSlots(times);
-    } catch (error) {
-      console.error('Erro ao buscar horários disponíveis:', error);
-      setAvailableTimeSlots([]);
-    }
-  };
 
   const { data: doctorsData } = useFetch<Doctor[]>('/doctors');
   const { data: patientsData } = useFetch<Patient[]>('/patients');
 
-  // Buscar horários disponíveis quando doutor, paciente e data estão preenchidos
-  useEffect(() => {
-    const selectedDate = form.appointment_date ? form.appointment_date.split('T')[0] : '';
-    if (form.doctor_id > 0 && form.patient_id > 0 && selectedDate) {
-      fetchAvailableTimes(form.doctor_id, form.patient_id, selectedDate, form.id);
-    } else {
-      setAvailableTimeSlots([]);
-    }
-  }, [form.doctor_id, form.patient_id, form.appointment_date, form.id]);
+  // Usar hook personalizado para buscar horários disponíveis
+  const selectedDate = form.appointment_date ? form.appointment_date.split('T')[0] : '';
+  const { availableTimeSlots } = useAvailableTime({
+    doctorId: form.doctor_id,
+    patientId: form.patient_id,
+    date: selectedDate,
+    appointmentId: form.id
+  });
 
   function handlePatientChange(selectedOption: { value?: number; label: string } | null) {
     const currentDate = getSelectedDate();
