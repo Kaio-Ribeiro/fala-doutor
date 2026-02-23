@@ -1,26 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { IMaskInput } from "react-imask";
-import { toast } from 'react-toastify';
 import Select from 'react-select';
 import { FormField } from '../shared/FormField';
 import { FormActions } from '../shared/FormActions';
 import styles from '../shared/styles.module.css';
 import { DatePicker } from 'react-datepicker';
-
-interface Plan {
-  id?: number;
-  name: string;
-}
-
-interface PatientFormData {
-  id?: number;
-  name: string;
-  cpf: string;
-  birth_date: string
-  phone?: string;
-  email: string;
-  plan_id?: number;
-}
+import { useFetch } from '../../../hooks/useFetch';
+import type { Plan, PatientFormData } from '../../../types';
 
 interface Props {
   initial?: PatientFormData | null;
@@ -39,25 +25,8 @@ export function PatientForm({ initial = null, onCancel, onSubmit }: Props) {
     birth_date: initial?.birth_date?.slice(0,10) || ''
   }));
 
-  const [plans, setPlans] = useState<Plan[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    const fetchPlans = async () => {
-      try {
-        const res = await fetch('http://localhost:3000/api/plans');
-        if (!res.ok) throw new Error('Falha ao buscar planos');
-        const json = await res.json();
-        if (!cancelled) setPlans(json);
-      } catch (err) {
-        console.error(err);
-        toast.error('Erro ao carregar planos!');
-      }
-    };
-    fetchPlans();
-    return () => { cancelled = true; };
-  }, []);
+  const { data } = useFetch<Plan[]>('/plans');
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -96,10 +65,10 @@ export function PatientForm({ initial = null, onCancel, onSubmit }: Props) {
     }
   }
 
-  const planOptions = plans.map(plan => ({
+  const planOptions = data?.map(plan => ({
     value: plan.id,
     label: plan.name
-  }));
+  })) || [];
 
   const selectedPlan = planOptions.find(option => option.value === form.plan_id) || null;
 

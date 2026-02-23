@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { HomePage } from './pages/Home';
-import { ListPage } from './pages/List';
+import { DoctorsPage } from './pages/Doctors';
+import { PatientsPage } from './pages/Patients';
+import { PlansPage } from './pages/Plans';
+import { AppointmentsPage } from './pages/Appointments';
 import { ReportsPage } from './pages/Reports';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -11,8 +14,11 @@ export function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/list/:module" element={<ListPage />} />
-        <Route path="/pages/reports" element={<ReportsPage />} />
+        <Route path="/doctors" element={<DoctorsPage />} />
+        <Route path="/patients" element={<PatientsPage />} />
+        <Route path="/plans" element={<PlansPage />} />
+        <Route path="/appointments" element={<AppointmentsPage />} />
+        <Route path="/reports" element={<ReportsPage />} />
       </Routes>
       <ToastContainer />
     </BrowserRouter>

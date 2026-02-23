@@ -1,29 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { IMaskInput } from "react-imask";
-import { toast } from 'react-toastify';
 import Select from 'react-select';
 import { FormField } from '../shared/FormField';
 import { FormActions } from '../shared/FormActions';
 import styles from '../shared/styles.module.css';
 import { DatePicker } from 'react-datepicker';
-
-interface Plan {
-  id?: number;
-  name: string;
-  code?: string;
-  value?: string;
-}
-
-interface DoctorFormData {
-  id?: number;
-  name: string;
-  specialty?: string;
-  crm: string;
-  birth_date?: string;
-  phone?: string;
-  email: string;
-  plan_ids: number[];
-}
+import type { DoctorFormData, Plan } from '../../../types';
+import { useFetch } from '../../../hooks/useFetch';
 
 interface Props {
   initial?: DoctorFormData | null;
@@ -69,25 +52,8 @@ export function DoctorForm({ initial = null, onCancel, onSubmit }: Props) {
     }
   });
 
-  const [plans, setPlans] = useState<Plan[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    const fetchPlans = async () => {
-      try {
-        const res = await fetch('http://localhost:3000/api/plans');
-        if (!res.ok) throw new Error('Falha ao buscar planos');
-        const json = await res.json();
-        if (!cancelled) setPlans(json);
-      } catch (err) {
-        console.error(err);
-        toast.error('Erro ao carregar planos!');
-      }
-    };
-    fetchPlans();
-    return () => { cancelled = true; };
-  }, []);
+  const { data } = useFetch<Plan[]>('/plans');
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -127,10 +93,10 @@ export function DoctorForm({ initial = null, onCancel, onSubmit }: Props) {
     }
   }
 
-  const planOptions = plans.map(plan => ({
+  const planOptions = data?.map(plan => ({
     value: plan.id,
     label: plan.name
-  }));
+  })) || [];
 
   const specialtyOptions = specialties.map(specialty => ({
     value: specialty,
