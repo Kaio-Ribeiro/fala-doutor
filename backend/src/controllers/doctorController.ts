@@ -15,11 +15,19 @@ export const doctorController = {
   },
 
   async create(req: Request, res: Response) {
-    const requiredFields = ['name', 'email', 'crm'];
+    const requiredFields = ['name', 'email', 'crm', 'birth_date'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
 
     if (missingFields.length > 0) {
       return res.status(400).json({ error: `Campos obrigatórios ausentes: ${missingFields.join(', ')}` });
+    }
+
+    const birthDate = new Date(req.body.birth_date);
+    const today = new Date();
+    const minBirthDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+
+    if (birthDate > minBirthDate) {
+      return res.status(400).json({ error: 'A idade mínima é 18 anos.' });
     }
 
     const existingEmail = await doctorModel.findByEmail(req.body.email);
@@ -54,12 +62,20 @@ export const doctorController = {
   },
 
   async update(req: Request, res: Response) {
-    const requiredFields = ['name', 'email', 'crm'];
+    const requiredFields = ['name', 'email', 'crm', 'birth_date'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
 
     if (missingFields.length > 0) {
       return res.status(400).json({ error: `Campos obrigatórios ausentes: ${missingFields.join(', ')}` });
     }
+
+    const birthDate = new Date(req.body.birth_date);
+    const today = new Date();
+    const minBirthDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+
+    if (birthDate > minBirthDate) {
+      return res.status(400).json({ error: 'A idade mínima é 18 anos.' });
+    }  
 
     const existingEmail = await doctorModel.findByEmail(req.body.email, Number(req.params.id));
     if (existingEmail) {

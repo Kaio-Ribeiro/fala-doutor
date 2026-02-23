@@ -14,7 +14,7 @@ export const patientController = {
   },
 
   async create(req: Request, res: Response) {
-    const requiredFields = ['name', 'email', 'cpf', 'plan_id'];
+    const requiredFields = ['name', 'email', 'cpf', 'plan_id', 'birth_date'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
 
     if (missingFields.length > 0) {
@@ -51,7 +51,7 @@ export const patientController = {
   },
 
   async update(req: Request, res: Response) {
-    const requiredFields = ['name', 'email', 'cpf', 'plan_id'];
+    const requiredFields = ['name', 'email', 'cpf', 'plan_id', 'birth_date'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
 
     if (missingFields.length > 0) {

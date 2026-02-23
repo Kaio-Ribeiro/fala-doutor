@@ -9,16 +9,12 @@ export const appointmentController = {
       const appointments = await appointmentModel.findAll();
       res.json(appointments);
     } catch (error) {
-    //   res.status(500).json({ error: 'Erro ao listar consultas' });
-        res.status(500).json({
-          error: 'Erro ao listar consultas', 
-          details: error instanceof Error ? error.message : String(error)
-        });
+      res.status(500).json({ error: 'Erro ao listar consultas' });
     }
   },
 
   async create(req: Request, res: Response) {
-    const requiredFields = ['doctor_id', 'patient_id', 'appointment_datetime'];
+    const requiredFields = ['doctor_id', 'patient_id', 'appointment_date'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
 
     if (missingFields.length > 0) {
@@ -34,7 +30,7 @@ export const appointmentController = {
   },
 
   async update(req: Request, res: Response) {
-    const requiredFields = ['doctor_id', 'patient_id', 'appointment_datetime'];
+    const requiredFields = ['doctor_id', 'patient_id', 'appointment_date'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
 
     if (missingFields.length > 0) {
@@ -50,7 +46,7 @@ export const appointmentController = {
     } catch (error) {
         res.status(500).json({ error: 'Erro ao atualizar consulta' });
     }
-},
+  },
 
   async delete(req: Request, res: Response) {
     try {
@@ -63,4 +59,29 @@ export const appointmentController = {
       res.status(500).json({ error: 'Erro ao deletar consulta' });
     }
   },
+
+  async getAvailableTimes(req: Request, res: Response) {
+    try {
+      const { doctor_id, patient_id, date, appointment_id } = req.query;
+
+      // Validar se data foi fornecida
+      if (!date) {
+        return res.status(400).json({ error: 'Parâmetro date é obrigatório' });
+      }
+
+      // Validar se pelo menos um ID foi fornecido
+      if (!doctor_id && !patient_id) {
+        return res.status(400).json({ error: 'Pelo menos doctor_id ou patient_id é obrigatório' });
+      }
+
+      const doctorId = doctor_id ? Number(doctor_id) : 0;
+      const patientId = patient_id ? Number(patient_id) : 0;
+      const appointmentId = appointment_id ? Number(appointment_id) : null;
+
+      const availableTimes = await appointmentModel.getAvailableTimes(doctorId, patientId, String(date), appointmentId);
+      res.json(availableTimes);
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Erro ao buscar horários disponíveis' });
+    }
+  }
 };

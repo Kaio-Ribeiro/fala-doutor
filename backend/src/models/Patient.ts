@@ -8,6 +8,7 @@ export interface Patient {
   email: string;
   plan_id: number;
   plan_name?: string;
+  birth_date?: Date;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -57,19 +58,26 @@ export class PatientModel {
   }
 
   async create(patient: Patient): Promise<Patient> {
-    const { name, cpf, phone, email, plan_id } = patient;
+    const { name, cpf, phone, email, plan_id, birth_date } = patient;
     const result = await pool.query(
-      'INSERT INTO patients (name, cpf, phone, email, plan_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [name, cpf, phone, email, plan_id]
+      'INSERT INTO patients (name, cpf, phone, email, plan_id, birth_date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [name, cpf, phone, email, plan_id, birth_date]
     );
     return result.rows[0];
   }
 
   async update(id: number, patient: Partial<Patient>): Promise<Patient | null> {
-    const { name, cpf, phone, email, plan_id } = patient;
+    const { name, cpf, phone, email, plan_id, birth_date } = patient;
     const result = await pool.query(
-      'UPDATE patients SET name = COALESCE($1, name), cpf = COALESCE($2, cpf), phone = COALESCE($3, phone), email = COALESCE($4, email), plan_id = COALESCE($5, plan_id) WHERE id = $6 RETURNING *',
-      [name, cpf, phone, email, plan_id, id]
+      `UPDATE patients 
+      SET name = COALESCE($1, name), 
+      cpf = COALESCE($2, cpf), 
+      phone = COALESCE($3, phone), 
+      email = COALESCE($4, email), 
+      plan_id = COALESCE($5, plan_id), 
+      birth_date = COALESCE($6, birth_date) 
+      WHERE id = $7 RETURNING *`,
+      [name, cpf, phone, email, plan_id, birth_date, id]
     );
     return result.rows[0] || null;
   }

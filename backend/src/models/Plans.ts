@@ -1,5 +1,4 @@
 import {pool} from '../config/database';
-import { Patient } from './Patient';
 
 export interface Plan {
     id: number;
