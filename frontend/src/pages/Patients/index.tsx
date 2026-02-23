@@ -6,7 +6,7 @@ import { Table } from '../../components/Table';
 import { Modal } from '../../components/Modal';
 import { Container } from "../../components/Container";
 import { PatientForm } from '../../components/Forms/PatientForm';
-import type { Patient, PatientFormData, FormSubmissionData } from '../../types';
+import type { Patient, PatientFormData } from '../../types';
 import { useFetch } from '../../hooks/useFetch';
 import { useDelete } from '../../hooks/useDelete';
 import { useSubmit } from '../../hooks/useSubmit';
@@ -21,7 +21,7 @@ export function PatientsPage() {
     const deleteItem = useDelete('/patients', refetch);
     const submitData = useSubmit('/patients', refetch, () => setModalOpen(false))
 
-    const handleFormSubmit = async (payload: FormSubmissionData) => {
+    const handleFormSubmit = async (payload: PatientFormData) => {
         const isEdit = Boolean(modalInitial?.id);
         submitData(isEdit, modalInitial?.id, payload)
     };

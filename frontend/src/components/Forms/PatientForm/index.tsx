@@ -6,17 +6,7 @@ import { FormActions } from '../shared/FormActions';
 import styles from '../shared/styles.module.css';
 import { DatePicker } from 'react-datepicker';
 import { useFetch } from '../../../hooks/useFetch';
-import type { Plan } from '../../../types';
-
-interface PatientFormData {
-  id?: number;
-  name: string;
-  cpf: string;
-  birth_date: string
-  phone?: string;
-  email: string;
-  plan_id?: number;
-}
+import type { Plan, PatientFormData } from '../../../types';
 
 interface Props {
   initial?: PatientFormData | null;

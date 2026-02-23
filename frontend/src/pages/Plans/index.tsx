@@ -6,8 +6,7 @@ import { Table } from '../../components/Table';
 import { Modal } from '../../components/Modal';
 import { PlanForm } from '../../components/Forms/PlanForm';
 import { Container } from "../../components/Container";
-import type { Plan, FormSubmissionData } from '../../types';
-import type { PlanFormData } from '../../types';
+import type { Plan, PlanFormData } from '../../types';
 import { useFetch } from '../../hooks/useFetch';
 import { useDelete } from '../../hooks/useDelete';
 import { useSubmit } from '../../hooks/useSubmit';
@@ -20,7 +19,7 @@ export function PlansPage() {
     const deleteItem = useDelete('/plans', refetch)
     const submitData = useSubmit('/plans', refetch, () => setModalOpen(false))
 
-    const handleFormSubmit = async (payload: FormSubmissionData) => {
+    const handleFormSubmit = async (payload: PlanFormData) => {
         const isEdit = Boolean(modalInitial?.id);
         submitData(isEdit, modalInitial?.id, payload)
     };

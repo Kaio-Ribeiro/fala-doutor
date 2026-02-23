@@ -6,7 +6,7 @@ import { Table } from '../../components/Table';
 import { Modal } from '../../components/Modal';
 import { AppointmentForm } from '../../components/Forms/AppointmentForm';
 import { Container } from "../../components/Container";
-import type { Appointment, AppointmentFormData, FormSubmissionData } from '../../types';
+import type { Appointment, AppointmentFormData } from '../../types';
 import { useFetch} from '../../hooks/useFetch';
 import { useDelete } from '../../hooks/useDelete'
 import { useSubmit } from '../../hooks/useSubmit'
@@ -19,7 +19,7 @@ export function AppointmentsPage() {
     const deleteItem = useDelete('/appointments', refetch)
     const submitData = useSubmit('/appointments', refetch, () => setModalOpen(false))
 
-    const handleFormSubmit = async (payload: FormSubmissionData) => {
+    const handleFormSubmit = async (payload: AppointmentFormData) => {
         const isEdit = Boolean(modalInitial?.id);
         submitData(isEdit, modalInitial?.id, payload)
     };

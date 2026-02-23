@@ -6,7 +6,7 @@ import { Table } from '../../components/Table';
 import { Modal } from '../../components/Modal';
 import { Container } from "../../components/Container";
 import { DoctorForm } from '../../components/Forms/DoctorForm';
-import type { Doctor, FormSubmissionData, DoctorFormData } from '../../types';
+import type { Doctor, DoctorFormData } from '../../types';
 import { useFetch } from '../../hooks/useFetch';
 import { useDelete } from '../../hooks/useDelete';
 import { useSubmit } from '../../hooks/useSubmit';
@@ -14,13 +14,20 @@ import { useSubmit } from '../../hooks/useSubmit';
 export function DoctorsPage() {
     const navigate = useNavigate();
     const [modalOpen, setModalOpen] = useState(false);
+
+    // Dados iniciais do modal
     const [modalInitial, setModalInitial] = useState<Doctor | null>(null);
+
+    // Hooks para listar os doutores, deletar e submeter
     const { data, refetch } = useFetch<Doctor[]>('/doctors');
     const deleteItem = useDelete('/doctors', refetch);
     const submitData = useSubmit('/doctors', refetch, () => setModalOpen(false))
 
-    const handleFormSubmit = async (payload: FormSubmissionData) => {
+    // handleFormSubmit é chamado pelo onSubmit do DoctorForm
+    // Recebe os dados do formulário para criação ou edição
+    const handleFormSubmit = async (payload: DoctorFormData) => {
         const isEdit = Boolean(modalInitial?.id)
+        // Chama o hook de submit passando se é edição, o id (se houver) e os dados do formulário
         submitData(isEdit, modalInitial?.id, payload)
     };
 
