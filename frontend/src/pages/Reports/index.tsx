@@ -5,13 +5,10 @@ import { toast } from 'react-toastify';
 import { Container } from "../../components/Container";
 import { ArrowLeft, Stethoscope, Users, Calendar } from 'lucide-react';
 import { ChartWrapper } from '../../components/Charts/ChartWrapper';
-
-type TabType = 'doctors' | 'patients' | 'appointments';
-
-interface ReportData {
-    name: string;
-    value: number;
-}
+import type { ReportData, TabType } from '../../types';
+import { useFetchDoctorReports } from '../../hooks/useFetchDoctorReports';
+import { useFetchPatientsReports } from '../../hooks/useFetchPatientsReports';
+import { useFetchAppointmentReports } from '../../hooks/useFetchAppointmentReports';
 
 export function ReportsPage() {
     const navigate = useNavigate();
@@ -26,121 +23,47 @@ export function ReportsPage() {
         appointments: { plans: [], value: [], date: [], hour: [] }
     });
 
-
+    const { doctors } = useFetchDoctorReports();
+    const { patients } = useFetchPatientsReports();
+    const { appointments } = useFetchAppointmentReports();
 
     useEffect(() => {
         let cancelled = false;
 
-        const formatAge = (age: string): string => {
-            const ageNum = parseInt(age);
-            return ageNum === 0 ? 'Menos de 1 ano' : `${age} anos`;
-        }
-
-        const formatCurrency = (amount: string): string => {
-            return `R$ ${parseFloat(amount).toFixed(2)}`;
-        }
-        
         const fetchData = async () => {
             try {
-            const base = 'http://localhost:3000';
-            
-            if (activeTab === 'doctors') {
-                const [specialtyRes, plansRes, ageRes] = await Promise.all([
-                    fetch(`${base}/api/reports/doctors?type=specialty`),
-                    fetch(`${base}/api/reports/doctors?type=plans`),
-                    fetch(`${base}/api/reports/doctors?type=age`),
-                ]);
-                
-                if (!specialtyRes.ok || !plansRes.ok || !ageRes.ok) {
-                throw new Error('Falha ao buscar dados');
-                }
+                if (activeTab === 'doctors') {
 
-                const specialtyData = await specialtyRes.json();
-                const plansData = await plansRes.json();
-                const ageData = await ageRes.json();
-                
-                if (!cancelled) {
-                    setData(prev => ({
+                    if (!cancelled) {
+                        setData(prev => ({
                         ...prev,
-                        doctors: {
-                            specialty: specialtyData,
-                            plans: plansData,
-                            age: ageData.map((item: ReportData) => ({
-                                name: formatAge(item.name),
-                                value: item.value
-                             }) )
-                        }
+                        doctors: doctors
                     }));
+                    }
+                } else if (activeTab === 'patients') {
+                    if (!cancelled) {
+                        setData(prev => ({
+                            ...prev,
+                            patients: patients
+                        }));
+                    }
+                } else if (activeTab === 'appointments') {
+                    if (!cancelled) {
+                        setData(prev => ({
+                            ...prev,
+                            appointments: appointments
+                        }));
+                    }
                 }
-            } else if (activeTab === 'patients') {
-                const [plansRes, ageRes] = await Promise.all([
-                    fetch(`${base}/api/reports/patients?type=plans`),
-                    fetch(`${base}/api/reports/patients?type=age`),
-                ]);
-                
-                if (!plansRes.ok || !ageRes.ok) {
-                throw new Error('Falha ao buscar dados');
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                toast.error('Erro ao carregar dados dos relatórios!');
                 }
-
-                const plansData = await plansRes.json();
-                const ageData = await ageRes.json();
-                
-                if (!cancelled) {
-                    setData(prev => ({
-                        ...prev,
-                        patients: {
-                            plans: plansData,
-                            age: ageData.map((item: ReportData) => ({
-                                ...item,
-                                name: formatAge(item.name)
-                             }) )
-                        }
-                    }));
-                }
-            } else if (activeTab === 'appointments') {
-                const [plansRes, valueRes, dateRes, hourRes] = await Promise.all([
-                    fetch(`${base}/api/reports/appointments?type=plans`),
-                    fetch(`${base}/api/reports/appointments?type=value`),
-                    fetch(`${base}/api/reports/appointments?type=date`),
-                    fetch(`${base}/api/reports/appointments?type=hour`),
-                ]);
-                
-                if (!plansRes.ok || !valueRes.ok || !dateRes.ok || !hourRes.ok) {
-                    throw new Error('Falha ao buscar dados');
-                }
-                const plansData = await plansRes.json();
-                const valueData = await valueRes.json();
-                const dateData = await dateRes.json();
-                const hourData = await hourRes.json();
-
-                if (!cancelled) {
-                    setData(prev => ({
-                        ...prev,
-                        appointments: {
-                            plans: plansData,
-                            hour: hourData,
-                            date: dateData.sort((a: ReportData, b: ReportData) => {
-                                const dateA = new Date(a.name);
-                                const dateB = new Date(b.name);
-                                return dateA.getTime() - dateB.getTime();
-                            }),
-                            value: valueData.map((item: ReportData) => ({
-                                ...item,
-                                name: formatCurrency(item.name)
-                             }) )
-                        }
-                    }));
-                }
-            }
-        } catch (error) {
-            console.error('Erro ao carregar dados:', error);
-            toast.error('Erro ao carregar dados dos relatórios!');
-            }
-        };
+            };
         
         fetchData();
         return () => { cancelled = true; };
-    }, [activeTab]);
+    }, [activeTab, doctors, patients, appointments]);
 
     const tabs = [
         { id: 'doctors' as TabType, label: 'Doutores', icon: Stethoscope, color: '#2563EB' },

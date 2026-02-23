@@ -42,6 +42,11 @@ export type Appointment = {
     appointment_date: string;
 };
 
+export interface ReportData {
+    name: string;
+    value: number;
+}
+
 // Tipos de Formulário
 export type DoctorFormData = {
     id?: number;
@@ -82,3 +87,5 @@ export type AppointmentFormData = {
 export type ModuleType = 'doctors' | 'patients' | 'plans' | 'appointments';
 
 export type TypeData = Doctor | Patient | Plan | Appointment;
+
+export type TabType = 'doctors' | 'patients' | 'appointments';
