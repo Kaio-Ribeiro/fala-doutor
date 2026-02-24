@@ -14,6 +14,7 @@ interface Props {
   onSubmit: (data: DoctorFormData) => void;
 }
 
+// Lista de especialidades pré-definidas
 const specialties = [
   'Cardiologia',
   'Dermatologia', 
@@ -35,10 +36,13 @@ const specialties = [
   'Radiologia'
 ];
 
+// Limite de idade do doutor de 18 anos
 const eighteenYearsAgo = new Date();
 eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
 
 export function DoctorForm({ initial = null, onCancel, onSubmit }: Props) {
+  // Estado inicial do formulário
+  // preenchido com os dados do doutor a ser editado (se houver)
   const [form, setForm] = useState<DoctorFormData>(() => {
     return {
       name: '',
@@ -52,15 +56,22 @@ export function DoctorForm({ initial = null, onCancel, onSubmit }: Props) {
     }
   });
 
+  // Estado para controlar se o formulário está sendo submetido
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Usa hook para buscar os planos disponíveis e preencher o select
   const { data } = useFetch<Plan[]>('/plans');
 
+  // Lida com mudanças em campos do formulário
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   }
 
+  // Lida com mudanças no DatePicker para a data de nascimento
   function handleDatePickerChange(date: Date | null) {
+    // Se houver uma data selecionada, formata para string no formato YYYY-MM-DD
+    // Caso contrário, limpa o campo
     if (date) {
       const formattedDate = date.toISOString().slice(0, 10);
       setForm(prev => ({ ...prev, birth_date: formattedDate }));
@@ -69,19 +80,26 @@ export function DoctorForm({ initial = null, onCancel, onSubmit }: Props) {
     }
   }
 
+  // Lida com mudanças no Select de especialidade
   function handleSpecialtyChange(selectedOption: { value: string; label: string } | null) {
     setForm(prev => ({ ...prev, specialty: selectedOption?.value || '' }));
   }
 
+  // Lida com mudanças no Select de planos
+  // É permitido selecionar múltiplos planos, então o valor é um array de IDs
   function handlePlansChange(selectedOptions: readonly { value?: number; label: string }[] | null) {
     const planIds = selectedOptions ? 
-      selectedOptions.map(option => option.value).filter((id): id is number => id !== undefined) : 
+      selectedOptions.map(option => option.value).filter((value): value is number => value !== undefined) : 
       [];
     setForm(prev => ({ ...prev, plan_ids: planIds }));
   }
 
+  // Ao fazer o submit do formulário chama a função onSubmit 
+  // passada pelo componente pai, que é o hook useSubmit
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    // O isSubmitting é passado para o FormActions 
+    // para desabilitar os botões enquanto a requisição está em andamento
     setIsSubmitting(true);
     
     try {
@@ -93,6 +111,8 @@ export function DoctorForm({ initial = null, onCancel, onSubmit }: Props) {
     }
   }
 
+  // planOptions e specialtyOptions são formatados dessa forma
+  // para serem usados nos Selects do react-select
   const planOptions = data?.map(plan => ({
     value: plan.id,
     label: plan.name
@@ -103,6 +123,7 @@ export function DoctorForm({ initial = null, onCancel, onSubmit }: Props) {
     label: specialty
   }));
 
+  // selectedSpecialty e selectedPlans são usados para mostrar os valores selecionados nos Selects
   const selectedSpecialty = specialtyOptions.find(option => option.value === form.specialty) || null;
   const selectedPlans = planOptions.filter(option => 
     option.value !== undefined && form.plan_ids.includes(option.value)

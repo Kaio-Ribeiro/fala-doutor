@@ -12,8 +12,10 @@ interface ChartWrapperProps {
 }
 
 export function ChartWrapper({ data, title, color, defaultType = 'pie' }: ChartWrapperProps) {
+  // Estado para controlar o tipo de gráfico
   const [chartType, setChartType] = useState<'pie' | 'bar'>(defaultType);
 
+  // Função para alternar o tipo de gráfico ao clicar no botão
   const toggleChartType = () => {
     setChartType(prev => prev === 'pie' ? 'bar' : 'pie');
   };
@@ -31,11 +33,12 @@ export function ChartWrapper({ data, title, color, defaultType = 'pie' }: ChartW
         </button>
       </div>
       
+      {/* De acordo com o chartType, renderiza o gráfico correspondente */}
       <div className={styles.chartContent}>
         {chartType === 'pie' ? (
-          <PieChart data={data} color={color} hideWrapper={true} />
+          <PieChart data={data} color={color} />
         ) : (
-          <BarChart data={data} color={color} hideWrapper={true} />
+          <BarChart data={data} color={color} />
         )}
       </div>
     </div>

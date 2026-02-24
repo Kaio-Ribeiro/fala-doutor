@@ -33,6 +33,7 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
   const getSelectedDate = () => form.appointment_date?.split('T')[0] || '';
   const getSelectedTime = () => form.appointment_date?.split('T')[1]?.slice(0, 5) || '';
 
+  // Dados iniciais do formulário
   const [form, setForm] = useState<AppointmentFormData>(() => ({
     doctor_id: 0,
     patient_id: 0,
@@ -42,9 +43,12 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Hooks para buscar a lista de doutores e pacientes para popular os selects
   const { data: doctorsData } = useFetch<Doctor[]>('/doctors');
   const { data: patientsData } = useFetch<Patient[]>('/patients');
 
+  // Hook para buscar os horários disponíveis
+  // Com base no doctor_id, patient_id e appointment_date do formulário
   const { availableTimeSlots } = useAvailableTime({
     doctorId: form.doctor_id,
     patientId: form.patient_id,
@@ -52,6 +56,7 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     appointmentId: form.id
   });
 
+  // Função para lidar com a mudança no select de pacientes
   function handlePatientChange(selectedOption: { value?: number; label: string } | null) {
     setForm(prev => ({ 
       ...prev, 
@@ -60,6 +65,7 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     }));
   }
 
+  // Função para lidar com a mudança no select de doutores
   function handleDoctorChange(selectedOption: { value?: number; label: string } | null) {
     setForm(prev => ({ 
       ...prev, 
@@ -68,11 +74,13 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     }));
   }
 
+  // Função para lidar com a mudança no date picker
   function handleDatePickerChange(date: Date | null) {
     const formattedDate = date ? date.toISOString().split('T')[0] : '';
     setForm(prev => ({ ...prev, appointment_date: formattedDate }));
   }
 
+  // Função para lidar com a mudança no select de horários
   function handleTimeChange(selectedOption: { value?: string; label: string } | null) {
     const currentDate = getSelectedDate();
     const newAppointmentDate = selectedOption?.value && currentDate 
@@ -81,9 +89,12 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     setForm(prev => ({ ...prev, appointment_date: newAppointmentDate }));
   }
 
+  // Ao fazer o submit do formulário chama a função onSubmit 
+  // passada pelo componente pai, que é o hook useSubmit
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    
+    // O isSubmitting é passado para o FormActions 
+    // para desabilitar os botões enquanto a requisição está em andamento
     setIsSubmitting(true);
     
     try {
@@ -95,18 +106,28 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     }
   }
 
+  // Encontrar o paciente selecionado para mostrar o nome do plano dele
   const selectedPatient = patientsData?.find(p => p.id === form.patient_id);
-  
+
+  // Mapeia os pacientes para o formato esperado pelo react-select
   const patientOptions = patientsData?.map(patient => ({
     value: patient.id!,
     label: patient.name
   })) || [];
 
+  // Filtra os doutores com base no plano do paciente selecionado 
+  // e mapeia para o formato do react-select
   const doctorOptions = selectedPatient?.plan_id 
     ? doctorsData?.filter(doctor => doctor.plan_ids?.includes(selectedPatient.plan_id))
         .map(doctor => ({ value: doctor.id!, label: doctor.name })) || []
     : [];
 
+  // Encontra o paciente, doutor e horário selecionados para mostrar como valor atual dos selects
+  const currentPatient = patientOptions.find(option => option.value === form.patient_id) || null;
+  const currentDoctor = doctorOptions.find(option => option.value === form.doctor_id) || null;
+  const currentTime = getSelectedTime() ? { value: getSelectedTime(), label: getSelectedTime() } : null;
+
+  // Componente customizado para o date picker com máscara de data
   const MaskedInput = forwardRef((props, ref) => (
   <IMaskInput
     {...props}
@@ -115,10 +136,6 @@ export function AppointmentForm({ initial = null, onCancel, onSubmit }: Props) {
     ref={ref}
   />
 ));
-
-  const currentPatient = patientOptions.find(option => option.value === form.patient_id) || null;
-  const currentDoctor = doctorOptions.find(option => option.value === form.doctor_id) || null;
-  const currentTime = getSelectedTime() ? { value: getSelectedTime(), label: getSelectedTime() } : null;
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>

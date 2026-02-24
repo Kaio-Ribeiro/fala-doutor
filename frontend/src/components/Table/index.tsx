@@ -10,12 +10,14 @@ interface TableProps {
   onDelete?: (item: TypeData) => void;
 }
 
+// Tipo das colunas para cada módulo
 type ColumnConfig = {
   key: string;
   label: string;
   formatter?: (value: string) => string;
 };
 
+// Configuração das colunas para cada módulo
 const columnsConfig: Record<ModuleType, ColumnConfig[]> = {
   doctors: [
     { key: 'created_at', label: 'Data de Criação', formatter: formatDate },
@@ -51,22 +53,26 @@ const columnsConfig: Record<ModuleType, ColumnConfig[]> = {
   ],
 };
 
+// Formatado de CPF
 function formatCPF(cpf: string) {
   return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
 }
 
+// Formatador de Data
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
   return date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 }
 
 export function Table({ data, module, lightColor, onEdit = () => {}, onDelete = () => {} }: TableProps) {
+  // Obtém as colunas a partir do módulo atual
   const columns = columnsConfig[module];
   return (
     <div className={styles.tableContainer}>
       <table className={styles.table}>
         <thead style={{ backgroundColor: lightColor }} className={styles.tableHead}>
           <tr>
+            {/* Mapeia as colunas para renderizar o cabeçalho */}
             {columns.map(col => (
               <th key={col.key} className={styles.th}>{col.label}</th>
             ))}
@@ -74,11 +80,14 @@ export function Table({ data, module, lightColor, onEdit = () => {}, onDelete = 
           </tr>
         </thead>
         <tbody>
+          {/* Mapeia os dados para renderizar as linhas */}
           {data.map((item) => (
             <tr
               key={item.id}
               className={styles.tr}
             >
+
+              {/* Mapeia as colunas para renderizar os dados */}
               {columns.map(col => (
                 <td key={col.key} className={styles.td}>
                   {col.formatter ? col.formatter(item[col.key as keyof TypeData] as string) : String(item[col.key as keyof TypeData])}

@@ -12,6 +12,8 @@ import { useFetchAppointmentReports } from '../../hooks/useFetchAppointmentRepor
 
 export function ReportsPage() {
     const navigate = useNavigate();
+
+    // Estado para controlar a aba ativa
     const [activeTab, setActiveTab] = useState<TabType>('doctors');
     const [data, setData] = useState<{
         doctors: { specialty: ReportData[], plans: ReportData[], age: ReportData[] };
@@ -23,10 +25,12 @@ export function ReportsPage() {
         appointments: { plans: [], value: [], date: [], hour: [] }
     });
 
+    // Hooks para buscar os dados dos relatórios de doctors, patients e appointments
     const { doctors } = useFetchDoctorReports();
     const { patients } = useFetchPatientsReports();
     const { appointments } = useFetchAppointmentReports();
 
+    // Effect que é executado sempre que a aba ativa muda
     useEffect(() => {
         let cancelled = false;
 
@@ -65,12 +69,14 @@ export function ReportsPage() {
         return () => { cancelled = true; };
     }, [activeTab, doctors, patients, appointments]);
 
+    // Configuração das abas do relatório
     const tabs = [
         { id: 'doctors' as TabType, label: 'Doutores', icon: Stethoscope, color: '#2563EB' },
         { id: 'patients' as TabType, label: 'Pacientes', icon: Users, color: '#059669' },
         { id: 'appointments' as TabType, label: 'Consultas', icon: Calendar, color: '#D97706' }
     ];
 
+    // Função para renderizar os gráficos de acordo com a aba ativa
     const renderContent = () => {
         switch (activeTab) {
             case 'doctors':
@@ -172,6 +178,7 @@ export function ReportsPage() {
                 </div>
             </div>
 
+            {/* Map que renderiza as abas */}
             <div className={styles.tabsContainer}>
                 <div className={styles.tabsNav}>
                     {tabs.map((tab) => {
