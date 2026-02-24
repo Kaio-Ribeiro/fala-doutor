@@ -15,6 +15,7 @@ interface Props {
 }
 
 export function PatientForm({ initial = null, onCancel, onSubmit }: Props) {
+  // Estado para controlar os dados do formulário
   const [form, setForm] = useState<PatientFormData>(() => ({
     name: '',
     cpf: '',
@@ -25,21 +26,21 @@ export function PatientForm({ initial = null, onCancel, onSubmit }: Props) {
     birth_date: initial?.birth_date?.slice(0,10) || ''
   }));
 
+  // Estado para controlar se a submissão está sendo feita
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Hook que faz a requisição da lista de planos
   const { data } = useFetch<Plan[]>('/plans');
 
+  // Função para lidar com as mudanças nos campos de input
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
-
-    let newValue: string | number | string[] = value;
-    if (name === 'birth_date') {
-      newValue = value ? value.slice(0,10) : ''
-    }
-
-    setForm(prev => ({ ...prev, [name]: newValue }));
+    setForm(prev => ({ ...prev, [name]: value }));
   }
 
+  // Função para lidar com a mudança no date picker
   function handleDatePickerChange(date: Date | null) {
+    // Se houver uma data selecionada, pega apenas a parte da data sem o horário
     if (date) {
       const formattedDate = date.toISOString().slice(0, 10);
       setForm(prev => ({ ...prev, birth_date: formattedDate }));
@@ -48,12 +49,17 @@ export function PatientForm({ initial = null, onCancel, onSubmit }: Props) {
     }
   }
 
+  // Função para lidar com a mudança no select de planos
   function handlePlanChange(selectedOption: { value?: number; label: string } | null) {
     setForm(prev => ({ ...prev, plan_id: selectedOption?.value || undefined }));
   }
 
+  // Ao fazer o submit do formulário chama a função onSubmit 
+  // passada pelo componente pai, que é o hook useSubmit
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    // O isSubmitting é passado para o FormActions 
+    // para desabilitar os botões enquanto a requisição está em andamento
     setIsSubmitting(true);
     
     try {
@@ -65,11 +71,13 @@ export function PatientForm({ initial = null, onCancel, onSubmit }: Props) {
     }
   }
 
+  // Mapeia os planos para o formato esperado pelo react-select
   const planOptions = data?.map(plan => ({
     value: plan.id,
     label: plan.name
   })) || [];
 
+  // Encontra o plano selecionado com base no plan_id do formulário
   const selectedPlan = planOptions.find(option => option.value === form.plan_id) || null;
 
   return (

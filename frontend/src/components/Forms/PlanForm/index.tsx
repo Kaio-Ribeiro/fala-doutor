@@ -12,6 +12,7 @@ interface Props {
 }
 
 export function PlanForm({ initial = null, onCancel, onSubmit }: Props) {
+  // Dados iniciais do formulário
   const [form, setForm] = useState<PlanFormData>(() => ({
     name: '',
     code: '',
@@ -21,11 +22,14 @@ export function PlanForm({ initial = null, onCancel, onSubmit }: Props) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Função para lidar com as mudanças nos campos de input
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   }
 
+  // Ao fazer o submit do formulário chama a função onSubmit 
+  // passada pelo componente pai, que é o hook useSubmit
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsSubmitting(true);

@@ -4,16 +4,18 @@ import styles from './styles.module.css';
 interface PieChartProps {
   data: { name: string; value: number }[];
   color: string;
-  hideWrapper?: boolean;
 }
 
+
+// A função generateColors cria uma paleta de cores HSL
+// para cada fatia do gráfico
 const generateColors = (count: number) => {
   return Array.from({ length: count }, (_, i) => 
     `hsl(${(i * 360) / count}, 70%, 60%)`
   );
 };
 
-export function PieChart({ data, hideWrapper = false }: PieChartProps) {
+export function PieChart({ data }: PieChartProps) {
   const COLORS = generateColors(data?.length || 0);
 
   const chartContent = (
@@ -30,6 +32,8 @@ export function PieChart({ data, hideWrapper = false }: PieChartProps) {
             innerRadius={60}
             paddingAngle={3}
             label={(entry) => {
+              // Calcula o total para obter a porcentagem de cada fatia
+              // Reduce percorre o array de dados somando os valores para obter o total
               const total = data.reduce((sum, item) => sum + item.value, 0);
               const percent = total > 0 ? ((entry.value / total) * 100).toFixed(1) : '0';
               return `${percent}%`;
@@ -60,13 +64,5 @@ export function PieChart({ data, hideWrapper = false }: PieChartProps) {
     </div>
   );
 
-  if (hideWrapper) {
-    return chartContent;
-  }
-
-  return (
-    <div className={styles.chartCard}>
-      {chartContent}
-    </div>
-  );
+  return chartContent;
 }

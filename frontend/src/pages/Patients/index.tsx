@@ -14,15 +14,21 @@ import { useSubmit } from '../../hooks/useSubmit';
 export function PatientsPage() {
     const navigate = useNavigate();
     
+    // Estado para controlar a abertura e fechamento do modal
     const [modalOpen, setModalOpen] = useState(false);
+    // Estado para armazenar os dados iniciais do modal
     const [modalInitial, setModalInitial] = useState<Patient | null>(null);
 
+    // Hooks para listar, deletar e submeter os dados dos pacientes
     const { data, refetch } = useFetch<Patient[]>('/patients');
     const deleteItem = useDelete('/patients', refetch);
     const submitData = useSubmit('/patients', refetch, () => setModalOpen(false))
 
+    // Função chamada quando o formulário é submetido
+    // recebe os dados do formulário
     const handleFormSubmit = async (payload: PatientFormData) => {
         const isEdit = Boolean(modalInitial?.id);
+        // Chama o hook de submit passando se é edição, o id (se houver) e os dados do formulário
         submitData(isEdit, modalInitial?.id, payload)
     };
 
