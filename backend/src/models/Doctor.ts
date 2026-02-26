@@ -18,30 +18,14 @@ export class DoctorModel {
   async findAll(): Promise<Doctor[]> {
       const result = await pool.query(`
         SELECT 
-          doctors.id, 
-          doctors.name, 
-          doctors.specialty, 
-          doctors.crm, 
-          doctors.phone, 
-          doctors.email, 
-          doctors.birth_date, 
-          doctors.created_at, 
-          doctors.updated_at,
+          doctors.*,
           STRING_AGG(plans.name, ', ' ORDER BY plans.name) as plan_names,
           ARRAY_AGG(plans.id ORDER BY plans.name) FILTER (WHERE plans.id IS NOT NULL) as plan_ids
         FROM doctors
         LEFT JOIN doctors_plans ON doctors.id = doctors_plans.doctor_id
         LEFT JOIN plans ON doctors_plans.plan_id = plans.id
         GROUP BY 
-          doctors.id, 
-          doctors.name, 
-          doctors.specialty, 
-          doctors.crm, 
-          doctors.phone, 
-          doctors.email, 
-          doctors.birth_date, 
-          doctors.created_at, 
-          doctors.updated_at
+          doctors.id
         ORDER BY doctors.id
       `);
       return result.rows;
