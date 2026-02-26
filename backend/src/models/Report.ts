@@ -31,15 +31,15 @@ export class ReportModel {
     async getDoctorsByAge(): Promise<Report[]> {
         const result = await pool.query(`
             SELECT 
-                age::TEXT AS name,
+                sub.age::TEXT AS name,
                 COUNT(*)::INTEGER AS value
             FROM (
                 SELECT EXTRACT(YEAR FROM AGE(birth_date))::INTEGER AS age
                 FROM doctors
                 WHERE birth_date IS NOT NULL
             ) sub
-            GROUP BY age
-            ORDER BY age::INTEGER;
+            GROUP BY sub.age
+            ORDER BY sub.age;
         `);
         return result.rows;
     }
@@ -58,15 +58,15 @@ export class ReportModel {
     async getPatientsByAge(): Promise<Report[]> {
         const result = await pool.query(`
             SELECT 
-                age::TEXT AS name,
+                sub.age::TEXT AS name,
                 COUNT(*)::INTEGER AS value
             FROM (
                 SELECT EXTRACT(YEAR FROM AGE(birth_date))::INTEGER AS age
                 FROM patients
                 WHERE birth_date IS NOT NULL
             ) sub
-            GROUP BY age
-            ORDER BY age::INTEGER;
+            GROUP BY sub.age
+            ORDER BY sub.age;
         `);
         return result.rows;
     }
@@ -98,8 +98,8 @@ export class ReportModel {
     async getAppointmentsByDate(): Promise<Report[]> {
         const result = await pool.query(`
             SELECT 
-                TO_CHAR(date_group, 'DD/MM/YYYY') as name,
-                value
+                TO_CHAR(sub.date_group, 'DD/MM/YYYY') as name,
+                sub.value
             FROM (
             SELECT 
                 DATE(appointments.appointment_date) as date_group,
@@ -107,7 +107,7 @@ export class ReportModel {
             FROM appointments
             GROUP BY DATE(appointments.appointment_date)
             ) sub
-            ORDER BY date_group;
+            ORDER BY sub.date_group;
         `);
         return result.rows;
     }
